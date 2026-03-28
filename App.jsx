@@ -1194,7 +1194,42 @@ Description: "${text}"`
         rows={5}
         style={{width:"100%",padding:"14px 16px",fontFamily:"var(--serif)",fontSize:13,color:"var(--ink)",background:"var(--paper)",border:"2px solid var(--ink)",outline:"none",lineHeight:1.65,resize:"vertical",marginBottom:10}}
       />
-      {state==="error"&&<p style={{fontSize:11,color:"var(--red)",fontFamily:"var(--mono)",marginBottom:8}}>Couldn't parse that — try the step-by-step guide below.</p>}
+
+      {/* Prompt chips — tap to insert a starter sentence */}
+      {!text.trim()&&(
+        <div style={{marginBottom:12}}>
+          <div style={{fontSize:8,color:"var(--ink4)",letterSpacing:".12em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:8}}>Not sure where to start? Try one of these:</div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+            {[
+              "I'm completely new to hi-fi and have a budget of around £",
+              "I want to upgrade my existing turntable setup — currently have a Rega Planar 1 and budget is £",
+              "I have a large living room in a detached house and want a serious system, budget around £",
+            ].map((prompt,i)=>(
+              <button key={i} onClick={()=>setText(prompt)} style={{
+                padding:"7px 12px",background:"var(--paper2)",border:"1px solid var(--rule)",
+                cursor:"pointer",fontFamily:"var(--serif)",fontSize:11,color:"var(--ink3)",
+                textAlign:"left",lineHeight:1.4,transition:"all .15s",
+              }}>
+                {prompt}<span style={{color:"var(--ink4)"}}>...</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Hint — what to include */}
+      {!text.trim()&&(
+        <div style={{marginBottom:12,padding:"10px 14px",borderLeft:"2px solid var(--rule)",background:"var(--paper2)"}}>
+          <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".1em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:6}}>Helpful to mention</div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:"4px 16px"}}>
+            {["Room size","Building type (flat / house)","Floor type","Budget","Music you love","New or upgrading"].map(hint=>(
+              <span key={hint} style={{fontSize:10,color:"var(--ink3)",fontFamily:"var(--mono)"}}>· {hint}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {state==="error"&&<p style={{fontSize:11,color:"var(--red)",fontFamily:"var(--mono)",marginBottom:8}}>Couldn't parse that — try the step-by-step guide below instead.</p>}
       <button
         onClick={handleSubmit}
         disabled={!text.trim()||state==="loading"}
@@ -1366,19 +1401,23 @@ function LandingScreen({ onEnter, onEnterWithNL, localeId, onLocaleChange, apiKe
           </div>
 
           {/* Option B — Step by step wizard */}
-          <button onClick={onEnter} style={{
-            display:"flex",alignItems:"center",gap:16,
-            padding:"16px 28px",
-            background:"transparent",color:"var(--ink)",
-            border:"1px solid var(--ink)",cursor:"pointer",
-            fontFamily:"var(--mono)",fontSize:11,letterSpacing:".16em",textTransform:"uppercase",
-            width:"100%",maxWidth:360,
-            justifyContent:"space-between",
-          }}>
-            <span>Step-by-step guide</span>
-            <svg width="18" height="12" viewBox="0 0 20 12" fill="none"><path d="M13 1l6 5-6 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><line x1="19" y1="6" x2="1" y2="6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
-          </button>
-          <div style={{marginTop:8,fontSize:9,color:"var(--ink4)",letterSpacing:".06em",fontFamily:"var(--mono)"}}>8 minutes · guided · recommended for first-timers</div>
+          <div>
+            <button onClick={onEnter} style={{
+              display:"flex",alignItems:"center",gap:16,
+              padding:"16px 28px",
+              background:"transparent",color:"var(--ink)",
+              border:"1px solid var(--ink)",cursor:"pointer",
+              fontFamily:"var(--mono)",fontSize:11,letterSpacing:".16em",textTransform:"uppercase",
+              width:"100%",maxWidth:360,
+              justifyContent:"space-between",
+            }}>
+              <span>Step-by-step guide</span>
+              <svg width="18" height="12" viewBox="0 0 20 12" fill="none"><path d="M13 1l6 5-6 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><line x1="19" y1="6" x2="1" y2="6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
+            </button>
+            <div style={{marginTop:8,fontSize:10,color:"var(--ink4)",letterSpacing:".04em",fontFamily:"var(--mono)"}}>
+              New to hi-fi? <span style={{color:"var(--ink2)"}}>Start here.</span> We'll ask you the right questions — no jargon.
+            </div>
+          </div>
         </div>
 
         {/* Stats — simple row */}
