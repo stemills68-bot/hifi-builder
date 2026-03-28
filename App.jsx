@@ -1,18 +1,18 @@
 // ╔══════════════════════════════════════════════════════════════════╗
-// ║  HiFi System Builder — VERSION 3                                ║
+// ║  HiFi System Builder — VERSION 4                                ║
 // ║  Date: 28 March 2026                                            ║
 // ║                                                                  ║
-// ║  Changes from v2:                                               ║
-// ║  • Guided signal-chain component picker (one step at a time)    ║
-// ║  • Auto-skip with explanation (bundled cart, built-in phono)    ║
-// ║  • Top pick highlighted per category                            ║
-// ║  • "Your system so far" strip always visible                    ║
-// ║  • Summary split from Pricing — "See the cost →" reveal        ║
-// ║  • Price reveal lands large at 72px, deal estimate in green     ║
-// ║  • Five negotiation tactics numbered, top one highlighted       ║
-// ║  • Vinyl accent motif on all step headings                      ║
-// ║  • Warnings gated — only fire after user interaction            ║
-// ║  • Synergy ring appears only after 3+ selections                ║
+// ║  Changes from v3:                                               ║
+// ║  • Full visual restyle — warmer cream, deeper ink, simpler      ║
+// ║  • Landing page rebuilt — big 80px headline, one CTA, done      ║
+// ║  • Buttons full-width, tall, black fill — more decisive         ║
+// ║  • Range sliders round, ink-black thumb                         ║
+// ║  • Inputs use underline style — cleaner, less boxy              ║
+// ║  • SectionLabel stripped — no amber bar, just text + rule       ║
+// ║  • InfoBanner uses ink border — less colour noise               ║
+// ║  • VinylAccent simplified — clean concentric circles            ║
+// ║  • Step headings bigger — 38px, no subtitle clutter             ║
+// ║  • All v3 logic preserved                                       ║
 // ╚══════════════════════════════════════════════════════════════════╝
 
 import { useState, useEffect, useRef } from "react";
@@ -33,15 +33,14 @@ function useIsMobile(breakpoint = 600) {
 // ── FIX 1: CSS string without @import (fonts loaded separately via <link>) ──
 const GLOBAL_CSS = `
 :root {
-  --paper:   #F5F0E8;
-  --paper2:  #EDE7D8;
-  --ink:     #1C1812;
-  --ink2:    #3A342A;
-  --ink3:    #6B6358;
-  --ink4:    #9A9088;
-  --rule:    #D4C9B4;
-  --amber:   #B8732A;
-  --amber2:  #D4943A;
+  --paper:   #F7F2E8;
+  --paper2:  #EEE8D8;
+  --ink:     #111008;
+  --ink2:    #2A2418;
+  --ink3:    #5C5444;
+  --ink4:    #A89E8C;
+  --rule:    #DDD5C0;
+  --amber:   #C4621A;
   --red:     #8B2020;
   --blue:    #1E4060;
   --green:   #2A5040;
@@ -50,43 +49,48 @@ const GLOBAL_CSS = `
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--paper); color: var(--ink); }
-::selection { background: var(--amber); color: var(--paper); }
+body { background: var(--paper); color: var(--ink); -webkit-font-smoothing: antialiased; }
+::selection { background: var(--ink); color: var(--paper); }
 
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: var(--paper2); }
-::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 0; }
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--rule); }
 
-input[type=range] { -webkit-appearance: none; height: 2px; outline: none; cursor: pointer; border-radius: 0; }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 0; border: 2px solid var(--paper); box-shadow: 0 0 0 1px var(--amber); cursor: pointer; background: var(--amber); }
-input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 0; border: 2px solid var(--paper); background: var(--amber); cursor: pointer; }
-textarea { font-family: var(--mono); font-size: 11px; line-height: 1.7; }
-
-@keyframes fadeUp   { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
-@keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
-@keyframes vinylTurn { to { transform: rotate(360deg); } }
-@media (max-width: 600px) {
-  input[type=range]::-webkit-slider-thumb { width: 20px; height: 20px; }
-  input[type=range]::-moz-range-thumb { width: 20px; height: 20px; }
-  ::-webkit-scrollbar { width: 0; height: 0; }
+input[type=range] { -webkit-appearance: none; height: 1px; outline: none; cursor: pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; border: none; cursor: pointer; background: var(--ink); box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; border: none; background: var(--ink); cursor: pointer; }
+textarea, input[type=text], input[type=number] {
+  font-family: var(--serif); font-size: 15px; line-height: 1.6;
+  background: transparent; color: var(--ink);
+  border: none; border-bottom: 2px solid var(--ink);
+  outline: none; padding: 10px 0; width: 100%;
 }
-@keyframes slideUp  { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
-@keyframes press    { 0%{transform:scale(1)} 50%{transform:scale(.97)} 100%{transform:scale(1)} }
+textarea { resize: vertical; border: 1px solid var(--rule); padding: 12px 14px; background: var(--paper); }
+textarea:focus, input[type=text]:focus, input[type=number]:focus { border-color: var(--amber); }
 
-.fu  { animation: fadeUp .5s cubic-bezier(.16,1,.3,1) both; }
-.fi  { animation: fadeIn .4s ease both; }
-.vinyl-turn { animation: vinylTurn 5s linear infinite; }
-.sl  { animation: slideUp .65s cubic-bezier(.16,1,.3,1) both; }
-.sl1{animation-delay:.06s}.sl2{animation-delay:.14s}.sl3{animation-delay:.24s}
-.sl4{animation-delay:.36s}.sl5{animation-delay:.48s}.sl6{animation-delay:.60s}
+@keyframes fadeUp    { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeIn    { from { opacity:0; } to { opacity:1; } }
+@keyframes vinylTurn { to { transform: rotate(360deg); } }
+@keyframes slideUp   { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)} }
+@keyframes press     { 0%{transform:scale(1)} 50%{transform:scale(.95)} 100%{transform:scale(1)} }
+@keyframes slideRight{ from{width:0} to{width:100%} }
 
-button:active:not([disabled]) { animation: press .15s ease; }
+.fu  { animation: fadeUp .4s cubic-bezier(.16,1,.3,1) both; }
+.fi  { animation: fadeIn .3s ease both; }
+.vinyl-turn { animation: vinylTurn 6s linear infinite; }
+.sl  { animation: slideUp .7s cubic-bezier(.16,1,.3,1) both; }
+.sl1{animation-delay:.04s}.sl2{animation-delay:.1s}.sl3{animation-delay:.18s}
+.sl4{animation-delay:.28s}.sl5{animation-delay:.4s}.sl6{animation-delay:.54s}
+
+button:active:not([disabled]) { animation: press .12s ease; }
 
 body::before {
-  content:''; position:fixed; inset:0; pointer-events:none; z-index:1000; opacity:.025;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-  background-repeat: repeat; background-size: 300px 300px;
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:1000; opacity:.018;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat; background-size: 200px 200px;
 }
+
+@media (max-width: 600px) { ::-webkit-scrollbar { display: none; } }
 `;
 
 // ── FIX 2: Hook to inject CSS + Google Fonts link once, on mount only ──
@@ -806,7 +810,7 @@ function SynergyRing({ score }) {
 }
 
 function Tag({ children, col }) {
-  return <span style={{fontSize:8,letterSpacing:".12em",textTransform:"uppercase",padding:"2px 8px",border:`1px solid ${col}`,color:col,fontFamily:"var(--mono)"}}>{children}</span>;
+  return <span style={{fontSize:9,letterSpacing:".14em",textTransform:"uppercase",padding:"3px 10px",background:col,color:"var(--paper)",fontFamily:"var(--mono)",fontWeight:400}}>{children}</span>;
 }
 
 function DimSlider({ label, value, unit, min, max, step, onChange, noteOn, noteMsg, noteCol }) {
@@ -848,8 +852,7 @@ function SelectButtons({ label, value, onChange, opts }) {
 
 function SectionLabel({ children }) {
   return (
-    <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14,paddingBottom:8,borderBottom:"1px solid var(--rule)"}}>
-      <div style={{width:3,height:12,background:"var(--amber)",flexShrink:0}}/>
+    <div style={{marginBottom:16,paddingBottom:10,borderBottom:"1px solid var(--rule)"}}>
       <span style={{fontSize:9,letterSpacing:".22em",textTransform:"uppercase",color:"var(--ink3)",fontFamily:"var(--mono)"}}>{children}</span>
     </div>
   );
@@ -1034,39 +1037,37 @@ function WiringMap({ basket }) {
   );
 }
 
-function VinylAccent({size=18,col="var(--amber)",opacity=0.35}) {
+function VinylAccent({size=18,col="var(--ink)",opacity=0.12}) {
   return (
     <svg width={size} height={size} viewBox="0 0 18 18" fill="none" style={{flexShrink:0,opacity}}>
-      <circle cx="9" cy="9" r="8" stroke={col} strokeWidth="1"/>
-      <circle cx="9" cy="9" r="5" stroke={col} strokeWidth=".6" strokeDasharray="2 1.5"/>
-      <circle cx="9" cy="9" r="2" stroke={col} strokeWidth=".6"/>
-      <circle cx="9" cy="9" r=".8" fill={col}/>
+      <circle cx="9" cy="9" r="8" stroke={col} strokeWidth="1.2"/>
+      <circle cx="9" cy="9" r="4.5" stroke={col} strokeWidth=".6"/>
+      <circle cx="9" cy="9" r="1.5" fill={col}/>
     </svg>
   );
 }
 
 function StepHeading({title}) {
   return (
-    <div style={{marginBottom:24,paddingBottom:16,borderBottom:"2px solid var(--ink)",display:"flex",alignItems:"center",gap:12}}>
-      <VinylAccent size={20} opacity={0.25}/>
-      <h2 style={{fontFamily:"var(--serif)",fontSize:"clamp(22px,4vw,30px)",fontWeight:400,color:"var(--ink)",lineHeight:1.1,letterSpacing:"-.02em"}}>{title}</h2>
+    <div style={{marginBottom:28,paddingBottom:20,borderBottom:"2px solid var(--ink)"}}>
+      <h2 style={{fontFamily:"var(--serif)",fontSize:"clamp(26px,5vw,38px)",fontWeight:400,color:"var(--ink)",lineHeight:1,letterSpacing:"-.03em"}}>{title}</h2>
     </div>
   );
 }
 
 function NavRow({onBack,onNext,nextLabel="Continue →"}) {
   return (
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:32,paddingTop:24,borderTop:"1px solid var(--rule)"}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:40,paddingTop:28,borderTop:"1px solid var(--rule)"}}>
       {onBack
-        ? <button onClick={onBack} style={{background:"none",border:"none",padding:"10px 0",fontSize:10,letterSpacing:".14em",textTransform:"uppercase",color:"var(--ink4)",cursor:"pointer",fontFamily:"var(--mono)",display:"flex",alignItems:"center",gap:8}}>
-            <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M6 1L1 5l5 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/><line x1="1" y1="5" x2="13" y2="5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
+        ? <button onClick={onBack} style={{background:"none",border:"none",padding:"12px 0",fontSize:11,letterSpacing:".12em",textTransform:"uppercase",color:"var(--ink4)",cursor:"pointer",fontFamily:"var(--mono)",display:"flex",alignItems:"center",gap:10}}>
+            <svg width="16" height="10" viewBox="0 0 16 10" fill="none"><path d="M7 1L1 5l6 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><line x1="1" y1="5" x2="15" y2="5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
             Back
           </button>
         : <div/>
       }
-      <button onClick={onNext} style={{background:"var(--ink)",color:"var(--paper)",border:"none",padding:"12px 28px",fontSize:10,letterSpacing:".16em",textTransform:"uppercase",cursor:"pointer",fontFamily:"var(--mono)",display:"flex",alignItems:"center",gap:10}}>
+      <button onClick={onNext} style={{background:"var(--ink)",color:"var(--paper)",border:"none",padding:"16px 36px",fontSize:11,letterSpacing:".16em",textTransform:"uppercase",cursor:"pointer",fontFamily:"var(--mono)",display:"flex",alignItems:"center",gap:12,fontWeight:400}}>
         {nextLabel}
-        <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M8 1l5 4-5 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/><line x1="13" y1="5" x2="1" y2="5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
+        <svg width="16" height="10" viewBox="0 0 16 10" fill="none"><path d="M9 1l6 4-6 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><line x1="15" y1="5" x2="1" y2="5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
       </button>
     </div>
   );
@@ -1074,9 +1075,8 @@ function NavRow({onBack,onNext,nextLabel="Continue →"}) {
 
 function InfoBanner({msg}) {
   return (
-    <div style={{padding:"14px 18px",borderLeft:"3px solid var(--amber)",background:"rgba(184,115,42,.05)",marginBottom:16,display:"flex",gap:12,alignItems:"flex-start"}}>
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{flexShrink:0,marginTop:2}}><circle cx="7" cy="7" r="6" stroke="#B8732A" strokeWidth="1.2"/><line x1="7" y1="5" x2="7" y2="8.5" stroke="#B8732A" strokeWidth="1.4" strokeLinecap="round"/><circle cx="7" cy="10.5" r=".7" fill="#B8732A"/></svg>
-      <p style={{fontSize:12,color:"var(--ink2)",lineHeight:1.65,fontFamily:"var(--serif)",fontStyle:"italic"}}>{msg}</p>
+    <div style={{padding:"16px 20px",borderLeft:"3px solid var(--ink)",background:"var(--paper2)",marginBottom:20}}>
+      <p style={{fontSize:13,color:"var(--ink2)",lineHeight:1.65,fontFamily:"var(--serif)",fontStyle:"italic"}}>{msg}</p>
     </div>
   );
 }
@@ -1129,94 +1129,104 @@ const SUBSTACK_URL = "https://substack.com/@stevinyl";
 
 function LandingScreen({ onEnter, localeId, onLocaleChange }) {
   const loc = LOCALES[localeId] || LOCALES.gb;
-  const features = [
-    { icon:"room",    label:"Room Intelligence",   desc:"Enter your dimensions. Get acoustic analysis, speaker placement, and axial mode frequencies." },
-    { icon:"building",label:"Building Type Logic", desc:"Apartment, semi-detached, or detached — isolation requirements are calculated automatically." },
-    { icon:"catalog", label:"188-Item Catalogue",  desc:"Every major UK hi-fi brand across three budget tiers. Entry level to reference." },
-    { icon:"price",   label:"Real Pricing",        desc:"Full MSRP breakdown with a negotiation slider and five dealer leverage points." },
-  ];
-  const SVGS = {
-    room:     <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="2" y="10" width="16" height="8" rx="1" stroke="currentColor" strokeWidth="1.4"/><polyline points="2,10 10,3 18,10" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/></svg>,
-    building: <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="3" y="8" width="14" height="10" rx="1" stroke="currentColor" strokeWidth="1.4"/><rect x="7" y="12" width="6" height="6" rx=".5" stroke="currentColor" strokeWidth="1.2"/><line x1="3" y1="8" x2="17" y2="8" stroke="currentColor" strokeWidth="1"/></svg>,
-    catalog:  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.4"/><circle cx="10" cy="10" r="3" stroke="currentColor" strokeWidth="1" strokeDasharray="2 1.5"/><circle cx="10" cy="10" r="1.5" fill="currentColor"/></svg>,
-    price:    <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="3" y="6" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><line x1="3" y1="10" x2="17" y2="10" stroke="currentColor" strokeWidth="1"/><line x1="7" y1="13" x2="10" y2="13" stroke="currentColor" strokeWidth="1.2"/></svg>,
-  };
   return (
-    <div style={{fontFamily:"var(--mono)",background:"var(--paper)",minHeight:"100vh",color:"var(--ink)",position:"relative",overflow:"hidden"}}>
+    <div style={{fontFamily:"var(--serif)",background:"var(--paper)",minHeight:"100vh",color:"var(--ink)",position:"relative",overflow:"hidden"}}>
+
+      {/* Large background vinyl rings — decorative */}
       <div style={{position:"fixed",inset:0,pointerEvents:"none",overflow:"hidden"}}>
-        <svg style={{position:"absolute",bottom:"-80px",right:"-80px",opacity:.04}} width="600" height="600" viewBox="0 0 600 600">
-          {[280,240,200,160,120,80,40].map(r=><circle key={r} cx="300" cy="300" r={r} fill="none" stroke="#1C1812" strokeWidth="1"/>)}
-          <circle cx="300" cy="300" r="14" fill="#1C1812"/>
+        <svg style={{position:"absolute",bottom:"-120px",right:"-120px",opacity:.05}} width="700" height="700" viewBox="0 0 700 700">
+          {[320,280,240,200,160,120,80,40].map(r=><circle key={r} cx="350" cy="350" r={r} fill="none" stroke="#111008" strokeWidth="1.5"/>)}
+          <circle cx="350" cy="350" r="18" fill="#111008"/>
         </svg>
       </div>
-      <div style={{height:3,background:"var(--ink)",width:"100%"}}/>
-      <div style={{position:"relative",maxWidth:680,margin:"0 auto",padding:"48px 24px 60px"}}>
-        <div className="sl sl1" style={{display:"flex",alignItems:"center",gap:10,marginBottom:24}}>
-          <svg width="38" height="38" viewBox="0 0 38 38" className="vinyl-turn">
-            <circle cx="19" cy="19" r="18" fill="#EDE7D8" stroke="#D4C9B4" strokeWidth="1"/>
-            {[14,10,6].map(r=><circle key={r} cx="19" cy="19" r={r} fill="none" stroke="rgba(197,160,40,.2)" strokeWidth="1"/>)}
-            <circle cx="19" cy="19" r="3" fill="#B8732A" opacity=".6"/>
-            <circle cx="19" cy="19" r="1.5" fill="#B8732A"/>
+
+      <div style={{height:4,background:"var(--ink)",width:"100%"}}/>
+
+      <div style={{position:"relative",maxWidth:640,margin:"0 auto",padding:"clamp(32px,6vw,64px) 24px 60px"}}>
+
+        {/* Spinning vinyl + eyebrow */}
+        <div className="sl sl1" style={{display:"flex",alignItems:"center",gap:14,marginBottom:32}}>
+          <svg width="48" height="48" viewBox="0 0 48 48" className="vinyl-turn" style={{flexShrink:0}}>
+            <circle cx="24" cy="24" r="22" fill="#EEE8D8" stroke="#DDD5C0" strokeWidth="1.5"/>
+            <circle cx="24" cy="24" r="15" fill="none" stroke="rgba(17,16,8,.06)" strokeWidth="1"/>
+            <circle cx="24" cy="24" r="9"  fill="none" stroke="rgba(17,16,8,.06)" strokeWidth="1"/>
+            <circle cx="24" cy="24" r="4"  fill="#111008" opacity=".7"/>
+            <circle cx="24" cy="24" r="2"  fill="#111008"/>
           </svg>
           <div>
-            <div style={{fontSize:9,letterSpacing:".22em",textTransform:"uppercase",color:"var(--amber)",fontFamily:"var(--mono)"}}>Hi-Fi System Builder</div>
-            <div style={{fontSize:9,letterSpacing:".12em",textTransform:"uppercase",color:"var(--ink3)",marginTop:1,fontFamily:"var(--mono)"}}>Property Edition · Beta</div>
+            <div style={{fontSize:10,letterSpacing:".2em",textTransform:"uppercase",color:"var(--amber)",fontFamily:"var(--mono)",lineHeight:1}}>Hi-Fi System Builder</div>
+            <div style={{fontSize:9,letterSpacing:".1em",textTransform:"uppercase",color:"var(--ink4)",marginTop:4,fontFamily:"var(--mono)"}}>UK Edition · Beta</div>
           </div>
         </div>
-        <div className="sl sl2" style={{marginBottom:20}}>
-          <h1 style={{fontFamily:"var(--serif)",fontSize:"clamp(38px,8vw,62px)",fontWeight:400,color:"var(--ink)",lineHeight:1.0,letterSpacing:"-.03em",marginBottom:12}}>
-            Build the right<br/><em style={{color:"var(--amber)",fontStyle:"italic",fontWeight:300}}>hi-fi system</em><br/>for your room.
+
+        {/* Hero — big, fast, one read */}
+        <div className="sl sl2" style={{marginBottom:40}}>
+          <h1 style={{fontFamily:"var(--serif)",fontSize:"clamp(44px,10vw,80px)",fontWeight:400,color:"var(--ink)",lineHeight:.95,letterSpacing:"-.04em",marginBottom:24}}>
+            What hi-fi<br/>
+            <em style={{color:"var(--amber)",fontStyle:"italic"}}>should</em><br/>
+            you buy?
           </h1>
-          <p style={{fontSize:13,color:"var(--ink2)",lineHeight:1.75,maxWidth:460,fontFamily:"var(--serif)"}}>
-            A guided tool for UK vinyl enthusiasts. Enter your room dimensions, tell it about your building, and it builds a fully priced component recommendation — room-tuned, isolation-aware, and negotiation-ready.
+          <p style={{fontSize:"clamp(14px,2vw,17px)",color:"var(--ink3)",lineHeight:1.65,maxWidth:440,fontFamily:"var(--serif)",fontWeight:300}}>
+            Tell it your room. Your building. Your budget. It builds a complete, priced system — step by step.
           </p>
         </div>
-        <div className="sl sl3" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:1,marginBottom:36,border:"1px solid var(--rule)"}}>
-          {features.map((f,fi)=>(
-            <div key={f.icon} style={{padding:"16px 18px",background:"var(--paper2)",borderTop:fi>=2?"1px solid var(--rule)":"none",borderLeft:fi%2===1?"1px solid var(--rule)":"none"}}>
-              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
-                <div style={{color:"var(--amber)",display:"flex",alignItems:"center"}}>{SVGS[f.icon]}</div>
-                <span style={{fontSize:9,color:"var(--amber)",letterSpacing:".12em",textTransform:"uppercase",fontFamily:"var(--mono)"}}>{f.label}</span>
-              </div>
-              <p style={{fontSize:11,color:"var(--ink2)",lineHeight:1.65,fontFamily:"var(--serif)"}}>{f.desc}</p>
-            </div>
-          ))}
-        </div>
-        <div className="sl sl4" style={{display:"flex",gap:0,marginBottom:36,borderTop:"2px solid var(--ink)",borderBottom:"1px solid var(--rule)",padding:"16px 0"}}>
-          {[{val:"188",label:"Components catalogued"},{val:"33",label:loc.statsLabel},{val:"4",label:"Building types"},{val:"8",label:"Acoustic rules"}].map((s,i)=>(
-            <div key={i} style={{flex:1,textAlign:"center",borderRight:i<3?"1px solid var(--rule)":"none",padding:"0 8px"}}>
-              <div style={{fontFamily:"var(--serif)",fontSize:28,fontWeight:400,color:"var(--amber)",lineHeight:1}}>{s.val}</div>
-              <div style={{fontSize:8,color:"var(--ink3)",letterSpacing:".1em",textTransform:"uppercase",marginTop:4,lineHeight:1.4,fontFamily:"var(--mono)"}}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-        <div className="sl sl5" style={{marginBottom:32}}>
-          <button onClick={onEnter} style={{display:"inline-flex",alignItems:"center",gap:12,padding:"16px 40px",background:"var(--ink)",border:"none",cursor:"pointer",fontFamily:"var(--mono)",fontSize:11,letterSpacing:".18em",textTransform:"uppercase",color:"var(--paper)"}}>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polygon points="3,2 12,7 3,12" fill="currentColor"/></svg>
-            Start Building Your System
+
+        {/* Single bold CTA */}
+        <div className="sl sl3" style={{marginBottom:48}}>
+          <button onClick={onEnter} style={{
+            display:"flex",alignItems:"center",gap:16,
+            padding:"20px 40px",
+            background:"var(--ink)",color:"var(--paper)",
+            border:"none",cursor:"pointer",
+            fontFamily:"var(--mono)",fontSize:12,letterSpacing:".18em",textTransform:"uppercase",
+            width:"100%",maxWidth:360,
+            justifyContent:"space-between",
+          }}>
+            <span>Start building</span>
+            <svg width="20" height="12" viewBox="0 0 20 12" fill="none"><path d="M13 1l6 5-6 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><line x1="19" y1="6" x2="1" y2="6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
           </button>
-          <div style={{marginTop:10,fontSize:10,color:"var(--ink4)",letterSpacing:".06em",fontFamily:"var(--mono)"}}>Free to use · no account needed · takes around 8 minutes</div>
+          <div style={{marginTop:12,fontSize:10,color:"var(--ink4)",letterSpacing:".06em",fontFamily:"var(--mono)"}}>Free · no account · 8 minutes</div>
         </div>
-        <div className="sl sl6" style={{padding:"16px 20px",background:"rgba(42,143,197,.06)",border:"1px solid rgba(42,143,197,.18)",borderRadius:4,marginBottom:28}}>
-          <div style={{fontSize:9,color:"var(--blue)",letterSpacing:".18em",textTransform:"uppercase",marginBottom:8}}>Early Access · We want your feedback</div>
-          <p style={{fontSize:11,color:"var(--ink3)",lineHeight:1.7,marginBottom:12}}>This is a beta release. The catalogue, acoustic rules, and pricing are based on real UK products but the tool is new — your experience will help shape what gets built next.</p>
-          <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-            <a href={TALLY_URL} target="_blank" rel="noopener noreferrer" style={{display:"inline-flex",alignItems:"center",gap:7,padding:"8px 16px",background:"var(--blue)",border:"none",color:"var(--paper)",fontSize:10,letterSpacing:".1em",textTransform:"uppercase",textDecoration:"none",fontFamily:"var(--mono)"}}>Leave Feedback</a>
-            <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer" style={{display:"inline-flex",alignItems:"center",gap:7,padding:"8px 16px",background:"transparent",border:"1px solid var(--rule)",color:"var(--ink3)",fontSize:10,letterSpacing:".1em",textTransform:"uppercase",textDecoration:"none",fontFamily:"var(--mono)"}}>TikTok</a>
-            <a href={SUBSTACK_URL} target="_blank" rel="noopener noreferrer" style={{display:"inline-flex",alignItems:"center",gap:7,padding:"8px 16px",background:"transparent",border:"1px solid var(--rule)",color:"var(--ink3)",fontSize:10,letterSpacing:".1em",textTransform:"uppercase",textDecoration:"none",fontFamily:"var(--mono)"}}>Substack</a>
-          </div>
+
+        {/* Stats — simple row */}
+        <div className="sl sl4" style={{display:"flex",gap:0,marginBottom:48,paddingTop:24,borderTop:"1px solid var(--rule)"}}>
+          {[{val:"188",label:"Components"},{val:"25",label:"Brands"},{val:"3",label:"Budget tiers"},{val:"6",label:"Locales"}].map((s,i)=>(
+            <div key={i} style={{flex:1,textAlign:"center",borderRight:i<3?"1px solid var(--rule)":"none",padding:"0 8px"}}>
+              <div style={{fontFamily:"var(--serif)",fontSize:"clamp(24px,5vw,36px)",fontWeight:400,color:"var(--ink)",lineHeight:1}}>{s.val}</div>
+              <div style={{fontSize:8,color:"var(--ink4)",letterSpacing:".12em",textTransform:"uppercase",marginTop:5,fontFamily:"var(--mono)"}}>{s.label}</div>
+            </div>
+          ))}
         </div>
-        <div className="sl sl6" style={{marginBottom:28}}>
-          <div style={{fontSize:9,color:"var(--ink3)",letterSpacing:".18em",textTransform:"uppercase",marginBottom:10,fontFamily:"var(--mono)"}}>Your Location</div>
-          <div style={{display:"flex",gap:0,flexWrap:"wrap",border:"1px solid var(--rule)"}}>
-            {Object.values(LOCALES).map((l,li)=>(
-              <button key={l.id} onClick={()=>onLocaleChange(l.id)} style={{display:"flex",alignItems:"center",gap:7,padding:"10px 14px",cursor:"pointer",background:localeId===l.id?"var(--amber)":"transparent",borderLeft:li>0?"1px solid var(--rule)":"none",border:"none",fontFamily:"var(--mono)",fontSize:10,letterSpacing:".06em",color:localeId===l.id?"var(--paper)":"var(--ink3)",transition:"all .15s"}}>
-                <span style={{fontSize:16,lineHeight:1}}>{l.flag}</span>
+
+        {/* Locale selector */}
+        <div className="sl sl5" style={{marginBottom:32}}>
+          <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".16em",textTransform:"uppercase",marginBottom:10,fontFamily:"var(--mono)"}}>Your location</div>
+          <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+            {Object.values(LOCALES).map(l=>(
+              <button key={l.id} onClick={()=>onLocaleChange(l.id)} style={{
+                display:"flex",alignItems:"center",gap:6,
+                padding:"8px 14px",cursor:"pointer",
+                background:localeId===l.id?"var(--ink)":"transparent",
+                border:`1px solid ${localeId===l.id?"var(--ink)":"var(--rule)"}`,
+                fontFamily:"var(--mono)",fontSize:10,letterSpacing:".06em",
+                color:localeId===l.id?"var(--paper)":"var(--ink3)",transition:"all .15s",
+              }}>
+                <span style={{fontSize:15}}>{l.flag}</span>
                 <span>{l.label}</span>
               </button>
             ))}
           </div>
+          {localeId!=="gb"&&<div style={{marginTop:8,fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)"}}>Prices converted from UK MSRP — indicative only.</div>}
         </div>
+
+        {/* Links row */}
+        <div className="sl sl6" style={{display:"flex",gap:16,alignItems:"center",paddingTop:20,borderTop:"1px solid var(--rule)"}}>
+          <a href={TALLY_URL} target="_blank" rel="noopener noreferrer" style={{fontSize:10,color:"var(--ink3)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",textDecoration:"none",borderBottom:"1px solid var(--rule)"}}>Feedback</a>
+          <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer" style={{fontSize:10,color:"var(--ink3)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",textDecoration:"none",borderBottom:"1px solid var(--rule)"}}>TikTok</a>
+          <a href={SUBSTACK_URL} target="_blank" rel="noopener noreferrer" style={{fontSize:10,color:"var(--ink3)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",textDecoration:"none",borderBottom:"1px solid var(--rule)"}}>Substack</a>
+          <span style={{marginLeft:"auto",fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)"}}>Beta v0.4</span>
+        </div>
+
       </div>
     </div>
   );
