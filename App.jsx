@@ -387,6 +387,7 @@ const BUNDLED_CARTRIDGES = {
   "e_planar3rs":  { name:"Nd5",              type:"MM", note:"Nd5 moving magnet cartridge is factory-fitted and included in the price. No additional cartridge is needed." },
   "e_radius5":    { name:"Ortofon 2M Red",   type:"MM", note:"Ortofon 2M Red is factory-fitted. A complete plug-and-play package — no separate cartridge purchase needed." },
   "e_tt3":        { name:"Ortofon 2M Red",   type:"MM", note:"Ortofon 2M Red is factory-fitted. No separate cartridge needed to start playing." },
+  "m_planar8nd9": { name:"Nd9",         type:"MM", note:"Rega Nd9 MM cartridge is factory-fitted and included in the £2,554 price. No additional cartridge needed. A MM phono stage or built-in phono stage is all that is required — no MC stage needed." },
   "m_lp12_majik": { name:"Adikt MM",         type:"MM", note:"Linn Adikt MM cartridge is included. No additional cartridge needed. Upgrade to Krystal or Kandid MC when the budget allows." },
   "m_lp12_akurate":{ name:"Krystal MC",      type:"MC", note:"Linn Krystal MC cartridge is factory-fitted and included in the price. A separate phono stage compatible with MC is required — the Urika II or Uphorik are the natural choices." },
   "m_concept":    { name:"Concept MC",       type:"MC", note:"Clearaudio Concept MC cartridge is factory-fitted. A dedicated MC phono stage is required." },
@@ -538,6 +539,7 @@ const CATALOG = {
       turntable:[
         {id:"m_planar6",    name:"Planar 6",            sub:"Rega · no cartridge standard · RB330 · Neo PSU",  vendor:"rega",  price:1295, cat:"turntable", note:"Sold without a cartridge as standard. Tancast 8 foam core plinth, RB330 tonearm, Neo MK2 PSU. What Hi-Fi? Award winner."},
         {id:"m_planar6rs",  name:"Planar 6 RS",         sub:"Rega · Reference Spec · HPL plinth · RB330",vendor:"rega",    price:1695, cat:"turntable", note:"Reference Spec Planar 6 — aluminium HPL laminate plinth. The recommended P6 to buy."},
+        {id:"m_planar8nd9", name:"Planar 8 + Nd9",    sub:"Rega · RB880 tonearm · Nd9 MM factory-fitted", vendor:"rega", price:2554, cat:"turntable", note:"Factory-fitted Nd9 package — saving £111 vs buying separately. The RB880 tonearm with Rega's finest MM cartridge. No separate cartridge purchase needed. The Nd9 does not require a dedicated MC phono stage."},
         {id:"m_planar8",    name:"Planar 8",            sub:"Rega · no cartridge standard · RB880 · Neo PSU",  vendor:"rega",  price:2695, cat:"turntable", note:"RB880 tonearm, triple-layer glass platter. Performance approaches the P10 at a substantial saving."},
         {id:"m_lp12_majik", name:"LP12 Majik",          sub:"Linn · Karousel bearing · Adikt MM",  vendor:"linn",         price:2895, cat:"turntable", note:"The iconic LP12 in its most accessible form. Karousel bearing is a major upgrade. Upgradeable indefinitely."},
         {id:"m_lp12_akurate",name:"LP12 Akurate",      sub:"Linn · Karousel · Ekos SE · Krystal", vendor:"linn",         price:7995, cat:"turntable", note:"Mid-hierarchy LP12 with Ekos SE tonearm and Krystal MC cartridge."},
@@ -545,6 +547,8 @@ const CATALOG = {
         {id:"m_concept",    name:"Concept",             sub:"Clearaudio · Satisfy tonearm · Concept MC", vendor:"clearaudio", price:1895, cat:"turntable"},
       ],
       cartridge:[
+        {id:"m_nd9", name:"Nd9", sub:"Rega · MM · Boron cantilever · Fine Line · reference", vendor:"rega", price:695, cat:"cartridge", note:"Rega's flagship moving magnet. Boron cantilever and Fine Line stylus from the Aphelion 2 MC — extraordinary detail retrieval for an MM. Does not require a dedicated MC phono stage. The natural upgrade path on any Rega turntable."},
+
         {id:"m_nd5",        name:"Nd5",                sub:"Rega · Moving Magnet · Neodymium · nude elliptical", vendor:"rega", price:295, cat:"cartridge", note:"Replaces the Exact 2. Nude perfect elliptical diamond stylus. Hi-Fi Choice Recommended."},
         {id:"m_nd7",        name:"Nd7",                sub:"Rega · Moving Magnet · Fine Line nude diamond", vendor:"rega",  price:450,  cat:"cartridge", note:"Top of the Nd range. Same Fine Line nude diamond stylus profile as the Apheta 3 MC. AVForums Editors Choice 2024/2025."},
         {id:"m_2m_bronze",  name:"2M Bronze",          sub:"Ortofon · MM · Fine Line stylus",      vendor:"ortofon",      price:375,  cat:"cartridge", note:"Fine Line stylus, exceptional detail retrieval for an MM. The best mass-market MM currently available."},
@@ -636,7 +640,7 @@ const CATALOG = {
         {id:"h_master",     name:"Master Innovation",  sub:"Clearaudio · Unify tonearm · Goldfinger",vendor:"clearaudio", price:18995,cat:"turntable"},
       ],
       cartridge:[
-        {id:"h_nd9",        name:"Nd9",                sub:"Rega · Moving Magnet · Boron · Fine Line · reference", vendor:"rega", price:695, cat:"cartridge"},
+        {id:"h_nd9",        name:"Nd9",                sub:"Rega · MM · Boron cantilever · Fine Line · reference", vendor:"rega", price:695, cat:"cartridge", note:"Rega's flagship MM — Boron cantilever and Fine Line stylus technology from the Aphelion 2 MC. Does not need a dedicated MC phono stage. At £695 it is extraordinary value against MCs costing three times the price. Factory-fitted option on Planar 8 and Planar 6 RS."}
         {id:"h_apheta3",    name:"Apheta 3",           sub:"Rega · MC · 350μV · fine-line",        vendor:"rega",         price:799,  cat:"cartridge"},
         {id:"h_aphelion2",  name:"Aphelion 2",         sub:"Rega · MC · 350μV · boron",            vendor:"rega",         price:2999, cat:"cartridge"},
         {id:"h_cadenza_bk", name:"Cadenza Black",      sub:"Ortofon · MC · 0.33mV · Shibata",      vendor:"ortofon",      price:1299, cat:"cartridge"},
@@ -1803,34 +1807,39 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
         </div>
 
         {/* ── Foundation vs Expression bias slider ── */}
-        <div style={{marginBottom:28,padding:"24px 20px",background:"var(--ink)",color:"var(--paper)"}}>
-          <div style={{fontSize:9,color:"rgba(245,242,232,.5)",letterSpacing:".2em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:16}}>
-            Where do you want to spend your money?
+        <div style={{marginBottom:28,padding:"24px 20px",background:"var(--paper2)",border:"2px solid var(--ink)"}}>
+          <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".2em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:16}}>
+            Where do you want to spend your money? — drag to choose
           </div>
 
           {/* The two poles */}
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:20}}>
-            <div style={{opacity:bias<=50?1:0.4,transition:"opacity .3s"}}>
-              <div style={{fontFamily:"var(--serif)",fontSize:"clamp(18px,4vw,24px)",color:bias<50?"var(--amber)":"rgba(245,242,232,.6)",lineHeight:1,marginBottom:6,transition:"color .3s"}}>Foundation</div>
-              <p style={{fontSize:11,color:"rgba(245,242,232,.55)",fontFamily:"var(--serif)",lineHeight:1.6,fontStyle:"italic"}}>Invest in the source. The turntable and cartridge retrieve every detail from the groove. Speakers tell you what's there — honestly, accurately.</p>
+            <div style={{opacity:bias<=50?1:0.45,transition:"opacity .3s"}}>
+              <div style={{fontFamily:"var(--serif)",fontSize:"clamp(18px,4vw,24px)",color:bias<50?"var(--ink)":"var(--ink3)",lineHeight:1,marginBottom:6,transition:"color .3s"}}>Foundation</div>
+              <p style={{fontSize:11,color:"var(--ink3)",fontFamily:"var(--serif)",lineHeight:1.6,fontStyle:"italic"}}>Invest in the source. The turntable and cartridge retrieve every detail from the groove. Speakers tell you what's there — honestly, accurately.</p>
             </div>
-            <div style={{textAlign:"right",opacity:bias>=50?1:0.4,transition:"opacity .3s"}}>
-              <div style={{fontFamily:"var(--serif)",fontSize:"clamp(18px,4vw,24px)",color:bias>50?"var(--amber)":"rgba(245,242,232,.6)",lineHeight:1,marginBottom:6,transition:"color .3s"}}>Expression</div>
-              <p style={{fontSize:11,color:"rgba(245,242,232,.55)",fontFamily:"var(--serif)",lineHeight:1.6,fontStyle:"italic"}}>Invest in the speakers. Music fills the room with scale and presence. You feel the performance — the source is faithful enough to let it happen.</p>
+            <div style={{textAlign:"right",opacity:bias>=50?1:0.45,transition:"opacity .3s"}}>
+              <div style={{fontFamily:"var(--serif)",fontSize:"clamp(18px,4vw,24px)",color:bias>50?"var(--ink)":"var(--ink3)",lineHeight:1,marginBottom:6,transition:"color .3s"}}>Expression</div>
+              <p style={{fontSize:11,color:"var(--ink3)",fontFamily:"var(--serif)",lineHeight:1.6,fontStyle:"italic"}}>Invest in the speakers. Music fills the room with scale and presence. You feel the performance — the source is faithful enough to let it happen.</p>
             </div>
           </div>
 
-          {/* Slider */}
-          <div style={{position:"relative",marginBottom:16}}>
+          {/* Slider — visually obvious */}
+          <div style={{position:"relative",marginBottom:4}}>
+            <div style={{fontSize:8,color:"var(--ink4)",fontFamily:"var(--mono)",letterSpacing:".1em",textAlign:"center",marginBottom:8}}>← drag to shift your budget priority →</div>
             <input type="range" min={0} max={100} step={1} value={bias} onChange={e=>setBias(Number(e.target.value))}
-              style={{width:"100%",background:`linear-gradient(to right, rgba(196,98,26,.6) 0%, rgba(196,98,26,.6) ${bias}%, rgba(245,242,232,.15) ${bias}%, rgba(245,242,232,.15) 100%)`}}/>
-            {/* Centre marker */}
-            <div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",width:1,height:12,background:"rgba(245,242,232,.2)",pointerEvents:"none"}}/>
+              style={{width:"100%",background:`linear-gradient(to right, var(--ink) 0%, var(--ink) ${bias}%, var(--rule) ${bias}%, var(--rule) 100%)`}}/>
+            {/* Position labels */}
+            <div style={{display:"flex",justifyContent:"space-between",marginTop:6}}>
+              <span style={{fontSize:8,color:"var(--ink4)",fontFamily:"var(--mono)",letterSpacing:".1em"}}>All source</span>
+              <span style={{fontSize:8,color:"var(--ink4)",fontFamily:"var(--mono)",letterSpacing:".1em"}}>Balanced</span>
+              <span style={{fontSize:8,color:"var(--ink4)",fontFamily:"var(--mono)",letterSpacing:".1em"}}>All speakers</span>
+            </div>
           </div>
 
           {/* Dynamic description */}
-          <div className="fi" style={{padding:"14px 16px",background:"rgba(245,242,232,.06)",borderLeft:`3px solid ${bias<35?"var(--amber)":bias>65?"var(--amber)":"rgba(245,242,232,.2)"}`}}>
-            <p style={{fontSize:13,color:"rgba(245,242,232,.8)",fontFamily:"var(--serif)",lineHeight:1.65,fontStyle:"italic"}}>
+          <div className="fi" style={{marginTop:16,padding:"14px 16px",background:"var(--paper)",borderLeft:`3px solid ${bias<35?"var(--amber)":bias>65?"var(--amber)":"var(--ink)"}`}}>
+            <p style={{fontSize:13,color:"var(--ink2)",fontFamily:"var(--serif)",lineHeight:1.65,fontStyle:"italic"}}>
               {bias < 15
                 ? "Strong Foundation bias. Most of your budget goes to the turntable and cartridge. You'll hear every micro-detail the record contains — instruments have texture, space, and body. Your speakers will be honest rather than spectacular."
                 : bias < 35
@@ -1847,10 +1856,10 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
               const sourceBudget = Math.round(budget * sourcePct / 50) * 50;
               const speakerBudget = Math.round(budget * speakerPct / 50) * 50;
               return (
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:12,paddingTop:12,borderTop:"1px solid rgba(245,242,232,.1)"}}>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:12,paddingTop:12,borderTop:"1px solid var(--rule)"}}>
                   {[{l:"Source budget",v:formatPrice(sourceBudget,loc)},{l:"Speaker budget",v:formatPrice(speakerBudget,loc)}].map(m=>(
                     <div key={m.l} style={{textAlign:"center"}}>
-                      <div style={{fontSize:8,color:"rgba(245,242,232,.4)",letterSpacing:".12em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:3}}>{m.l}</div>
+                      <div style={{fontSize:8,color:"var(--ink4)",letterSpacing:".12em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:3}}>{m.l}</div>
                       <div style={{fontFamily:"var(--serif)",fontSize:18,color:"var(--amber)"}}>{m.v}</div>
                     </div>
                   ))}
