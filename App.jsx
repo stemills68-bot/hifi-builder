@@ -839,12 +839,13 @@ function SectionLabel({ children }) {
 }
 
 const STEPS = [
-  { id:"materials", label:"Building",   sub:"Type & Surfaces"},
-  { id:"room",      label:"Room",       sub:"Dimensions & Furniture"},
-  { id:"genres",    label:"Music",      sub:"Preferences"  },
-  { id:"tier",      label:"Brief",      sub:"Requirements" },
-  { id:"catalog",   label:"Components", sub:"Brand picks"  },
-  { id:"summary",   label:"Summary",    sub:"Pricing"      },
+  { id:"materials", label:"Building",    sub:"Type & Surfaces"},
+  { id:"room",      label:"Room",        sub:"Dimensions & Furniture"},
+  { id:"genres",    label:"Music",       sub:"Preferences"  },
+  { id:"tier",      label:"Brief",       sub:"Requirements" },
+  { id:"catalog",   label:"Components",  sub:"Brand picks"  },
+  { id:"summary",   label:"Your System", sub:"Review"       },
+  { id:"pricing",   label:"Pricing",     sub:"& Negotiation"},
 ];
 
 function StepBar({ current, onGoto, completed, isMobile }) {
@@ -1236,6 +1237,7 @@ export default function HiFiSystemBuilder() {
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [openCat, setOpenCat] = useState(null);
   const [showAllCat, setShowAllCat] = useState({});
+  const [chainStep, setChainStep] = useState(0); // which step in the signal chain we're on
   const [budget, setBudget] = useState(0);
   const [basket, setBasket] = useState(()=>getDefaultBasket("mid"));
   const prevTier = useRef("mid");
@@ -1257,17 +1259,11 @@ export default function HiFiSystemBuilder() {
       setBasket(getDefaultBasket(tier));
       prevTier.current=tier;
     }
-    const firstCat = Object.keys(CATALOG[tier].components)[0];
-    setOpenCat(firstCat);
+    setChainStep(0);
   },[tier]);
 
   useEffect(()=>{
-    if(step==="catalog"){
-      const SIGNAL_ORDER = ["turntable","cartridge","phono","amplifier","speakers","cables","isolation","power"];
-      const cats = SIGNAL_ORDER.filter(k => tierData.components[k]);
-      const firstUndone = cats.find(k => !basket.find(b=>(tierData.components[k]||[]).some(o=>o.id===b.id)));
-      setOpenCat(firstUndone || cats[0]);
-    }
+    if(step==="catalog") setChainStep(0);
   },[step]);
 
   function goTo(id) { setAnimKey(k=>k+1); setStep(id); }
@@ -1475,233 +1471,275 @@ export default function HiFiSystemBuilder() {
       </div>
     ),
 
-    catalog: (
-      <div>
-        <StepHeading title="Component Recommendations" sub={`${tier==="entry"?"Entry Level":tier==="mid"?"Mid-Range":"High-End"} · select one item per category`}/>
+    catalog: (()=>{
+      // ── Signal chain definition ─────────────────────────────────────────────
+      const SIGNAL_CHAIN = ["turntable","cartridge","phono","amplifier","speakers","cables","isolation","power"];
+      const chainSteps = SIGNAL_CHAIN.filter(k => tierData.components[k]);
 
-        {/* ── STICKY SELECTION BAR — always visible, no scrolling needed ── */}
-        <div style={{position:"sticky",top:0,zIndex:20,background:"var(--paper)",borderBottom:"2px solid var(--ink)",marginBottom:16,padding:"10px 0"}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
-            <div style={{display:"flex",gap:6,flexWrap:"wrap",flex:1,minWidth:0}}>
-              {["turntable","amplifier","speakers"].map(cat=>{
-                const sel=basket.find(b=>b.cat===cat);
-                const v=sel?(VENDORS[sel.vendor]||VENDORS.generic):null;
+      // ── Auto-skip logic ─────────────────────────────────────────────────────
+      function shouldSkip(catKey) {
+        if (catKey === "cartridge") {
+          // Skip if turntable has bundled cart and user hasn't explicitly chosen one
+          const selTT = basket.find(b=>b.cat==="turntable");
+          if (selTT && BUNDLED_CARTRIDGES[selTT.id] && !basket.find(b=>b.cat==="cartridge")) return {
+            skip: true,
+            msg: `Your ${selTT.name} includes the ${BUNDLED_CARTRIDGES[selTT.id].name} cartridge. No separate purchase needed.`
+          };
+        }
+        if (catKey === "phono") {
+          const selAmp = basket.find(b=>b.cat==="amplifier");
+          if (selAmp && AMPS_WITH_PHONO.has(selAmp.id)) return {
+            skip: true,
+            msg: `Your ${selAmp.name} has a built-in MM phono stage. No separate phono stage needed.`
+          };
+        }
+        return { skip: false };
+      }
+
+      // ── Scored + filtered options for a category ───────────────────────────
+      function getScoredOpts(catKey) {
+        const rawOpts = tierData.components[catKey] || [];
+        const genreScore = (item) => {
+          if (catKey==="speakers" && genreAdj.speakers[item.vendor]) return genreAdj.speakers[item.vendor];
+          if (catKey==="amplifier" && genreAdj.amps[item.vendor]) return genreAdj.amps[item.vendor];
+          return 0;
+        };
+        const selCart = basket.find(b=>b.cat==="cartridge");
+        const phonoScore = (item) => {
+          if (catKey!=="phono" || !selCart) return 0;
+          const cartIsMC = (selCart.sub||"").toLowerCase().includes("moving coil") || (selCart.sub||"").toLowerCase().includes(" mc ");
+          const stageMC  = (item.sub||"").toLowerCase().includes(" mc") || (item.note||"").toLowerCase().includes("moving coil");
+          const stageMM  = (item.sub||"").toLowerCase().includes(" mm") || (item.note||"").toLowerCase().includes("moving magnet") || item.id==="e_builtin" || item.id==="m_builtin";
+          if (cartIsMC && stageMC) return 10;
+          if (!cartIsMC && stageMM) return 10;
+          return 0;
+        };
+        // Budget filter — only hide items that push total well over budget
+        const budgetOk = (item) => {
+          if (!budget || budget === 0) return true;
+          const projTotal = basketTotal - (basket.find(b=>b.cat===catKey)?.price||0) + item.price;
+          return projTotal <= budget * 1.15; // allow 15% over budget
+        };
+        let scored = rawOpts
+          .filter(budgetOk)
+          .map(item => ({ item, score: genreScore(item) + phonoScore(item) }))
+          .sort((a,b) => b.score - a.score);
+        if (scored.length === 0) scored = rawOpts.map(item => ({ item, score: 0 })); // fallback show all if budget filters everything
+        return scored.map(s => s.item);
+      }
+
+      const currentCatKey = chainSteps[chainStep] || chainSteps[0];
+      const skipInfo = shouldSkip(currentCatKey);
+      const scoredOpts = getScoredOpts(currentCatKey);
+      const displayOpts = (showAllCat[currentCatKey] ? scoredOpts : scoredOpts.slice(0,3));
+      const hasMore = scoredOpts.length > 3;
+      const selInCurrent = basket.find(b => (tierData.components[currentCatKey]||[]).some(o=>o.id===b.id));
+      const budgetRemaining = budget > 0 ? budget - basketTotal : null;
+      const isLastStep = chainStep >= chainSteps.length - 1;
+
+      // Auto-advance when skip fires
+      useEffect(() => {
+        if (skipInfo.skip) {
+          const t = setTimeout(() => {
+            if (chainStep < chainSteps.length - 1) setChainStep(s => s + 1);
+          }, 2200);
+          return () => clearTimeout(t);
+        }
+      }, [currentCatKey, skipInfo.skip]);
+
+      return (
+        <div>
+          {/* ── Progress bar across signal chain ─────────────────────────── */}
+          <div style={{marginBottom:20}}>
+            <div style={{display:"flex",gap:0,marginBottom:8}}>
+              {chainSteps.map((k,i) => {
+                const done = i < chainStep || basket.find(b=>(tierData.components[k]||[]).some(o=>o.id===b.id));
+                const active = i === chainStep;
+                const v = basket.find(b=>(tierData.components[k]||[]).some(o=>o.id===b.id));
+                const col = v ? (VENDORS[v.vendor]||VENDORS.generic).col : tierData.accent;
                 return (
-                  <div key={cat} style={{display:"flex",alignItems:"center",gap:5,padding:"4px 8px",background:sel?`${v.col}12`:"transparent",border:`1px solid ${sel?v.col:"var(--rule)"}`,minWidth:0,transition:"all .2s"}}>
-                    <CatIcon cat={cat} size={10} col={sel?v.col:"var(--ink4)"}/>
-                    <span style={{fontSize:9,fontFamily:"var(--mono)",color:sel?v.col:"var(--ink4)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:90}}>{sel?sel.name:CAT_LABELS[cat]}</span>
-                  </div>
+                  <button key={k} onClick={()=>i<chainStep&&setChainStep(i)}
+                    style={{flex:1,height:3,background:done?col:active?"var(--rule)":"var(--rule)",opacity:active?1:done?0.9:0.3,border:"none",cursor:i<chainStep?"pointer":"default",transition:"all .3s",marginRight:i<chainSteps.length-1?2:0}}/>
                 );
               })}
             </div>
-            <div style={{display:"flex",gap:12,alignItems:"center",flexShrink:0}}>
-              {/* Synergy ring — only show once 3+ components selected */}
-              {basket.length>=3&&(
-                <div className="fi" style={{display:"flex",alignItems:"center",gap:8}}>
-                  <div style={{position:"relative",width:32,height:32,flexShrink:0}}>
-                    <svg width={32} height={32} style={{transform:"rotate(-90deg)"}}>
-                      <circle cx={16} cy={16} r={12} fill="none" stroke="#D4C9B4" strokeWidth={3}/>
-                      <circle cx={16} cy={16} r={12} fill="none" stroke={synergyMeta(synergy).col} strokeWidth={3}
-                        strokeDasharray={2*Math.PI*12} strokeDashoffset={2*Math.PI*12*(1-synergy/100)}
-                        style={{transition:"stroke-dashoffset .9s cubic-bezier(.4,0,.2,1)"}}/>
-                    </svg>
-                    <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                      <span style={{fontFamily:"var(--mono)",fontSize:8,color:"var(--ink)",lineHeight:1}}>{synergy}</span>
-                    </div>
-                  </div>
-                  <span style={{fontSize:8,color:synergyMeta(synergy).col,fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase"}}>{synergyMeta(synergy).label}</span>
-                </div>
-              )}
-              <div style={{textAlign:"right"}}>
-                <div style={{fontFamily:"var(--serif)",fontSize:18,color:budget>0&&basketTotal>budget?"#8B2020":basketTotal>0?"var(--ink)":"var(--ink4)",lineHeight:1}}>{basketTotal>0?formatPrice(basketTotal,loc):"—"}</div>
-                {budget>0&&basketTotal>0&&<div style={{fontSize:8,fontFamily:"var(--mono)",marginTop:1,color:basketTotal>budget?"#8B2020":"#2A5040"}}>{basketTotal>budget?`${formatPrice(basketTotal-budget,loc)} over`:`${formatPrice(budget-basketTotal,loc)} left`}</div>}
-              </div>
-              <div style={{textAlign:"center",borderLeft:"1px solid var(--rule)",paddingLeft:12}}>
-                <div style={{fontFamily:"var(--serif)",fontSize:18,color:tierData.accent,lineHeight:1}}>{basket.length}<span style={{fontSize:11,color:"var(--ink4)"}}> / {Object.keys(tierData.components).length}</span></div>
-                <div style={{fontSize:8,color:"var(--ink4)",fontFamily:"var(--mono)",marginTop:1}}>selected</div>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <span style={{fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)",letterSpacing:".12em",textTransform:"uppercase"}}>{chainStep+1} of {chainSteps.length} — {CAT_LABELS[currentCatKey]}</span>
+              <div style={{display:"flex",alignItems:"center",gap:12}}>
+                {basket.length>=3&&(
+                  <span style={{fontSize:9,color:synergyMeta(synergy).col,fontFamily:"var(--mono)",letterSpacing:".08em"}}>{synergy} synergy</span>
+                )}
+                <span style={{fontFamily:"var(--serif)",fontSize:16,color:budget>0&&basketTotal>budget?"#8B2020":"var(--ink)"}}>{basketTotal>0?formatPrice(basketTotal,loc):"—"}</span>
+                {budgetRemaining!==null&&<span style={{fontSize:9,color:budgetRemaining<0?"#8B2020":"#2A5040",fontFamily:"var(--mono)"}}>{budgetRemaining<0?`${formatPrice(Math.abs(budgetRemaining),loc)} over`:`${formatPrice(budgetRemaining,loc)} left`}</span>}
               </div>
             </div>
           </div>
-        </div>
 
-        <div style={{border:"1px solid var(--rule)",marginBottom:24}}>
-          {(()=>{
-            const SIGNAL_ORDER = ["turntable","cartridge","phono","amplifier","speakers","cables","isolation","power"];
-            return SIGNAL_ORDER.filter(k=>tierData.components[k]).map(k=>[k,tierData.components[k]]);
-          })().map(([catKey,rawOpts],catIdx)=>{
-            const genreScore=(item)=>{ if(catKey==="speakers"&&genreAdj.speakers[item.vendor])return genreAdj.speakers[item.vendor]; if(catKey==="amplifier"&&genreAdj.amps[item.vendor])return genreAdj.amps[item.vendor]; return 0; };
-            const selCartForSort=basket.find(b=>b.cat==="cartridge");
-            const phonoScore=(item)=>{ if(catKey!=="phono"||!selCartForSort)return 0; const subL=((selCartForSort.sub||"").toLowerCase()); const cartIsMC=subL.includes("moving coil")||subL.includes(" mc "); const stageSubL=(item.sub||"").toLowerCase(); const stageNoteL=(item.note||"").toLowerCase(); const stageMC=stageSubL.includes(" mc")||stageNoteL.includes("moving coil"); const stageMM=stageSubL.includes(" mm")||stageNoteL.includes("moving magnet")||item.id==="e_builtin"||item.id==="m_builtin"; if(cartIsMC&&stageMC)return 10; if(!cartIsMC&&stageMM)return 10; if(cartIsMC&&stageMM&&!stageMC)return -5; if(!cartIsMC&&stageMC&&!stageMM)return -5; return 0; };
-            const opts=(()=>{ const base=selectedGenres.length>0?[...rawOpts].sort((a,b)=>genreScore(b)-genreScore(a)):[...rawOpts]; return catKey==="phono"&&selCartForSort?base.sort((a,b)=>phonoScore(b)-phonoScore(a)):base; })();
-            const sel=basket.find(b=>opts.some(o=>o.id===b.id));
-            const v=sel?(VENDORS[sel.vendor]||VENDORS.generic):null;
-            const isOpen=openCat===catKey;
-            return (
-              <div key={catKey} style={{borderTop:catIdx>0?"1px solid var(--rule)":"none"}}>
-                {/* Category header — warmer when open, vinyl accent on selected */}
-                <button onClick={()=>setOpenCat(isOpen?null:catKey)} style={{width:"100%",display:"grid",gridTemplateColumns:"auto auto 1fr auto",alignItems:"center",gap:12,padding:"14px 16px",background:isOpen?`${tierData.accent}`:"transparent",border:"none",cursor:"pointer",textAlign:"left",transition:"background .2s"}}>
-                  <CatIcon cat={catKey} size={13} col={isOpen?"#F5F0E8":sel?v.col:"#9A9088"}/>
-                  <span style={{fontSize:9,letterSpacing:".18em",textTransform:"uppercase",color:isOpen?"#F5F0E8":sel?v.col:"var(--ink4)",fontFamily:"var(--mono)",whiteSpace:"nowrap"}}>{CAT_LABELS[catKey]}</span>
-                  {sel?(
-                    <div style={{display:"flex",alignItems:"center",gap:8,minWidth:0,paddingLeft:4}}>
-                      <div style={{width:3,height:20,background:isOpen?"rgba(245,240,232,.5)":v.col,borderRadius:1,flexShrink:0}}/>
-                      <div style={{minWidth:0}}>
-                        <span style={{fontFamily:"var(--serif)",fontSize:13,color:isOpen?"#F5F0E8":"var(--ink)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",display:"block",fontWeight:400}}>{sel.name}</span>
-                        <span style={{fontSize:9,color:isOpen?"rgba(245,240,232,.7)":v.col,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",display:"block",fontFamily:"var(--mono)"}}>{v.name} · {formatPrice(sel.price,loc)}</span>
-                      </div>
-                    </div>
-                  ):(
-                    <span style={{fontSize:10,color:isOpen?"rgba(245,240,232,.5)":"var(--ink4)",fontStyle:"italic",paddingLeft:4}}>Choose one</span>
-                  )}
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{transform:isOpen?"rotate(180deg)":"rotate(0)",transition:"transform .2s",flexShrink:0}}>
-                    <path d="M2 4.5l5 5 5-5" stroke={isOpen?"#F5F0E8":"#9A9088"} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </button>
-                {isOpen&&(
-                  <div className="fu" style={{borderTop:"1px solid var(--rule)",background:"var(--paper)"}}>
-                    {catKey==="cartridge"&&bundledCart&&(
-                      <div style={{padding:"10px 16px 0 16px"}}>
-                        <div style={{padding:"10px 14px",borderLeft:"3px solid #2A5040",background:"rgba(42,80,64,.05)",marginBottom:2}}>
-                          <div style={{fontSize:9,color:"#2A5040",letterSpacing:".14em",textTransform:"uppercase",marginBottom:4,fontFamily:"var(--mono)"}}>Cartridge included — {bundledCart.name}</div>
-                          <p style={{fontSize:10,color:"var(--ink2)",lineHeight:1.65,fontFamily:"var(--serif)"}}>{bundledCart.note}</p>
-                        </div>
-                      </div>
-                    )}
-                    {catKey==="phono"&&(()=>{
-                      const selCart=basket.find(b=>b.cat==="cartridge");
-                      if(!selCart) return null;
-                      const isMC=(selCart.sub||"").toLowerCase().includes("moving coil")||(selCart.sub||"").toLowerCase().includes(" mc ");
-                      return (
-                        <div style={{padding:"10px 16px 0"}}>
-                          <div style={{padding:"8px 12px",borderLeft:"3px solid var(--amber)",background:"rgba(184,115,42,.05)",fontSize:10,color:"var(--ink2)",fontFamily:"var(--serif)",lineHeight:1.65}}>
-                            {isMC?<>You've selected <strong>{selCart.name}</strong> — a Moving Coil cartridge. You need a dedicated MC phono stage.</>:<>You've selected <strong>{selCart.name}</strong> — a Moving Magnet cartridge. A MM phono stage or your amp's built-in stage is all you need.</>}
-                          </div>
-                        </div>
-                      );
-                    })()}
-                    {(()=>{
-                      const showAll = !!showAllCat[catKey];
-                      const displayOpts = showAll ? opts : opts.slice(0,3);
-                      const hasMore = opts.length > 3;
-                      const allCatKeysList=Object.keys(tierData.components);
-                      const nextCat=allCatKeysList[allCatKeysList.indexOf(catKey)+1];
-                      return (
-                        <div>
-                          <div style={{display:"grid",gap:0}}>
-                            {displayOpts.map((item,optIdx)=>{
-                              const on=isSelected(item), iv=VENDORS[item.vendor]||VENDORS.generic;
-                              const score=genreScore(item);
-                              const matchedGenres=score>0?GENRES.filter(g=>selectedGenres.includes(g.id)&&((catKey==="speakers"&&g.speakerWeights[item.vendor])||(catKey==="amplifier"&&g.ampWeights[item.vendor]))):[];
-                              return (
-                                <div key={item.id} style={{borderTop:optIdx>0?"1px solid var(--rule)":"none"}}>
-                                  <button onClick={()=>{ selectComp(catKey,item); if(nextCat) setOpenCat(nextCat); else setOpenCat(null); }} style={{width:"100%",display:"grid",gridTemplateColumns:"4px 1fr auto",alignItems:"center",gap:0,background:on?`${iv.col}10`:"transparent",border:"none",cursor:"pointer",textAlign:"left",padding:0,transition:"background .2s"}}>
-                                    <div style={{width:4,alignSelf:"stretch",background:on?iv.col:"transparent",transition:"background .2s"}}/>
-                                    <div style={{padding:"12px 14px"}}>
-                                      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8,marginBottom:3}}>
-                                        <span style={{fontFamily:"var(--serif)",fontSize:14,color:on?"var(--ink)":"var(--ink2)",fontWeight:on?400:300,lineHeight:1.3}}>{item.name}</span>
-                                        {matchedGenres.length>0&&<div style={{display:"flex",gap:2,flexShrink:0}}>{matchedGenres.slice(0,3).map(g=><span key={g.id} style={{fontSize:14,lineHeight:1}}>{g.emoji}</span>)}</div>}
-                                      </div>
-                                      <div style={{fontSize:9,color:"var(--ink4)",marginBottom:4,fontFamily:"var(--mono)"}}>{item.sub}</div>
-                                      <div style={{display:"flex",alignItems:"center",gap:6}}>
-                                        <span style={{fontSize:8,letterSpacing:".06em",textTransform:"uppercase",padding:"2px 7px",background:on?`${iv.col}20`:`${iv.col}10`,border:`1px solid ${iv.col}40`,color:iv.col,fontFamily:"var(--mono)",fontWeight:on?400:300}}>{iv.name}</span>
-                                        {iv.city&&iv.city!=="—"&&<span style={{fontSize:8,color:"var(--ink4)",letterSpacing:".04em",fontFamily:"var(--mono)"}}>{iv.city}</span>}
-                                      </div>
-                                    </div>
-                                    <div style={{padding:"12px 16px 12px 0",textAlign:"right",flexShrink:0}}>
-                                      <div style={{fontFamily:"var(--serif)",fontSize:14,color:on?iv.col:"var(--ink3)",marginBottom:2,fontWeight:on?400:300}}>{formatPrice(item.price,loc)}</div>
-                                      {budget>0&&!on&&item.price>0&&(basketTotal+item.price)>budget&&<div style={{fontSize:7,color:"#8B2020",fontFamily:"var(--mono)",letterSpacing:".08em"}}>over budget</div>}
-                                      {on&&<div style={{width:16,height:16,background:iv.col,display:"flex",alignItems:"center",justifyContent:"center",marginLeft:"auto",marginTop:4}}><svg width="9" height="7" viewBox="0 0 10 8" fill="none"><polyline points="1,4 3.5,6.5 9,1" stroke="#F5F0E8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></div>}
-                                    </div>
-                                  </button>
-                                </div>
-                              );
-                            })}
-                          </div>
-                          {hasMore&&(
-                            <button onClick={()=>setShowAllCat(s=>({...s,[catKey]:!s[catKey]}))} style={{width:"100%",padding:"9px 14px",background:"transparent",border:"none",borderTop:"1px solid var(--rule)",cursor:"pointer",fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)",letterSpacing:".12em",textTransform:"uppercase",textAlign:"center"}}>
-                              {showAll?`▲ Show fewer`:`▼ Show all ${opts.length} options`}
-                            </button>
-                          )}
-                        </div>
-                      );
-                    })()}
-                  </div>
+          {/* ── Auto-skip banner ─────────────────────────────────────────── */}
+          {skipInfo.skip ? (
+            <div className="fu" style={{padding:"24px 20px",borderLeft:"3px solid var(--green)",background:"rgba(42,80,64,.06)",marginBottom:20}}>
+              <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:8}}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#2A5040" strokeWidth="1.2"/><polyline points="4.5,8 7,10.5 11.5,5.5" stroke="#2A5040" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <span style={{fontSize:9,color:"var(--green)",letterSpacing:".16em",textTransform:"uppercase",fontFamily:"var(--mono)"}}>Skipping — {CAT_LABELS[currentCatKey]}</span>
+              </div>
+              <p style={{fontSize:13,color:"var(--ink2)",fontFamily:"var(--serif)",lineHeight:1.7}}>{skipInfo.msg}</p>
+              <div style={{marginTop:12,height:2,background:"var(--rule)",position:"relative",overflow:"hidden"}}>
+                <div style={{position:"absolute",left:0,top:0,height:"100%",background:"var(--green)",animation:"slideRight 2.2s linear forwards"}}/>
+              </div>
+              <style>{`@keyframes slideRight{from{width:0}to{width:100%}}`}</style>
+            </div>
+          ) : (
+            <div className="fu">
+              {/* ── Category heading ───────────────────────────────────────── */}
+              <div style={{marginBottom:20,paddingBottom:16,borderBottom:"1px solid var(--rule)"}}>
+                <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:6}}>
+                  <CatIcon cat={currentCatKey} size={18} col={tierData.accent}/>
+                  <h2 style={{fontFamily:"var(--serif)",fontSize:"clamp(22px,4vw,28px)",fontWeight:400,color:"var(--ink)",lineHeight:1,letterSpacing:"-.02em"}}>{CAT_LABELS[currentCatKey]}</h2>
+                </div>
+
+                {/* Context sentence based on what's already selected */}
+                {currentCatKey==="cartridge"&&basket.find(b=>b.cat==="turntable")&&(
+                  <p style={{fontSize:12,color:"var(--ink3)",fontFamily:"var(--serif)",fontStyle:"italic",lineHeight:1.6}}>
+                    Your <strong style={{color:"var(--ink2)",fontStyle:"normal"}}>{basket.find(b=>b.cat==="turntable").name}</strong> {REQUIRES_CARTRIDGE.has(basket.find(b=>b.cat==="turntable").id)?"needs a cartridge — choose one below.":"comes without a fitted cartridge — choose one below, or skip if you have one already."}
+                  </p>
+                )}
+                {currentCatKey==="phono"&&basket.find(b=>b.cat==="cartridge")&&(()=>{
+                  const cart = basket.find(b=>b.cat==="cartridge");
+                  const isMC = (cart.sub||"").toLowerCase().includes("moving coil") || (cart.sub||"").toLowerCase().includes(" mc ");
+                  return <p style={{fontSize:12,color:"var(--ink3)",fontFamily:"var(--serif)",fontStyle:"italic",lineHeight:1.6}}>Your <strong style={{color:"var(--ink2)",fontStyle:"normal"}}>{cart.name}</strong> is a Moving {isMC?"Coil — you need a dedicated MC phono stage.":"Magnet — a built-in MM stage or a dedicated MM stage will work."}</p>;
+                })()}
+                {currentCatKey==="amplifier"&&(
+                  <p style={{fontSize:12,color:"var(--ink3)",fontFamily:"var(--serif)",fontStyle:"italic",lineHeight:1.6}}>
+                    Room is {analysis.area} m² — {analysis.area>25?"80W+ recommended for adequate headroom.":analysis.area<12?"30–50W is sufficient for this space.":"50–80W will give comfortable headroom."}
+                  </p>
+                )}
+                {currentCatKey==="speakers"&&sideWallGap<30&&(
+                  <p style={{fontSize:12,color:"var(--red)",fontFamily:"var(--serif)",lineHeight:1.6}}>⚠ Only {sideWallGap}cm from side wall — rear-ported designs will cause bass boom. Front-ported or sealed only.</p>
                 )}
               </div>
-            );
-          })}
+
+              {/* ── Options ────────────────────────────────────────────────── */}
+              <div style={{display:"grid",gap:10,marginBottom:16}}>
+                {displayOpts.map((item,i) => {
+                  const on = isSelected(item);
+                  const iv = VENDORS[item.vendor] || VENDORS.generic;
+                  const matchedGenres = GENRES.filter(g=>selectedGenres.includes(g.id)&&((currentCatKey==="speakers"&&g.speakerWeights[item.vendor])||(currentCatKey==="amplifier"&&g.ampWeights[item.vendor])));
+                  return (
+                    <button key={item.id} onClick={()=>selectComp(currentCatKey,item)}
+                      style={{textAlign:"left",cursor:"pointer",padding:0,border:`2px solid ${on?iv.col:"var(--rule)"}`,background:on?`${iv.col}08`:"var(--paper2)",transition:"all .2s",display:"block",width:"100%"}}>
+                      <div style={{display:"grid",gridTemplateColumns:"4px 1fr auto",alignItems:"stretch"}}>
+                        <div style={{background:on?iv.col:"transparent",transition:"background .2s"}}/>
+                        <div style={{padding:"16px 16px 14px"}}>
+                          {i===0&&!on&&<div style={{fontSize:8,color:tierData.accent,letterSpacing:".14em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:6}}>★ Top pick for your setup</div>}
+                          <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8,marginBottom:5}}>
+                            <div style={{fontFamily:"var(--serif)",fontSize:16,color:"var(--ink)",fontWeight:400,lineHeight:1.2}}>{item.name}</div>
+                            {matchedGenres.length>0&&<div style={{display:"flex",gap:3,flexShrink:0,marginTop:2}}>{matchedGenres.slice(0,3).map(g=><span key={g.id} style={{fontSize:16}}>{g.emoji}</span>)}</div>}
+                          </div>
+                          <div style={{fontSize:10,color:"var(--ink4)",fontFamily:"var(--mono)",marginBottom:8}}>{item.sub}</div>
+                          <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+                            <span style={{fontSize:8,letterSpacing:".08em",textTransform:"uppercase",padding:"2px 8px",background:`${iv.col}15`,border:`1px solid ${iv.col}35`,color:iv.col,fontFamily:"var(--mono)"}}>{iv.name}</span>
+                            {iv.city&&iv.city!=="—"&&<span style={{fontSize:8,color:"var(--ink4)",fontFamily:"var(--mono)"}}>{iv.city}</span>}
+                          </div>
+                          {item.note&&<p style={{fontSize:10,color:"var(--ink3)",lineHeight:1.6,fontFamily:"var(--serif)",fontStyle:"italic",marginTop:10,paddingTop:10,borderTop:"1px solid var(--rule)"}}>{item.note}</p>}
+                        </div>
+                        <div style={{padding:"16px 16px 16px 0",display:"flex",flexDirection:"column",alignItems:"flex-end",justifyContent:"space-between",flexShrink:0}}>
+                          <div style={{fontFamily:"var(--serif)",fontSize:18,color:on?iv.col:"var(--ink2)",fontWeight:on?400:300}}>{formatPrice(item.price,loc)}</div>
+                          {on&&(
+                            <div style={{width:22,height:22,background:iv.col,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",marginTop:8}}>
+                              <svg width="11" height="9" viewBox="0 0 10 8" fill="none"><polyline points="1,4 3.5,6.5 9,1" stroke="#F5F0E8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {hasMore&&(
+                <button onClick={()=>setShowAllCat(s=>({...s,[currentCatKey]:!s[currentCatKey]}))}
+                  style={{width:"100%",padding:"10px",background:"transparent",border:"1px dashed var(--rule)",cursor:"pointer",fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)",letterSpacing:".12em",textTransform:"uppercase",marginBottom:16}}>
+                  {showAllCat[currentCatKey]?`▲ Show fewer`:`▼ Show all ${scoredOpts.length} options`}
+                </button>
+              )}
+
+              {/* ── Previously selected components ─────────────────────────── */}
+              {basket.length>0&&(
+                <div style={{marginTop:8,padding:"12px 14px",background:"var(--paper2)",border:"1px solid var(--rule)"}}>
+                  <div style={{fontSize:8,color:"var(--ink4)",letterSpacing:".14em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:8}}>Your system so far</div>
+                  <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                    {basket.map(b=>{
+                      const bv = VENDORS[b.vendor]||VENDORS.generic;
+                      return (
+                        <div key={b.id} style={{display:"flex",alignItems:"center",gap:5,padding:"3px 8px",background:`${bv.col}10`,border:`1px solid ${bv.col}35`}}>
+                          <CatIcon cat={b.cat} size={9} col={bv.col}/>
+                          <span style={{fontSize:8,fontFamily:"var(--mono)",color:bv.col}}>{b.name}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Navigation ───────────────────────────────────────────────── */}
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:28,paddingTop:20,borderTop:"1px solid var(--rule)"}}>
+            <button onClick={()=>chainStep>0?setChainStep(s=>s-1):goTo("tier")}
+              style={{background:"none",border:"none",padding:"10px 0",fontSize:10,letterSpacing:".14em",textTransform:"uppercase",color:"var(--ink4)",cursor:"pointer",fontFamily:"var(--mono)",display:"flex",alignItems:"center",gap:8}}>
+              <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M6 1L1 5l5 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/><line x1="1" y1="5" x2="13" y2="5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
+              Back
+            </button>
+            <button
+              onClick={()=>isLastStep?advance("catalog","summary"):setChainStep(s=>s+1)}
+              style={{background:selInCurrent||skipInfo.skip?"var(--ink)":"var(--paper2)",color:selInCurrent||skipInfo.skip?"var(--paper)":"var(--ink4)",border:`1px solid ${selInCurrent||skipInfo.skip?"var(--ink)":"var(--rule)"}`,padding:"12px 28px",fontSize:10,letterSpacing:".16em",textTransform:"uppercase",cursor:"pointer",fontFamily:"var(--mono)",display:"flex",alignItems:"center",gap:10,transition:"all .2s"}}>
+              {isLastStep?"View Summary →":"Next →"}
+              <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M8 1l5 4-5 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/><line x1="13" y1="5" x2="1" y2="5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
+            </button>
+          </div>
         </div>
-        <NavRow onBack={()=>goTo("tier")} onNext={()=>advance("catalog","summary")} nextLabel="View Full Summary →"/>
-      </div>
-    ),
+      );
+    })(),
 
     summary: (()=>{
-      const msrpComp=basket.filter(i=>i.price>0).reduce((s,i)=>s+i.price,0);
-      const msrpAuto=analysis.autoItems.filter(i=>i.price>0).reduce((s,i)=>s+i.price,0);
-      const msrpTotal=msrpComp+msrpAuto;
-      const discPct=tier==="high"?0.82:tier==="mid"?0.77:0.88;
-      const dealEst=Math.round(msrpTotal*discPct/50)*50;
-      const saving=msrpTotal-dealEst;
       const [swapOpen, setSwapOpen] = React.useState(null);
       const SIGNAL_ORDER_SUMMARY = ["turntable","cartridge","phono","amplifier","speakers","cables","isolation","power"];
       const allCats = SIGNAL_ORDER_SUMMARY.filter(k=>tierData.components[k]);
       const selectedByCat=(catKey)=>basket.find(b=>(tierData.components[catKey]||[]).some(o=>o.id===b.id));
-      const overBy=budget>0?basketTotal-budget:0;
-      const budgetSuggestions=(()=>{ if(overBy<=0||budget===0)return []; const suggestions=[]; basket.forEach(selItem=>{ const catKey=selItem.cat; const opts=tierData.components[catKey]||[]; const cheaper=opts.filter(o=>o.id!==selItem.id&&o.price<selItem.price).sort((a,b)=>a.price-b.price)[0]; if(cheaper)suggestions.push({catKey,from:selItem,to:cheaper,saving:selItem.price-cheaper.price}); }); suggestions.sort((a,b)=>b.saving-a.saving); let covered=0; const result=[]; for(const s of suggestions){if(covered>=overBy)break;if(result.length>=3)break;result.push(s);covered+=s.saving;} return result; })();
       return (
         <div>
-          <StepHeading title="Your System" sub="Review your build · swap any component · see full pricing"/>
-          {overBy>0&&(
-            <div className="fu" style={{marginBottom:24,padding:"16px 18px",borderLeft:"3px solid #8B2020",background:"rgba(139,32,32,.04)"}}>
-              <div style={{fontSize:9,color:"#8B2020",letterSpacing:".18em",textTransform:"uppercase",marginBottom:6,fontFamily:"var(--mono)"}}>Over budget by {formatPrice(overBy,loc)}</div>
-              <div style={{display:"grid",gap:6}}>
-                {budgetSuggestions.length>0?budgetSuggestions.map((s,i)=>{
-                  const toV=VENDORS[s.to.vendor]||VENDORS.generic;
-                  return (
-                    <div key={i} style={{display:"grid",gridTemplateColumns:"1fr auto",alignItems:"center",gap:12,padding:"10px 14px",background:"var(--paper2)",border:"1px solid var(--rule)"}}>
-                      <div>
-                        <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".12em",textTransform:"uppercase",marginBottom:3,fontFamily:"var(--mono)"}}>{CAT_LABELS[s.catKey]}</div>
-                        <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
-                          <span style={{fontFamily:"var(--serif)",fontSize:12,color:"var(--ink3)",textDecoration:"line-through"}}>{s.from.name}</span>
-                          <svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5h10M7 1l4 4-4 4" stroke="#B8732A" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                          <span style={{fontFamily:"var(--serif)",fontSize:12,color:"var(--ink)"}}>{s.to.name}</span>
-                        </div>
-                      </div>
-                      <div style={{textAlign:"right",flexShrink:0}}>
-                        <div style={{fontSize:9,color:"#2A5040",fontFamily:"var(--mono)",letterSpacing:".08em",marginBottom:2}}>save {formatPrice(s.saving,loc)}</div>
-                        <button onClick={()=>selectComp(s.catKey,s.to)} style={{padding:"6px 12px",background:"var(--ink)",border:"none",cursor:"pointer",fontSize:9,letterSpacing:".12em",textTransform:"uppercase",color:"var(--paper)",fontFamily:"var(--mono)"}}>Apply</button>
-                      </div>
-                    </div>
-                  );
-                }):<div style={{fontSize:11,color:"var(--ink3)",fontFamily:"var(--serif)",fontStyle:"italic",padding:"8px 0"}}>No cheaper alternatives available in this tier.</div>}
-              </div>
+          <StepHeading title="Your System"/>
+          <div style={{marginBottom:24}}><SystemDiagram basket={basket} autoItems={analysis.autoItems}/></div>
+          <div style={{marginBottom:24,padding:"16px 20px",background:"var(--paper2)",border:"1px solid var(--rule)",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:16}}>
+            <SynergyRing score={synergy}/>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".12em",textTransform:"uppercase",marginBottom:4,fontFamily:"var(--mono)"}}>System Level</div>
+              <div style={{fontFamily:"var(--serif)",fontSize:18,color:tierData.accent}}>{tier==="entry"?"Entry Level":tier==="mid"?"Mid-Range":"High-End"}</div>
+              <div style={{fontSize:9,color:"var(--ink4)",marginTop:3,fontFamily:"var(--mono)"}}>{room.length}m × {room.width}m · {analysis.bld?.label}</div>
             </div>
-          )}
-
-          <div style={{marginBottom:28}}><SystemDiagram basket={basket} autoItems={analysis.autoItems}/></div>
-
-          <div style={{marginBottom:28}}>
+          </div>
+          <div style={{marginBottom:24}}>
             <SectionLabel>Selected Components</SectionLabel>
             <div style={{display:"grid",gap:0,border:"1px solid var(--rule)"}}>
               {allCats.map((catKey,ci)=>{
                 const sel=selectedByCat(catKey);
-                const effectiveSel=sel||(catKey==="cartridge"&&bundledCart?{name:bundledCart.name,sub:"Bundled · included",cat:"cartridge",vendor:selectedTurntable?.vendor||"generic",price:0,_bundled:true}:null);
+                const effectiveSel=sel||(catKey==="cartridge"&&bundledCart?{name:bundledCart.name,sub:"Bundled",cat:"cartridge",vendor:selectedTurntable?.vendor||"generic",price:0,_bundled:true}:null);
                 const v=effectiveSel?(VENDORS[effectiveSel.vendor]||VENDORS.generic):null;
                 const isOpen=swapOpen===catKey;
                 const opts=tierData.components[catKey]||[];
                 return (
                   <div key={catKey} style={{borderTop:ci>0?"1px solid var(--rule)":"none"}}>
-                    <div style={{display:"grid",gridTemplateColumns:"auto 1fr auto",alignItems:"center",gap:10,padding:"10px 14px",background:isOpen?"var(--paper2)":"transparent"}}>
+                    <div style={{display:"grid",gridTemplateColumns:"auto 1fr auto",alignItems:"center",gap:10,padding:"11px 14px",background:isOpen?"var(--paper2)":"transparent"}}>
                       <div style={{display:"flex",alignItems:"center",gap:8}}>
-                        <CatIcon cat={catKey} size={11} col={effectiveSel?(effectiveSel._bundled?"#2A5040":"var(--amber)"):"var(--ink4)"}/>
+                        <CatIcon cat={catKey} size={11} col={effectiveSel?(effectiveSel._bundled?"#2A5040":v.col):"var(--ink4)"}/>
                         <span style={{fontSize:8,color:"var(--ink4)",letterSpacing:".14em",textTransform:"uppercase",fontFamily:"var(--mono)",width:64,flexShrink:0}}>{CAT_LABELS[catKey]}</span>
                       </div>
                       {effectiveSel?(
                         <div style={{display:"flex",alignItems:"center",gap:8,minWidth:0}}>
                           <div style={{width:2,height:20,background:effectiveSel._bundled?"#2A5040":v.col,flexShrink:0}}/>
                           <div style={{minWidth:0}}>
-                            <div style={{fontFamily:"var(--serif)",fontSize:12,color:"var(--ink)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{effectiveSel.name}</div>
-                            <div style={{fontSize:8,color:effectiveSel._bundled?"#2A5040":"var(--ink4)"}}>{effectiveSel._bundled?"Bundled · £0 extra":`${v.name} · ${formatPrice(effectiveSel.price,loc)}`}</div>
+                            <div style={{fontFamily:"var(--serif)",fontSize:13,color:"var(--ink)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{effectiveSel.name}</div>
+                            <div style={{fontSize:8,color:effectiveSel._bundled?"#2A5040":v.col,fontFamily:"var(--mono)"}}>{effectiveSel._bundled?"Bundled · included":v.name}</div>
                           </div>
                         </div>
                       ):<div style={{fontSize:11,color:"var(--ink4)",fontStyle:"italic",fontFamily:"var(--serif)"}}>Not selected</div>}
@@ -1713,15 +1751,11 @@ export default function HiFiSystemBuilder() {
                           {opts.map(item=>{
                             const iv=VENDORS[item.vendor]||VENDORS.generic, isSel=basket.some(b=>b.id===item.id);
                             return (
-                              <button key={item.id} onClick={()=>{selectComp(catKey,item);setSwapOpen(null);}} style={{display:"grid",gridTemplateColumns:"auto 1fr auto",alignItems:"center",gap:8,padding:"9px 10px",textAlign:"left",cursor:"pointer",background:isSel?"var(--ink)":"transparent",border:`1px solid ${isSel?"var(--ink)":"var(--rule)"}`,transition:"all .15s"}}>
+                              <button key={item.id} onClick={()=>{selectComp(catKey,item);setSwapOpen(null);}} style={{display:"grid",gridTemplateColumns:"auto 1fr",alignItems:"center",gap:8,padding:"9px 10px",textAlign:"left",cursor:"pointer",background:isSel?"var(--ink)":"transparent",border:`1px solid ${isSel?"var(--ink)":"var(--rule)"}`,transition:"all .15s"}}>
                                 <div style={{width:3,height:28,background:iv.col,borderRadius:1,flexShrink:0}}/>
                                 <div>
                                   <div style={{fontFamily:"var(--serif)",fontSize:12,color:isSel?"var(--paper)":"var(--ink)",lineHeight:1.3}}>{item.name}</div>
-                                  <div style={{fontSize:8,color:isSel?"rgba(245,240,232,.6)":"var(--ink4)",marginTop:1}}>{item.sub}</div>
-                                </div>
-                                <div style={{textAlign:"right",flexShrink:0}}>
-                                  <div style={{fontFamily:"var(--serif)",fontSize:12,color:isSel?"var(--paper)":"var(--ink2)"}}>{formatPrice(item.price,loc)}</div>
-                                  {isSel&&<div style={{fontSize:7,color:"rgba(245,240,232,.7)",letterSpacing:".08em",fontFamily:"var(--mono)"}}>SELECTED</div>}
+                                  <div style={{fontSize:8,color:isSel?"rgba(245,240,232,.6)":"var(--ink4)",marginTop:1,fontFamily:"var(--mono)"}}>{iv.name}</div>
                                 </div>
                               </button>
                             );
@@ -1734,81 +1768,117 @@ export default function HiFiSystemBuilder() {
               })}
             </div>
           </div>
+          {analysis.warnings.filter(w=>w.level==="critical").length>0&&(
+            <div style={{marginBottom:20}}><SectionLabel>Critical Constraints</SectionLabel><div style={{display:"grid",gap:7}}>{analysis.warnings.filter(w=>w.level==="critical").map((w,i)=><WarningBadge key={i} w={w} SEV={SEV}/>)}</div></div>
+          )}
+          <div style={{marginTop:32,padding:"32px 28px",background:"var(--ink)",textAlign:"center"}}>
+            <VinylAccent size={40} col="#F5F0E8" opacity={0.15}/>
+            <div style={{fontFamily:"var(--serif)",fontSize:"clamp(20px,4vw,28px)",color:"var(--paper)",fontWeight:400,lineHeight:1.2,margin:"16px 0 8px",letterSpacing:"-.01em"}}>Happy with your system?</div>
+            <p style={{fontSize:11,color:"var(--ink4)",fontFamily:"var(--mono)",letterSpacing:".08em",marginBottom:24,lineHeight:1.6}}>The next screen shows the full cost — and how to pay less than the asking price.</p>
+            <button onClick={()=>advance("summary","pricing")} style={{display:"inline-flex",alignItems:"center",gap:12,padding:"16px 36px",background:"var(--amber)",color:"var(--paper)",border:"none",cursor:"pointer",fontFamily:"var(--mono)",fontSize:11,letterSpacing:".18em",textTransform:"uppercase"}}>
+              See the cost →
+            </button>
+            <div style={{marginTop:12,fontSize:9,color:"var(--ink3)",fontFamily:"var(--mono)",letterSpacing:".08em"}}>or ← go back and swap any component</div>
+          </div>
+          <NavRow onBack={()=>goTo("catalog")} onNext={()=>advance("summary","pricing")} nextLabel="See the cost →"/>
+        </div>
+      );
+    })(),
 
+    pricing: (()=>{
+      const msrpComp=basket.filter(i=>i.price>0).reduce((s,i)=>s+i.price,0);
+      const msrpAuto=analysis.autoItems.filter(i=>i.price>0).reduce((s,i)=>s+i.price,0);
+      const msrpTotal=msrpComp+msrpAuto;
+      const discPct=tier==="high"?0.82:tier==="mid"?0.77:0.88;
+      const dealEst=Math.round(msrpTotal*discPct/50)*50;
+      const saving=msrpTotal-dealEst;
+      const overBy=budget>0?basketTotal-budget:0;
+      const budgetSuggestions=(()=>{ if(overBy<=0||budget===0)return []; const suggestions=[]; basket.forEach(selItem=>{ const catKey=selItem.cat; const opts=tierData.components[catKey]||[]; const cheaper=opts.filter(o=>o.id!==selItem.id&&o.price<selItem.price).sort((a,b)=>a.price-b.price)[0]; if(cheaper)suggestions.push({catKey,from:selItem,to:cheaper,saving:selItem.price-cheaper.price}); }); suggestions.sort((a,b)=>b.saving-a.saving); let covered=0; const result=[]; for(const s of suggestions){if(covered>=overBy)break;if(result.length>=3)break;result.push(s);covered+=s.saving;} return result; })();
+      return (
+        <div>
+          <div className="fu" style={{textAlign:"center",padding:"36px 20px 28px",borderBottom:"2px solid var(--ink)",marginBottom:28}}>
+            <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".22em",textTransform:"uppercase",marginBottom:10,fontFamily:"var(--mono)"}}>Full system MSRP</div>
+            <div style={{fontFamily:"var(--serif)",fontSize:"clamp(44px,10vw,72px)",fontWeight:400,color:"var(--ink)",lineHeight:1,letterSpacing:"-.03em",marginBottom:8}}>{formatPrice(msrpTotal,loc)}</div>
+            <div style={{fontSize:11,color:"var(--ink3)",fontFamily:"var(--serif)",fontStyle:"italic"}}>at full retail price · before negotiation</div>
+          </div>
+          {overBy>0&&(
+            <div className="fu" style={{marginBottom:24,padding:"16px 18px",borderLeft:"3px solid #8B2020",background:"rgba(139,32,32,.04)"}}>
+              <div style={{fontSize:9,color:"#8B2020",letterSpacing:".18em",textTransform:"uppercase",marginBottom:6,fontFamily:"var(--mono)"}}>Over your budget by {formatPrice(overBy,loc)}</div>
+              <div style={{display:"grid",gap:6}}>
+                {budgetSuggestions.length>0?budgetSuggestions.map((s,i)=>(
+                  <div key={i} style={{display:"grid",gridTemplateColumns:"1fr auto",alignItems:"center",gap:12,padding:"10px 14px",background:"var(--paper2)",border:"1px solid var(--rule)"}}>
+                    <div>
+                      <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".12em",textTransform:"uppercase",marginBottom:3,fontFamily:"var(--mono)"}}>{CAT_LABELS[s.catKey]}</div>
+                      <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+                        <span style={{fontFamily:"var(--serif)",fontSize:12,color:"var(--ink3)",textDecoration:"line-through"}}>{s.from.name}</span>
+                        <svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5h10M7 1l4 4-4 4" stroke="#B8732A" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        <span style={{fontFamily:"var(--serif)",fontSize:12,color:"var(--ink)"}}>{s.to.name}</span>
+                      </div>
+                    </div>
+                    <div style={{textAlign:"right",flexShrink:0}}>
+                      <div style={{fontSize:9,color:"#2A5040",fontFamily:"var(--mono)",letterSpacing:".08em",marginBottom:2}}>save {formatPrice(s.saving,loc)}</div>
+                      <button onClick={()=>selectComp(s.catKey,s.to)} style={{padding:"6px 12px",background:"var(--ink)",border:"none",cursor:"pointer",fontSize:9,letterSpacing:".12em",textTransform:"uppercase",color:"var(--paper)",fontFamily:"var(--mono)"}}>Apply</button>
+                    </div>
+                  </div>
+                )):<div style={{fontSize:11,color:"var(--ink3)",fontFamily:"var(--serif)",fontStyle:"italic",padding:"8px 0"}}>No cheaper alternatives in this tier.</div>}
+              </div>
+            </div>
+          )}
           <div style={{marginBottom:28,border:"2px solid var(--ink)",background:"var(--paper2)"}}>
             <div style={{padding:"24px 24px 16px",textAlign:"center",borderBottom:"1px solid var(--rule)"}}>
-              <div style={{fontSize:9,color:"var(--ink3)",letterSpacing:".22em",textTransform:"uppercase",marginBottom:6,fontFamily:"var(--mono)"}}>Negotiated Target</div>
-              <div style={{fontFamily:"var(--serif)",fontSize:"clamp(36px,6vw,52px)",fontWeight:400,color:"var(--ink)",lineHeight:1,letterSpacing:"-.02em"}}>{formatPrice(dealEst,loc)}</div>
-              <div style={{fontSize:11,color:"var(--ink3)",marginTop:6,fontFamily:"var(--serif)",fontStyle:"italic"}}>realistic deal estimate at a good dealer</div>
+              <div style={{fontSize:9,color:"var(--ink3)",letterSpacing:".22em",textTransform:"uppercase",marginBottom:6,fontFamily:"var(--mono)"}}>Realistic deal estimate</div>
+              <div style={{fontFamily:"var(--serif)",fontSize:"clamp(32px,6vw,48px)",fontWeight:400,color:"var(--green)",lineHeight:1,letterSpacing:"-.02em"}}>{formatPrice(dealEst,loc)}</div>
+              <div style={{fontSize:11,color:"var(--ink3)",marginTop:6,fontFamily:"var(--serif)",fontStyle:"italic"}}>what a good dealer will accept</div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:0}}>
-              {[{label:"Full MSRP",val:formatPrice(msrpTotal,loc),col:"var(--ink3)",strike:true},{label:"Potential Saving",val:formatPrice(saving,loc),sub:`${Math.round((saving/msrpTotal)*100)}% off MSRP`,col:"#2A5040"}].map((m,i)=>(
+              {[{label:"Full MSRP",val:formatPrice(msrpTotal,loc),col:"var(--ink3)",strike:true},{label:"You could save",val:formatPrice(saving,loc),col:"var(--green)",sub:`${Math.round((saving/msrpTotal)*100)}% off`}].map((m,i)=>(
                 <div key={m.label} style={{padding:"14px 16px",textAlign:"center",borderLeft:i>0?"1px solid var(--rule)":"none"}}>
                   <div style={{fontSize:8,color:"var(--ink4)",letterSpacing:".14em",textTransform:"uppercase",marginBottom:4,fontFamily:"var(--mono)"}}>{m.label}</div>
                   <div style={{fontFamily:"var(--serif)",fontSize:20,fontWeight:300,color:m.col,textDecoration:m.strike?"line-through":"none"}}>{m.val}</div>
+                  {m.sub&&<div style={{fontSize:9,color:m.col,fontFamily:"var(--mono)",marginTop:2}}>{m.sub}</div>}
                 </div>
               ))}
             </div>
           </div>
-
           <NegotiationSlider msrp={msrpTotal} deal={dealEst} accent={tierData.accent} loc={loc}/>
-
+          <div style={{marginBottom:20}}>
+            <SectionLabel>Five ways to pay less</SectionLabel>
+            <div style={{display:"grid",gap:6}}>
+              {loc.negotiationTips.map((g,i)=>(
+                <div key={i} style={{display:"grid",gridTemplateColumns:"auto 1fr auto",alignItems:"center",gap:12,padding:"13px 16px",background:i===0?"rgba(42,80,64,.05)":"var(--paper2)",border:`1px solid ${i===0?"var(--green)":"var(--rule)"}`}}>
+                  <div style={{fontFamily:"var(--serif)",fontSize:20,color:i===0?"var(--green)":"var(--ink4)",lineHeight:1,minWidth:20,textAlign:"center"}}>{i+1}</div>
+                  <span style={{fontSize:12,color:"var(--ink2)",fontFamily:"var(--serif)",lineHeight:1.5}}>{g.tip}</span>
+                  <span style={{fontSize:9,color:i===0?"var(--green)":tierData.accent,whiteSpace:"nowrap",letterSpacing:".04em",fontFamily:"var(--mono)",textAlign:"right"}}>{g.saving}</span>
+                </div>
+              ))}
+            </div>
+          </div>
           {analysis.autoItems.filter(i=>i.price>0).length>0&&(
             <div style={{marginBottom:20}}>
-              <SectionLabel>Mandatory Additions — Room & Building Requirements</SectionLabel>
+              <SectionLabel>Mandatory Additions — Room Requirements</SectionLabel>
               <div style={{display:"grid",gap:4}}>
                 {analysis.autoItems.filter(i=>i.price>0).map(item=>(
-                  <div key={item.id} style={{display:"grid",gridTemplateColumns:"auto 1fr auto auto",alignItems:"center",gap:12,padding:"11px 16px",background:"rgba(42,143,197,0.04)",border:"1px solid rgba(42,143,197,0.14)"}}>
+                  <div key={item.id} style={{display:"grid",gridTemplateColumns:"auto 1fr auto",alignItems:"center",gap:12,padding:"11px 14px",background:"rgba(42,143,197,0.04)",border:"1px solid rgba(42,143,197,0.14)"}}>
                     <div style={{width:5,height:5,borderRadius:"50%",background:"var(--blue)",flexShrink:0}}/>
                     <span style={{fontSize:12,color:"var(--ink2)",fontFamily:"var(--serif)"}}>{item.name}</span>
-                    <span style={{fontSize:9,color:"var(--blue)",background:"rgba(42,143,197,0.1)",border:"1px solid rgba(42,143,197,0.25)",padding:"2px 7px",letterSpacing:".06em",whiteSpace:"nowrap"}}>{item.reason}</span>
-                    <span style={{fontFamily:"var(--serif)",fontSize:15,color:"var(--blue)",minWidth:72,textAlign:"right"}}>{formatPrice(item.price,loc)}</span>
+                    <span style={{fontFamily:"var(--serif)",fontSize:14,color:"var(--blue)",minWidth:60,textAlign:"right"}}>{formatPrice(item.price,loc)}</span>
                   </div>
                 ))}
               </div>
             </div>
           )}
-
-          <div style={{marginBottom:28,padding:isMobile?"12px 14px":"16px 20px",background:"var(--paper2)",border:"1px solid var(--rule)"}}>
-            <SynergyRing score={synergy}/>
-          </div>
-
-          {analysis.warnings.filter(w=>w.level==="critical").length>0&&(
-            <div style={{marginBottom:20}}><SectionLabel>Critical Constraints</SectionLabel><div style={{display:"grid",gap:7}}>{analysis.warnings.filter(w=>w.level==="critical").map((w,i)=><WarningBadge key={i} w={w} SEV={SEV}/>)}</div></div>
-          )}
-
           {[
-            {id:"placement",label:"Placement Diagram",content:(
-              <div>
-                <div style={{display:"flex",justifyContent:"center",background:"var(--paper)",border:"1px solid var(--rule)",padding:16,marginBottom:12}}><RoomDiagram length={room.length} width={room.width} separation={analysis.separation} backWall={analysis.backWall} listenPos={analysis.listenPos||3.2} sideWallGap={sideWallGap} accent={tierData.accent}/></div>
-                <div style={{display:"flex",justifyContent:"center",gap:24,flexWrap:"wrap"}}>
-                  {[{l:"Speaker separation",v:`${analysis.separation}m`},{l:"Back wall",v:`${analysis.backWall}m`},{l:"Listening position",v:`${analysis.listenPos||3.2}m`}].map(m=><div key={m.l} style={{textAlign:"center"}}><div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".1em",textTransform:"uppercase",marginBottom:3}}>{m.l}</div><div style={{fontFamily:"var(--serif)",fontSize:16,color:tierData.accent}}>{m.v}</div></div>)}
-                </div>
-              </div>
-            )},
-            {id:"negotiation",label:"Dealer Negotiation Guide",content:(
-              <div style={{display:"grid",gap:6}}>
-                {loc.negotiationTips.map((g,i)=>(
-                  <div key={i} style={{display:"grid",gridTemplateColumns:"1fr auto",alignItems:"center",gap:8,padding:"11px 14px",background:"var(--paper)",border:"1px solid var(--rule)"}}>
-                    <div style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:3,height:3,background:tierData.accent,flexShrink:0,transform:"rotate(45deg)"}}/><span style={{fontSize:11,color:"var(--ink2)"}}>{g.tip}</span></div>
-                    <span style={{fontSize:10,color:tierData.accent,whiteSpace:"nowrap",letterSpacing:".04em"}}>{g.saving}</span>
-                  </div>
-                ))}
-              </div>
-            )},
+            {id:"placement",label:"Placement Diagram",content:(<div><div style={{display:"flex",justifyContent:"center",background:"var(--paper)",border:"1px solid var(--rule)",padding:16,marginBottom:12}}><RoomDiagram length={room.length} width={room.width} separation={analysis.separation} backWall={analysis.backWall} listenPos={analysis.listenPos||3.2} sideWallGap={sideWallGap} accent={tierData.accent}/></div><div style={{display:"flex",justifyContent:"center",gap:24,flexWrap:"wrap"}}>{[{l:"Speaker separation",v:`${analysis.separation}m`},{l:"Back wall",v:`${analysis.backWall}m`},{l:"Listening position",v:`${analysis.listenPos||3.2}m`}].map(m=><div key={m.l} style={{textAlign:"center"}}><div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".1em",textTransform:"uppercase",marginBottom:3}}>{m.l}</div><div style={{fontFamily:"var(--serif)",fontSize:16,color:tierData.accent}}>{m.v}</div></div>)}</div></div>)},
             {id:"wiring",label:"Mains Conditioner — Power Bank Assignment",content:<WiringMap basket={basket}/>},
-          ].map(section=>(
-            <CollapsibleSection key={section.id} label={section.label}>{section.content}</CollapsibleSection>
-          ))}
-
-          <div style={{marginTop:24,padding:"16px 20px",background:"rgba(42,143,197,.06)",border:"1px solid rgba(42,143,197,.18)",borderRadius:4,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
+          ].map(section=>(<CollapsibleSection key={section.id} label={section.label}>{section.content}</CollapsibleSection>))}
+          <div style={{marginTop:24,padding:"16px 20px",background:"rgba(42,143,197,.06)",border:"1px solid rgba(42,143,197,.18)",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
             <div>
               <div style={{fontSize:9,color:"var(--blue)",letterSpacing:".18em",textTransform:"uppercase",marginBottom:3}}>Help improve this tool</div>
               <div style={{fontSize:10,color:"var(--ink3)",lineHeight:1.5}}>Two minutes · tells us what to build next</div>
             </div>
             <a href={TALLY_URL} target="_blank" rel="noopener noreferrer" style={{display:"inline-flex",alignItems:"center",gap:8,padding:"10px 20px",background:"rgba(42,143,197,.12)",border:"1px solid rgba(42,143,197,.4)",color:"var(--blue)",fontSize:10,letterSpacing:".12em",textTransform:"uppercase",textDecoration:"none",fontFamily:"var(--mono)",whiteSpace:"nowrap"}}>Give Feedback</a>
           </div>
-          <NavRow onBack={()=>goTo("catalog")} nextLabel="← Restart" onNext={()=>{setCompleted(new Set());goTo("materials");setShowLanding(true);}}/>
+          <NavRow onBack={()=>goTo("summary")} nextLabel="← Start over" onNext={()=>{setCompleted(new Set());goTo("materials");setShowLanding(true);}}/>
         </div>
       );
     })(),
