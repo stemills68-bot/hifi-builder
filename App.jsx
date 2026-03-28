@@ -640,7 +640,7 @@ const CATALOG = {
         {id:"h_master",     name:"Master Innovation",  sub:"Clearaudio · Unify tonearm · Goldfinger",vendor:"clearaudio", price:18995,cat:"turntable"},
       ],
       cartridge:[
-        {id:"h_nd9",        name:"Nd9",                sub:"Rega · MM · Boron cantilever · Fine Line · reference", vendor:"rega", price:695, cat:"cartridge", note:"Rega's flagship MM — Boron cantilever and Fine Line stylus technology from the Aphelion 2 MC. Does not need a dedicated MC phono stage. At £695 it is extraordinary value against MCs costing three times the price. Factory-fitted option on Planar 8 and Planar 6 RS."}
+        {id:"h_nd9",        name:"Nd9",                sub:"Rega · MM · Boron cantilever · Fine Line · reference", vendor:"rega", price:695, cat:"cartridge", note:"Rega's flagship MM — Boron cantilever and Fine Line stylus technology from the Aphelion 2 MC. Does not need a dedicated MC phono stage. At £695 it is extraordinary value against MCs costing three times the price. Factory-fitted option on Planar 8 and Planar 6 RS."},
         {id:"h_apheta3",    name:"Apheta 3",           sub:"Rega · MC · 350μV · fine-line",        vendor:"rega",         price:799,  cat:"cartridge"},
         {id:"h_aphelion2",  name:"Aphelion 2",         sub:"Rega · MC · 350μV · boron",            vendor:"rega",         price:2999, cat:"cartridge"},
         {id:"h_cadenza_bk", name:"Cadenza Black",      sub:"Ortofon · MC · 0.33mV · Shibata",      vendor:"ortofon",      price:1299, cat:"cartridge"},
