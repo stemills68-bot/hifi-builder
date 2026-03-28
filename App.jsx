@@ -4,14 +4,12 @@
 // ║                                                                  ║
 // ║  Changes from v3:                                               ║
 // ║  • Full visual restyle — warmer cream, deeper ink, simpler      ║
-// ║  • Landing page rebuilt — big 80px headline, one CTA, done      ║
+// ║  • Landing page rebuilt — big headline, one CTA, done           ║
 // ║  • Buttons full-width, tall, black fill — more decisive         ║
-// ║  • Range sliders round, ink-black thumb                         ║
-// ║  • Inputs use underline style — cleaner, less boxy              ║
-// ║  • SectionLabel stripped — no amber bar, just text + rule       ║
-// ║  • InfoBanner uses ink border — less colour noise               ║
-// ║  • VinylAccent simplified — clean concentric circles            ║
-// ║  • Step headings bigger — 38px, no subtitle clutter             ║
+// ║  • Room step rebuilt — named sizes instead of sliders           ║
+// ║  • Claude vision photo analysis — auto-fills room details       ║
+// ║  • Real-time consequences shown as you make choices             ║
+// ║  • Side wall question simplified to Tight / Normal / Generous   ║
 // ║  • All v3 logic preserved                                       ║
 // ╚══════════════════════════════════════════════════════════════════╝
 
@@ -1377,48 +1375,341 @@ export default function HiFiSystemBuilder() {
       </div>
     ),
 
-    room: (
-      <div>
-        <StepHeading title="Room & Placement" sub="Dimensions and furniture setup"/>
-        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:isMobile?0:10,marginBottom:12}}>
-          {[{k:"length",label:"Length",max:12},{k:"width",label:"Width",max:10},{k:"height",label:"Height",max:4}].map(({k,label,max})=><DimSlider key={k} label={label} value={room[k]} unit="m" min={1.5} max={max} step={0.1} onChange={v=>setRoom(r=>({...r,[k]:v}))}/>)}
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:6,marginBottom:20}}>
-          {[{label:"Area",val:`${analysis.area} m²`},{label:"Volume",val:`${analysis.volume} m³`},{label:"Spkr Sep.",val:`${analysis.separation}m`}].map(m=>(
-            <div key={m.label} style={{padding:"8px 10px",background:"var(--paper2)",border:"1px solid var(--rule)",textAlign:"center"}}>
-              <div style={{fontSize:8,color:"var(--ink4)",letterSpacing:".1em",textTransform:"uppercase",marginBottom:3}}>{m.label}</div>
-              <div style={{fontFamily:"var(--serif)",fontSize:16,color:"var(--amber)"}}>{m.val}</div>
+    room: (()=>{
+      // ── Named room size definitions ─────────────────────────────────
+      const ROOM_SIZES = [
+        { id:"small",     label:"Small",          sub:"Bedroom or study",        desc:"Up to 12 m² · roughly 3×4m", dims:{length:3.5,width:3.2,height:2.4}, tierHint:"entry",   speakerHint:"Standmount only — a floorstander will overwhelm this space." },
+        { id:"medium",    label:"Medium",          sub:"Standard living room",    desc:"12–20 m² · roughly 4×5m",    dims:{length:5.0,width:4.0,height:2.5}, tierHint:"mid",     speakerHint:"Standmount or compact floorstander. Good flexibility." },
+        { id:"large",     label:"Large",           sub:"Generous living room",    desc:"20–30 m² · roughly 5×6m",    dims:{length:6.0,width:5.0,height:2.6}, tierHint:"mid",     speakerHint:"Floorstander will work well here. Bass can breathe." },
+        { id:"openplan",  label:"Open Plan",       sub:"Kitchen-diner or loft",   desc:"30 m²+ · large or irregular", dims:{length:7.5,width:5.5,height:2.8}, tierHint:"high",    speakerHint:"Large floorstander or active monitors. Budget for acoustic treatment." },
+      ];
+
+      // ── Mounting options simplified ─────────────────────────────────
+      const MOUNT_OPTS = [
+        { id:"sideboard", label:"Sideboard",      sub:"On furniture",    icon:<IconSideboard size={28} col="currentColor"/> },
+        { id:"rack",      label:"Dedicated Rack", sub:"Hi-fi rack",      icon:<IconRack      size={28} col="currentColor"/> },
+        { id:"other",     label:"Custom / Floor", sub:"Other setup",     icon:<IconFloor     size={28} col="currentColor"/> },
+      ];
+
+      // ── Photo analysis state ────────────────────────────────────────
+      const [photoState, setPhotoState] = React.useState("idle"); // idle | loading | done | error
+      const [photoResult, setPhotoResult] = React.useState(null);
+      const [photoPreview, setPhotoPreview] = React.useState(null);
+      const fileInputRef = React.useRef(null);
+
+      const selectedSize = ROOM_SIZES.find(s => {
+        const a = analysis.area;
+        if (s.id==="small")    return a <= 12;
+        if (s.id==="medium")   return a > 12 && a <= 20;
+        if (s.id==="large")    return a > 20 && a <= 30;
+        if (s.id==="openplan") return a > 30;
+        return false;
+      }) || ROOM_SIZES[1];
+
+      // Which named size is currently active based on room state
+      const activeSize = ROOM_SIZES.find(s => {
+        const a = room.length * room.width;
+        if (s.id==="small")    return a <= 12;
+        if (s.id==="medium")   return a > 12 && a <= 20;
+        if (s.id==="large")    return a > 20 && a <= 30;
+        if (s.id==="openplan") return a > 30;
+      }) || ROOM_SIZES[1];
+
+      function selectSize(size) {
+        setRoom(size.dims);
+        if (size.tierHint) setTier(size.tierHint);
+      }
+
+      // ── Real-time consequence strip ─────────────────────────────────
+      function getConsequences() {
+        const consequences = [];
+        const a = room.length * room.width;
+        if (a <= 12)       consequences.push({ icon:"🔊", text:"Standmount speakers only — floorstanders will overwhelm this space" });
+        else if (a <= 20)  consequences.push({ icon:"🔊", text:"Standmount or compact floorstander — good flexibility" });
+        else if (a <= 30)  consequences.push({ icon:"🔊", text:"Full floorstander will work well — bass has room to develop" });
+        else               consequences.push({ icon:"🔊", text:"Large floorstander or active monitors — consider acoustic treatment" });
+        if (sideWallGap < 30) consequences.push({ icon:"⚠️", text:`Only ${sideWallGap}cm to side wall — rear-ported speakers will cause bass boom` });
+        if (mounting === "sideboard") consequences.push({ icon:"📐", text:"Isolation platform under turntable strongly recommended on furniture" });
+        if (floorTypes.includes("wood") && buildingType === "apt_upper") consequences.push({ icon:"🏠", text:"Hardwood floor + upper flat — speaker isolation footers are essential" });
+        return consequences;
+      }
+
+      // ── Claude vision photo analysis ───────────────────────────────
+      async function analysePhoto(file) {
+        setPhotoState("loading");
+        try {
+          const base64 = await new Promise((res, rej) => {
+            const r = new FileReader();
+            r.onload = () => res(r.result.split(",")[1]);
+            r.onerror = () => rej(new Error("Read failed"));
+            r.readAsDataURL(file);
+          });
+          const preview = await new Promise(res => {
+            const r = new FileReader();
+            r.onload = () => res(r.result);
+            r.readAsDataURL(file);
+          });
+          setPhotoPreview(preview);
+
+          const response = await fetch("https://api.anthropic.com/v1/messages", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "claude-haiku-4-5-20251001",
+              max_tokens: 1000,
+              messages: [{
+                role: "user",
+                content: [
+                  {
+                    type: "image",
+                    source: { type: "base64", media_type: file.type || "image/jpeg", data: base64 }
+                  },
+                  {
+                    type: "text",
+                    text: `You are analysing a photo of a listening room for a hi-fi system configurator. 
+                    
+Analyse the image and respond ONLY with a JSON object — no preamble, no markdown, no backticks. Example:
+{"roomSize":"medium","floorType":"wood","wallType":"plasterboard","sideWallClearance":"normal","mountingSurface":"sideboard","issues":["Large glass window on left wall","Low ceiling"],"confidence":"high","notes":"Standard UK living room. Timber floor throughout. Plasterboard walls. Sideboard on left wall with limited space."}
+
+roomSize: one of "small" / "medium" / "large" / "openplan"
+floorType: one of "carpet" / "wood" / "tile"  
+wallType: one of "solid_brick" / "plasterboard" / "glass" (dominant material)
+sideWallClearance: one of "tight" (under 30cm) / "normal" (30-60cm) / "generous" (over 60cm)
+mountingSurface: one of "sideboard" / "rack" / "other"
+issues: array of strings — acoustic problems visible in the photo (glass, hard surfaces, parallel walls, low ceiling, etc.). Empty array if none.
+confidence: one of "high" / "medium" / "low"
+notes: one sentence description of what you see.
+
+Be honest. If the image is too dark, blurry, or unclear, set confidence to "low" and explain in notes.`
+                  }
+                ]
+              }]
+            })
+          });
+
+          const data = await response.json();
+          const text = data.content?.map(c => c.text || "").join("") || "";
+          const clean = text.replace(/```json|```/g, "").trim();
+          const result = JSON.parse(clean);
+          setPhotoResult(result);
+
+          // Auto-apply detected values
+          const sizeMap = { small:ROOM_SIZES[0], medium:ROOM_SIZES[1], large:ROOM_SIZES[2], openplan:ROOM_SIZES[3] };
+          if (sizeMap[result.roomSize]) selectSize(sizeMap[result.roomSize]);
+          if (result.floorType) setFloorTypes([result.floorType]);
+          if (result.wallType)  setWallMaterials([result.wallType]);
+          if (result.mountingSurface) setMounting(result.mountingSurface);
+          if (result.sideWallClearance === "tight") setSideWallGap(20);
+          else if (result.sideWallClearance === "generous") setSideWallGap(60);
+          else setSideWallGap(40);
+
+          setPhotoState("done");
+        } catch (err) {
+          console.error("Photo analysis failed:", err);
+          setPhotoState("error");
+        }
+      }
+
+      function handleFileChange(e) {
+        const file = e.target.files?.[0];
+        if (file) analysePhoto(file);
+      }
+
+      const consequences = getConsequences();
+
+      return (
+        <div>
+          <StepHeading title="Your Room"/>
+
+          {/* ── Step 1: Room size ─────────────────────────────────────── */}
+          <div style={{marginBottom:28}}>
+            <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".18em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:14}}>How big is your listening room?</div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8}}>
+              {ROOM_SIZES.map(size => {
+                const active = activeSize.id === size.id;
+                return (
+                  <button key={size.id} onClick={()=>selectSize(size)} style={{
+                    padding:"20px 18px",textAlign:"left",cursor:"pointer",
+                    border:`2px solid ${active?"var(--ink)":"var(--rule)"}`,
+                    background:active?"var(--ink)":"var(--paper2)",
+                    transition:"all .2s",
+                  }}>
+                    <div style={{fontFamily:"var(--serif)",fontSize:"clamp(18px,3vw,22px)",color:active?"var(--paper)":"var(--ink)",lineHeight:1,marginBottom:5}}>{size.label}</div>
+                    <div style={{fontSize:10,color:active?"rgba(245,242,232,.7)":"var(--ink4)",fontFamily:"var(--mono)",marginBottom:8,letterSpacing:".04em"}}>{size.sub}</div>
+                    <div style={{fontSize:9,color:active?"rgba(245,242,232,.5)":"var(--ink4)",fontFamily:"var(--mono)"}}>{size.desc}</div>
+                  </button>
+                );
+              })}
             </div>
-          ))}
-        </div>
+          </div>
 
-        <div style={{height:1,background:"var(--rule)",margin:"16px 0"}}/>
-        <SectionLabel>Furniture & Placement</SectionLabel>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:6,marginBottom:14}}>
-          {MOUNTING.map(m=>{
-            const active=mounting===m.id, Icon=m.id==="sideboard"?IconSideboard:m.id==="rack"?IconRack:IconFloor;
-            return (
-              <button key={m.id} onClick={()=>setMounting(m.id)} style={{padding:"14px 10px",textAlign:"center",cursor:"pointer",border:`1px solid ${active?"rgba(197,160,40,.5)":"var(--rule)"}`,background:active?"rgba(197,160,40,.08)":"var(--paper2)",transition:"all .2s"}}>
-                <div style={{marginBottom:8,opacity:active?1:.35}}><Icon size={24} col={active?"var(--amber)":"var(--ink3)"}/></div>
-                <div style={{fontSize:11,fontFamily:"var(--serif)",color:active?"var(--amber)":"var(--ink2)",marginBottom:2}}>{m.label}</div>
-                <div style={{fontSize:7,color:"var(--ink4)",letterSpacing:".05em"}}>{m.sub}</div>
-              </button>
-            );
-          })}
-        </div>
-
-        <div style={{display:"grid",gap:8,marginBottom:14}}>
-          {mounting!=="rack"&&(
-            <DimSlider label="Sideboard Width" value={sideboardWidth} unit="m" min={0.6} max={3.0} step={0.05} onChange={setSideboardWidth} noteOn={sideboardWidth<1.5} noteMsg={sideboardWidth<1.5?"Below 1.5m — stacking config applies":""} noteCol="var(--amber)"/>
+          {/* ── Real-time consequences ────────────────────────────────── */}
+          {activeSize && (
+            <div className="fu" style={{marginBottom:28,padding:"16px 20px",background:"var(--paper2)",borderLeft:`3px solid var(--ink)`}}>
+              <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".16em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:10}}>What this means for your system</div>
+              <p style={{fontFamily:"var(--serif)",fontSize:14,color:"var(--ink2)",lineHeight:1.65,marginBottom:consequences.length>1?10:0}}>{activeSize.speakerHint}</p>
+              {consequences.length > 0 && (
+                <div style={{display:"grid",gap:6,marginTop:8,paddingTop:10,borderTop:"1px solid var(--rule)"}}>
+                  {consequences.map((c,i)=>(
+                    <div key={i} style={{display:"flex",alignItems:"flex-start",gap:10}}>
+                      <span style={{fontSize:14,lineHeight:1,flexShrink:0,marginTop:1}}>{c.icon}</span>
+                      <span style={{fontSize:12,color:"var(--ink2)",fontFamily:"var(--serif)",lineHeight:1.5}}>{c.text}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
-          <DimSlider label="Speaker to Side Wall" value={sideWallGap} unit="cm" min={5} max={100} step={1} onChange={setSideWallGap} noteOn={sideWallGap<30} noteMsg={sideWallGap<30?"< 30cm — avoid rear-ported speakers":""} noteCol="var(--red)"/>
-        </div>
 
-        {analysis.tierRec&&<InfoBanner msg={`Room size (${analysis.area} m²) suggests a ${analysis.tierRec==="entry"?"compact, focused":analysis.tierRec==="mid"?"mid-range":"high-end reference"} system.`}/>}
-        {analysis.warnings.filter(w=>w.level==="critical"&&(w.msg.toLowerCase().includes("side wall")||w.msg.toLowerCase().includes("floor"))).map((w,i)=><WarningBadge key={i} w={w} SEV={SEV}/>)}
-        <NavRow onBack={()=>goTo("materials")} onNext={()=>{if(analysis.tierRec)setTier(analysis.tierRec);advance("room","genres");}}/>
-      </div>
-    ),
+          {/* ── Step 2: Photo analysis ────────────────────────────────── */}
+          <div style={{marginBottom:28}}>
+            <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".18em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:6}}>
+              Optional — photo analysis
+            </div>
+            <p style={{fontSize:12,color:"var(--ink3)",fontFamily:"var(--serif)",fontStyle:"italic",lineHeight:1.6,marginBottom:14}}>
+              Upload a photo of your listening space and Claude will estimate the room size, identify floor and wall materials, and flag any acoustic issues — automatically filling in the details below.
+            </p>
+
+            {photoState === "idle" && (
+              <button onClick={()=>fileInputRef.current?.click()} style={{
+                width:"100%",padding:"24px",
+                border:"2px dashed var(--rule)",background:"transparent",
+                cursor:"pointer",textAlign:"center",transition:"all .2s",
+                display:"flex",flexDirection:"column",alignItems:"center",gap:10,
+              }}>
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="15" stroke="var(--rule)" strokeWidth="1.5"/><path d="M16 10v12M10 16h12" stroke="var(--ink4)" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                <div style={{fontSize:11,color:"var(--ink3)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase"}}>Upload a photo</div>
+                <div style={{fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)"}}>JPG or PNG · your phone camera works perfectly</div>
+              </button>
+            )}
+
+            {photoState === "loading" && (
+              <div style={{padding:"32px",textAlign:"center",border:"1px solid var(--rule)",background:"var(--paper2)"}}>
+                <div className="vinyl-turn" style={{width:40,height:40,margin:"0 auto 16px"}}>
+                  <svg width="40" height="40" viewBox="0 0 40 40">
+                    <circle cx="20" cy="20" r="18" fill="none" stroke="var(--rule)" strokeWidth="2"/>
+                    <circle cx="20" cy="20" r="12" fill="none" stroke="var(--rule)" strokeWidth="1"/>
+                    <circle cx="20" cy="20" r="4" fill="var(--ink)" opacity=".4"/>
+                    <circle cx="20" cy="20" r="2" fill="var(--ink)"/>
+                  </svg>
+                </div>
+                <div style={{fontSize:11,color:"var(--ink3)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase"}}>Analysing your room...</div>
+                <div style={{fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)",marginTop:6}}>Claude is looking at your photo</div>
+              </div>
+            )}
+
+            {photoState === "done" && photoResult && (
+              <div className="fu">
+                {photoPreview && (
+                  <div style={{marginBottom:12,position:"relative"}}>
+                    <img src={photoPreview} alt="Your room" style={{width:"100%",maxHeight:200,objectFit:"cover",display:"block"}}/>
+                    <div style={{position:"absolute",top:8,right:8,background:"var(--green)",color:"var(--paper)",fontSize:9,fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",padding:"4px 10px"}}>Analysed</div>
+                  </div>
+                )}
+                <div style={{padding:"14px 16px",background:"rgba(42,80,64,.06)",borderLeft:"3px solid var(--green)",marginBottom:12}}>
+                  <div style={{fontSize:9,color:"var(--green)",letterSpacing:".14em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:6}}>
+                    Claude's assessment · {photoResult.confidence} confidence
+                  </div>
+                  <p style={{fontSize:12,color:"var(--ink2)",fontFamily:"var(--serif)",lineHeight:1.65,marginBottom:photoResult.issues?.length>0?10:0}}>{photoResult.notes}</p>
+                  {photoResult.issues?.length > 0 && (
+                    <div style={{display:"grid",gap:4,paddingTop:8,borderTop:"1px solid rgba(42,80,64,.15)"}}>
+                      {photoResult.issues.map((issue,i)=>(
+                        <div key={i} style={{fontSize:11,color:"var(--ink2)",fontFamily:"var(--serif)",display:"flex",gap:8,alignItems:"flex-start"}}>
+                          <span style={{color:"var(--amber)",flexShrink:0}}>→</span>{issue}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <button onClick={()=>{setPhotoState("idle");setPhotoResult(null);setPhotoPreview(null);}} style={{fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"}}>Upload a different photo</button>
+              </div>
+            )}
+
+            {photoState === "error" && (
+              <div style={{padding:"16px",border:"1px solid var(--rule)",background:"var(--paper2)"}}>
+                <div style={{fontSize:11,color:"var(--red)",fontFamily:"var(--mono)",marginBottom:6}}>Analysis failed — please try again or set the details manually below.</div>
+                <button onClick={()=>{setPhotoState("idle");setPhotoPreview(null);}} style={{fontSize:9,color:"var(--ink3)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"}}>Try again</button>
+              </div>
+            )}
+
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{display:"none"}}/>
+          </div>
+
+          {/* ── Step 3: Floor + Wall ──────────────────────────────────── */}
+          <div style={{marginBottom:24}}>
+            <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".18em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:14}}>
+              Surfaces {photoState==="done"?"— auto-filled from photo, adjust if needed":""}
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+              <div>
+                <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".12em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:8}}>Floor</div>
+                <div style={{display:"flex",flexDirection:"column",border:"1px solid var(--rule)"}}>
+                  {[{value:"carpet",label:"Carpet"},{value:"wood",label:"Hardwood"},{value:"tile",label:"Tile / Stone"}].map((o,i)=>{
+                    const sel=floorTypes.includes(o.value);
+                    return <button key={o.value} onClick={()=>toggleFloor(o.value)} style={{padding:"12px 14px",fontSize:12,cursor:"pointer",fontFamily:"var(--serif)",background:sel?"var(--ink)":"transparent",color:sel?"var(--paper)":"var(--ink2)",border:"none",borderTop:i>0?"1px solid var(--rule)":"none",textAlign:"left",transition:"all .15s",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      {o.label}
+                      {sel&&<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><polyline points="1,4 3.5,6.5 9,1" stroke="var(--paper)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                    </button>;
+                  })}
+                </div>
+              </div>
+              <div>
+                <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".12em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:8}}>Walls</div>
+                <div style={{display:"flex",flexDirection:"column",border:"1px solid var(--rule)"}}>
+                  {loc.wallMaterials.map((o,i)=>{
+                    const sel=wallMaterials.includes(o.value);
+                    return <button key={o.value} onClick={()=>toggleWall(o.value)} style={{padding:"12px 14px",fontSize:12,cursor:"pointer",fontFamily:"var(--serif)",background:sel?"var(--ink)":"transparent",color:sel?"var(--paper)":"var(--ink2)",border:"none",borderTop:i>0?"1px solid var(--rule)":"none",textAlign:"left",transition:"all .15s",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      {o.label}
+                      {sel&&<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><polyline points="1,4 3.5,6.5 9,1" stroke="var(--paper)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                    </button>;
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Step 4: Mounting ──────────────────────────────────────── */}
+          <div style={{marginBottom:24}}>
+            <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".18em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:14}}>Where will your equipment live?</div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
+              {MOUNT_OPTS.map(m=>{
+                const active=mounting===m.id;
+                return (
+                  <button key={m.id} onClick={()=>setMounting(m.id)} style={{padding:"18px 12px",textAlign:"center",cursor:"pointer",border:`2px solid ${active?"var(--ink)":"var(--rule)"}`,background:active?"var(--ink)":"var(--paper2)",transition:"all .2s"}}>
+                    <div style={{marginBottom:10,color:active?"var(--paper)":"var(--ink3)",display:"flex",justifyContent:"center"}}>{m.icon}</div>
+                    <div style={{fontSize:13,fontFamily:"var(--serif)",color:active?"var(--paper)":"var(--ink2)",marginBottom:3}}>{m.label}</div>
+                    <div style={{fontSize:8,color:active?"rgba(245,242,232,.6)":"var(--ink4)",letterSpacing:".06em",fontFamily:"var(--mono)"}}>{m.sub}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ── Speaker to side wall ──────────────────────────────────── */}
+          <div style={{marginBottom:8}}>
+            <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".18em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:14}}>How much space to the side wall?</div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
+              {[{id:"tight",label:"Tight",sub:"Under 30cm",val:20,warn:true},{id:"normal",label:"Normal",sub:"30–60cm",val:45,warn:false},{id:"generous",label:"Generous",sub:"Over 60cm",val:75,warn:false}].map(opt=>{
+                const active = opt.id==="tight"?sideWallGap<30:opt.id==="normal"?sideWallGap>=30&&sideWallGap<60:sideWallGap>=60;
+                return (
+                  <button key={opt.id} onClick={()=>setSideWallGap(opt.val)} style={{padding:"16px 12px",textAlign:"center",cursor:"pointer",border:`2px solid ${active?opt.warn?"var(--red)":"var(--ink)":"var(--rule)"}`,background:active?opt.warn?"rgba(139,32,32,.06)":"var(--ink)":"var(--paper2)",transition:"all .2s"}}>
+                    <div style={{fontFamily:"var(--serif)",fontSize:16,color:active?opt.warn?"var(--red)":"var(--paper)":"var(--ink2)",marginBottom:3}}>{opt.label}</div>
+                    <div style={{fontSize:9,color:active?opt.warn?"var(--red)":"rgba(245,242,232,.6)":"var(--ink4)",fontFamily:"var(--mono)",letterSpacing:".04em"}}>{opt.sub}</div>
+                  </button>
+                );
+              })}
+            </div>
+            {sideWallGap<30&&(
+              <div className="fu" style={{marginTop:10,padding:"10px 14px",borderLeft:"3px solid var(--red)",background:"rgba(139,32,32,.04)"}}>
+                <p style={{fontSize:12,color:"var(--red)",fontFamily:"var(--serif)"}}>Tight side wall — avoid rear-ported speakers. Front-ported or sealed cabinet only.</p>
+              </div>
+            )}
+          </div>
+
+          <NavRow onBack={()=>goTo("materials")} onNext={()=>{if(analysis.tierRec)setTier(analysis.tierRec);advance("room","genres");}}/>
+        </div>
+      );
+    })(),
 
     furniture: null,
 
