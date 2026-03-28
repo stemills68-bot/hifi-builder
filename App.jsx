@@ -1,3 +1,20 @@
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  HiFi System Builder — VERSION 3                                ║
+// ║  Date: 28 March 2026                                            ║
+// ║                                                                  ║
+// ║  Changes from v2:                                               ║
+// ║  • Guided signal-chain component picker (one step at a time)    ║
+// ║  • Auto-skip with explanation (bundled cart, built-in phono)    ║
+// ║  • Top pick highlighted per category                            ║
+// ║  • "Your system so far" strip always visible                    ║
+// ║  • Summary split from Pricing — "See the cost →" reveal        ║
+// ║  • Price reveal lands large at 72px, deal estimate in green     ║
+// ║  • Five negotiation tactics numbered, top one highlighted       ║
+// ║  • Vinyl accent motif on all step headings                      ║
+// ║  • Warnings gated — only fire after user interaction            ║
+// ║  • Synergy ring appears only after 3+ selections                ║
+// ╚══════════════════════════════════════════════════════════════════╝
+
 import { useState, useEffect, useRef } from "react";
 import * as React from "react";
 
