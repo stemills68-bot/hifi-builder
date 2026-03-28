@@ -699,7 +699,7 @@ const MOUNTING = [
   { id:"other",     label:"Floor / Custom", sub:"Informal or custom build", requireIso:true,  cableDress:false, vibWarn:true,  floorSpike:false, granite:true,  note:"Vibration Warning active. Place mains conditioner on floor or a 20mm granite slab." },
 ];
 
-function analyseRoom({ length, width, height, floorTypes=["wood"], wallMaterials=["plasterboard"], sideboardWidth, sideboardMat, sideWallGap, buildingType }) {
+function analyseRoom({ length, width, height, floorTypes=["wood"], wallMaterials=["plasterboard"], sideboardWidth, sideboardMat, sideWallGap, buildingType, currentTier="mid" }) {
   const area = +(length * width).toFixed(1);
   const volume = +(area * height).toFixed(1);
   const separation = Math.round(width * 0.55 * 10) / 10;
@@ -724,7 +724,7 @@ function analyseRoom({ length, width, height, floorTypes=["wood"], wallMaterials
   if (iso.carpetDiscs.required && !floorTypes.every(f=>f==="tile")) autoItems.push({ id:"carpet_discs", name:"Anti-Slip Floor Discs", reason:iso.carpetDiscs.reason, price:iso.carpetDiscs.price });
   if (iso.phonoPlatform.required) autoItems.push({ id:"lateral_auto", name:iso.phonoPlatform.item, reason:iso.phonoPlatform.reason, price:iso.phonoPlatform.price });
   // Power conditioning only surfaces as a mandatory auto-item at mid/high tier
-  if (iso.powerCond.required && tier !== "entry") autoItems.push({ id:"pq_auto", name:iso.powerCond.item, reason:iso.powerCond.reason, price:iso.powerCond.price });
+  if (iso.powerCond.required && currentTier !== "entry") autoItems.push({ id:"pq_auto", name:iso.powerCond.item, reason:iso.powerCond.reason, price:iso.powerCond.price });
   if (hasWood && bld.floorRisk === "critical") warnings.push({ level:"critical", msg:"Hardwood floor amplifies structural transmission. Isolation footers with anti-slip discs are doubly important here." });
   if (hasCarpet && hasWood) warnings.push({ level:"info", msg:"Mixed floor surfaces (carpet + hardwood): use appropriate isolation footers for each surface." });
   if (sideboardWidth < 1.5 && !autoItems.find(i=>i.id==="lateral_auto")) { warnings.push({ level:"warn", msg:`Sideboard is ${sideboardWidth}m wide (< 1.5m). Stacking config required: component isolation platform under phono stage.` }); autoItems.push({ id:"lateral_auto", name:"Component Isolation Platform", reason:"Stacking — sideboard < 1.5m", price:195 }); }
@@ -1271,7 +1271,7 @@ export default function HiFiSystemBuilder() {
   const selectedTurntable = basket.find(i=>i.cat==="turntable");
   const bundledCart = selectedTurntable ? (BUNDLED_CARTRIDGES[selectedTurntable.id] || null) : null;
   const needsCartridge = selectedTurntable ? REQUIRES_CARTRIDGE.has(selectedTurntable.id) : false;
-  const analysis = analyseRoom({ ...room, floorTypes, wallMaterials, sideboardWidth, sideboardMat, sideWallGap, buildingType });
+  const analysis = analyseRoom({ ...room, floorTypes, wallMaterials, sideboardWidth, sideboardMat, sideWallGap, buildingType, currentTier: tier });
   const tierData = CATALOG[tier];
   const synergy = calcSynergy(basket);
   const mountData = MOUNTING.find(m=>m.id===mounting);
