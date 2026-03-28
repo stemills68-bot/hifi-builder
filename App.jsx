@@ -360,6 +360,27 @@ function getGenreAdjustments(selectedGenres) {
   return { speakers: speakerAdj, amps: ampAdj };
 }
 
+
+// Naim amplifiers use DIN interconnects — pairing with RCA phono stages requires an adaptor
+const NAIM_DIN_AMPS = new Set([
+  "m_nait_xs3","m_sn3","h_nac552","h_nap500","h_statement"
+]);
+
+// Speakers requiring minimum amplifier power (watts)
+const SPEAKER_MIN_WATTS = {
+  "m_scm40": 100,
+  "h_scm50": 100,
+};
+
+// Amplifier power output (watts) — Class A amps derated by 2x vs AB
+const AMP_POWER_WATTS = {
+  "e_io":30,"e_brio":50,"e_elex4":72,"e_6000a":50,"e_8300a":75,"e_cxa81":80,"e_xa8200r":75,
+  "m_elicit":105,"m_aethos":125,"m_nait_xs3":70,"m_sn3":80,
+  "m_2010s2":30,"m_3010s2":35,  // Class A — real-world equivalent lower
+  "m_3050se":75,"m_m2si":75,"m_lyra":100,"m_8300mb":200,
+  "h_aethos_h":125,"h_3050ref":110,"h_ja5010":35,
+};
+
 const BUNDLED_CARTRIDGES = {
   "e_planar1":    { name:"Carbon MM",        type:"MM", note:"Carbon MM cartridge is factory-fitted. You can replace it with any of the cartridges below for an upgrade, but it is not required." },
   "e_planar2":    { name:"Carbon MM",        type:"MM", note:"Carbon MM cartridge is factory-fitted. Upgrading to the Nd3 is the most effective first upgrade on this turntable." },
@@ -392,13 +413,23 @@ const CARTRIDGE_PHONO_PAIRS = {
   h_apheta3:  "The Rega Apheta 3 pairs naturally with the Rega Aura MC or Fono Super MC. The Aura is the correct long-term partner.",
 };
 
+// Phono stages that are NOT compatible with Linn Kandid/Krystal (require Urika II or Uphorik)
+const LINN_PHONO_ONLY = new Set(["h_kandid","h_krystal"]);
+const LINN_PHONO_STAGES = new Set(["h_urika2","h_uphorik","m_uphorik"]);
+
+// Phono stages that use RCA only (incompatible with Naim DIN without adaptor)
+const RCA_PHONO_STAGES = new Set([
+  "e_fono_mm","e_fono_mc","e_groovetracer","m_fono_mc","m_fono_super_mc",
+  "m_aura","h_aura","h_trilogy906","h_lehmann","h_clearaudio_trio"
+]);
+
 const VENDORS = {
-  rega:        { id:"rega",        name:"Rega",           country:"UK", city:"Southend-on-Sea", col:"var(--amber)", desc:"Founded 1973. Vertically integrated manufacturer; makes own tonearms, cartridges, motors, platters. Renowned for musical pace and timing.", synergy:{rega:100,spendor:92,harbeth:88,proac:85,atc:80,graham_ls:82,naim:72,linn:75,audiolab:85,cambridge:80,musical_fidelity:78,exposure:88,sugden:85,cyrus:80,chord_elec:78,leema:82,roksan:90,clearaudio:80,ortofon:88,chord_co:85,isoacoustics:78,townshend:82,generic:30} },
+  rega:        { id:"rega",        name:"Rega",           country:"UK", city:"Southend-on-Sea", col:"var(--amber)", desc:"Founded 1973. Vertically integrated manufacturer; makes own tonearms, cartridges, motors, platters. Renowned for musical pace and timing.", synergy:{rega:100,spendor:92,harbeth:88,proac:85,atc:80,graham_ls:82,naim:80,linn:75,audiolab:85,cambridge:80,musical_fidelity:78,exposure:88,sugden:85,cyrus:80,chord_elec:78,leema:82,roksan:90,clearaudio:80,ortofon:88,chord_co:85,isoacoustics:78,townshend:82,generic:30} },
   linn:        { id:"linn",        name:"Linn",           country:"UK", city:"Glasgow",         col:"#8A9FC5", desc:"Founded 1972 with the iconic LP12 turntable. Scottish audiophile institution. Vertically integrated from source to speaker.", synergy:{rega:75,spendor:80,harbeth:78,proac:82,atc:85,graham_ls:80,naim:90,linn:100,audiolab:70,cambridge:65,musical_fidelity:72,exposure:75,sugden:80,cyrus:72,chord_elec:75,leema:78,roksan:80,clearaudio:75,ortofon:85,chord_co:80,isoacoustics:85,townshend:78,generic:30} },
   roksan:      { id:"roksan",      name:"Roksan",         country:"UK", city:"London",          col:"var(--amber)", desc:"Founded 1985. Creator of the Xerxes turntable. Strong musical pedigree with a focus on dynamics and clarity.", synergy:{rega:90,spendor:85,harbeth:82,proac:88,atc:82,graham_ls:80,naim:78,linn:80,audiolab:88,cambridge:82,musical_fidelity:85,exposure:88,sugden:82,cyrus:85,chord_elec:80,leema:85,roksan:100,clearaudio:78,ortofon:85,chord_co:82,isoacoustics:80,townshend:78,generic:30} },
   clearaudio:  { id:"clearaudio",  name:"Clearaudio",     country:"DE", city:"Erlangen",        col:"#A0A0A0", desc:"German precision turntable manufacturer with UK distribution. Magnetic bearing technology. Extremely low noise floors.", synergy:{rega:80,spendor:82,harbeth:80,proac:82,atc:78,graham_ls:85,naim:72,linn:75,audiolab:80,cambridge:75,musical_fidelity:80,exposure:82,sugden:80,cyrus:78,chord_elec:82,leema:80,roksan:78,clearaudio:100,ortofon:90,chord_co:85,isoacoustics:85,townshend:82,generic:30} },
   ortofon:     { id:"ortofon",     name:"Ortofon",        country:"DK", city:"Nakskov",         col:"#6A8CAD", desc:"Danish cartridge specialist founded 1918. The world's most widely used cartridges across all price points.", synergy:{rega:88,spendor:82,harbeth:80,proac:82,atc:78,graham_ls:85,naim:75,linn:85,audiolab:80,cambridge:78,musical_fidelity:80,exposure:82,sugden:80,cyrus:78,chord_elec:80,leema:80,roksan:85,clearaudio:90,ortofon:100,chord_co:82,isoacoustics:78,townshend:82,generic:30} },
-  naim:        { id:"naim",        name:"Naim",           country:"UK", city:"Salisbury",       col:"#7CA87C", desc:"Founded 1973. Defined the British amplifier sound — fast, rhythmically accurate, musically engaging. Star-earth topology.", synergy:{rega:72,spendor:88,harbeth:90,proac:88,atc:92,graham_ls:85,naim:100,linn:90,audiolab:65,cambridge:60,musical_fidelity:70,exposure:75,sugden:80,cyrus:70,chord_elec:72,leema:75,roksan:78,clearaudio:72,ortofon:75,chord_co:65,isoacoustics:85,townshend:80,generic:30} },
+  naim:        { id:"naim",        name:"Naim",           country:"UK", city:"Salisbury",       col:"#7CA87C", desc:"Founded 1973. Defined the British amplifier sound — fast, rhythmically accurate, musically engaging. Star-earth topology.", synergy:{rega:80,spendor:88,harbeth:90,proac:88,atc:92,graham_ls:85,naim:100,linn:90,audiolab:65,cambridge:60,musical_fidelity:70,exposure:75,sugden:80,cyrus:70,chord_elec:72,leema:75,roksan:78,clearaudio:72,ortofon:75,chord_co:65,isoacoustics:85,townshend:80,generic:30} },
   sugden:      { id:"sugden",      name:"Sugden",         country:"UK", city:"Brighouse",       col:"#C8A882", desc:"Founded 1967 in West Yorkshire. Pioneer of Class A solid-state amplification. Hand-built in England.", synergy:{rega:85,spendor:90,harbeth:95,proac:90,atc:82,graham_ls:88,naim:80,linn:80,audiolab:78,cambridge:75,musical_fidelity:80,exposure:88,sugden:100,cyrus:80,chord_elec:82,leema:85,roksan:82,clearaudio:80,ortofon:80,chord_co:85,isoacoustics:80,townshend:82,generic:30} },
   exposure:    { id:"exposure",    name:"Exposure",       country:"UK", city:"Brighton",        col:"#8CB88C", desc:"Founded 1974. Beautifully engineered British amplifiers. Strong synergy with Rega sources and Spendor/ProAc speakers.", synergy:{rega:88,spendor:92,harbeth:88,proac:90,atc:80,graham_ls:85,naim:75,linn:75,audiolab:82,cambridge:80,musical_fidelity:82,exposure:100,sugden:88,cyrus:82,chord_elec:82,leema:85,roksan:88,clearaudio:82,ortofon:82,chord_co:85,isoacoustics:80,townshend:80,generic:30} },
   musical_fidelity:{ id:"musical_fidelity", name:"Musical Fidelity", country:"UK", city:"London", col:"#9A8CB8", desc:"Founded 1982. High-power, high-specification amplifiers. Strong value proposition at mid-to-high price points.", synergy:{rega:78,spendor:82,harbeth:80,proac:82,atc:85,graham_ls:80,naim:70,linn:72,audiolab:82,cambridge:80,musical_fidelity:100,exposure:82,sugden:80,cyrus:82,chord_elec:80,leema:82,roksan:85,clearaudio:80,ortofon:80,chord_co:82,isoacoustics:78,townshend:78,generic:30} },
@@ -452,13 +483,13 @@ const CATALOG = {
         {id:"e_mp110",      name:"MP-110",             sub:"Nagaoka · Moving Magnet · 3.5mV",      vendor:"nagaoka",       price:125, cat:"cartridge", note:"Boron cantilever. Warm, smooth, fatigue-free."},
       ],
       amplifier:[
-        {id:"e_io",         name:"io",                 sub:"Rega · 30W · MM phono · compact",     vendor:"rega",         price:245,  cat:"amplifier", note:"Rega's compact entry integrated. Built-in MM phono stage. Designed to partner the Planar 1/2 and Kyte speakers."},
-        {id:"e_brio",       name:"Brio MK7",           sub:"Rega · 50W · MM phono · DAC",         vendor:"rega",         price:998,  cat:"amplifier", note:"Rega's most popular integrated. Built-in MM phono stage and DAC. The natural partner for the Planar 3."},
-        {id:"e_elex4",      name:"Elex MK4",           sub:"Rega · 72W · MM phono",               vendor:"rega",         price:1498, cat:"amplifier", note:"Includes MM phono stage. Significantly more power than the Brio."},
-        {id:"e_6000a",      name:"6000A",              sub:"Audiolab · 50W · MM phono",            vendor:"audiolab",     price:549,  cat:"amplifier", note:"Includes MM phono stage. Exceptional value. The benchmark entry-level integrated."},
-        {id:"e_8300a",      name:"8300A",              sub:"Audiolab · 75W · MM phono",            vendor:"audiolab",     price:799,  cat:"amplifier", note:"Includes MM phono stage. A step up from the 6000A with improved power supply."},
-        {id:"e_cxa81",      name:"CXA81 MK2",          sub:"Cambridge · 80W · MM phono · DAC",    vendor:"cambridge",    price:1099, cat:"amplifier", note:"Includes MM phono stage, DAC, and Bluetooth. One of the most complete entry integrateds available."},
-        {id:"e_xa8200r",    name:"XA-8200R",           sub:"Roksan · 75W integrated",             vendor:"roksan",       price:899,  cat:"amplifier", note:"No built-in phono stage. Pairs naturally with Roksan Radius turntable."},
+        {id:"e_io", powerW:10,         name:"io",                 sub:"Rega · 30W · MM phono · compact",     vendor:"rega",         price:245,  cat:"amplifier", note:"Rega's compact entry integrated. Built-in MM phono stage. Designed to partner the Planar 1/2 and Kyte speakers."},
+        {id:"e_brio", powerW:30,       name:"Brio MK7",           sub:"Rega · 50W · MM phono · DAC",         vendor:"rega",         price:998,  cat:"amplifier", note:"Rega's most popular integrated. Built-in MM phono stage and DAC. The natural partner for the Planar 3."},
+        {id:"e_elex4", powerW:50,      name:"Elex MK4",           sub:"Rega · 72W · MM phono",               vendor:"rega",         price:1498, cat:"amplifier", note:"Includes MM phono stage. Significantly more power than the Brio."},
+        {id:"e_6000a", powerW:30,      name:"6000A",              sub:"Audiolab · 50W · MM phono",            vendor:"audiolab",     price:549,  cat:"amplifier", note:"Includes MM phono stage. Exceptional value. The benchmark entry-level integrated."},
+        {id:"e_8300a", powerW:50,      name:"8300A",              sub:"Audiolab · 75W · MM phono",            vendor:"audiolab",     price:799,  cat:"amplifier", note:"Includes MM phono stage. A step up from the 6000A with improved power supply."},
+        {id:"e_cxa81", powerW:50,      name:"CXA81 MK2",          sub:"Cambridge · 80W · MM phono · DAC",    vendor:"cambridge",    price:1099, cat:"amplifier", note:"Includes MM phono stage, DAC, and Bluetooth. One of the most complete entry integrateds available."},
+        {id:"e_xa8200r", powerW:50,    name:"XA-8200R",           sub:"Roksan · 75W integrated",             vendor:"roksan",       price:899,  cat:"amplifier", note:"No built-in phono stage. Pairs naturally with Roksan Radius turntable."},
       ],
       speakers:[
         {id:"e_kyte",       name:"Kyte",               sub:"Rega · Compact standmount · phenolic",    vendor:"rega",          price:295,  cat:"speakers", note:"Rega's own compact standmount. Works across the full Rega range."},
@@ -495,7 +526,7 @@ const CATALOG = {
       ],
       isolation:[
         {id:"e_orea_b",     name:"Orea Bordeaux ×3",   sub:"IsoAcoustics · Component footers",   vendor:"isoacoustics", price:109,  cat:"isolation", note:"Three footers sit under your turntable or phono stage. The single most effective isolation upgrade for a first system."},
-        {id:"e_gaia3",      name:"GAIA III ×8",        sub:"IsoAcoustics · Speaker footers (stereo pair)",      vendor:"isoacoustics", price:430,  cat:"isolation", note:"4 footers per speaker × 2 speakers. One set of 4 is not enough for a stereo system."},
+        {id:"e_gaia3",      name:"GAIA III ×8",        sub:"IsoAcoustics · Speaker footers (stereo pair)",      vendor:"isoacoustics", price:430,  cat:"isolation", note:"4 footers per speaker × 2 speakers. This can be added later — your system will work correctly without them from day one. A worthwhile upgrade once the core system is in place."},
       ],
       // Power conditioning removed from entry tier — not essential when starting out
     },
@@ -529,16 +560,16 @@ const CATALOG = {
         {id:"m_at_art9xi",  name:"AT-ART9Xi",          sub:"Audio-Technica · MC · 500μV",          vendor:"audio_technica",price:599, cat:"cartridge", note:"High-output version of the ART9. Exceptional channel separation and speed."},
       ],
       amplifier:[
-        {id:"m_elicit",     name:"Elicit MK5",         sub:"Rega · 105W integrated",              vendor:"rega",         price:2498, cat:"amplifier", note:"No built-in phono stage. Rega's most popular serious integrated."},
-        {id:"m_aethos",     name:"Aethos",             sub:"Rega · 125W integrated",              vendor:"rega",         price:3498, cat:"amplifier", note:"No built-in phono stage. Rega's flagship integrated. Class A/AB output stage."},
-        {id:"m_nait_xs3",   name:"Nait XS3",           sub:"Naim · 70W integrated",               vendor:"naim",         price:2449, cat:"amplifier", note:"No built-in phono stage. Naim's characteristic pace and timing."},
-        {id:"m_sn3",        name:"SuperNait 3",        sub:"Naim · 80W · MM phono",               vendor:"naim",         price:3999, cat:"amplifier", note:"Includes MM phono stage — the only mid-range Naim with built-in phono."},
-        {id:"m_2010s2",     name:"2010S2",             sub:"Sugden · 30W Pure Class A",           vendor:"sugden",       price:1895, cat:"amplifier", note:"No built-in phono. 30W pure Class A. Extraordinary midrange warmth for Classical, Jazz, and Folk."},
-        {id:"m_3010s2",     name:"3010S2D",            sub:"Sugden · 35W Class A · DAC",          vendor:"sugden",       price:2450, cat:"amplifier", note:"No built-in phono. Adds a DAC to the 2010S2."},
-        {id:"m_3050se",     name:"3050SE",             sub:"Exposure · 75W integrated",           vendor:"exposure",     price:2195, cat:"amplifier", note:"No built-in phono. Strong synergy with Rega sources and Spendor/ProAc speakers."},
-        {id:"m_m2si",       name:"M2si",               sub:"Musical Fidelity · 75W integrated",   vendor:"musical_fidelity",price:1499, cat:"amplifier", note:"No built-in phono. High power, clean sound. Excellent value."},
-        {id:"m_lyra",       name:"Lyra Integrated",    sub:"Leema · 100W integrated",             vendor:"leema",        price:2495, cat:"amplifier", note:"No built-in phono. Welsh-made. Excellent measured performance."},
-        {id:"m_8300mb",     name:"8300MB",             sub:"Audiolab · Monoblock pair",           vendor:"audiolab",     price:1998, cat:"amplifier", note:"No built-in phono. Exceptional power for the money. Each speaker gets its own amplifier."},
+        {id:"m_elicit", powerW:75,     name:"Elicit MK5",         sub:"Rega · 105W integrated",              vendor:"rega",         price:2498, cat:"amplifier", note:"No built-in phono stage. Rega's most popular serious integrated."},
+        {id:"m_aethos", powerW:90,     name:"Aethos",             sub:"Rega · 125W integrated",              vendor:"rega",         price:3498, cat:"amplifier", note:"No built-in phono stage. Rega's flagship integrated. Class A/AB output stage."},
+        {id:"m_nait_xs3", powerW:50,   name:"Nait XS3",           sub:"Naim · 70W integrated",               vendor:"naim",         price:2449, cat:"amplifier", note:"No built-in phono stage. Naim's characteristic pace and timing."},
+        {id:"m_sn3", powerW:60,        name:"SuperNait 3",        sub:"Naim · 80W · MM phono",               vendor:"naim",         price:3999, cat:"amplifier", note:"Includes MM phono stage — the only mid-range Naim with built-in phono."},
+        {id:"m_2010s2", powerW:20,     name:"2010S2",             sub:"Sugden · 30W Pure Class A",           vendor:"sugden",       price:1895, cat:"amplifier", note:"No built-in phono. 30W pure Class A. Extraordinary midrange warmth for Classical, Jazz, and Folk."},
+        {id:"m_3010s2", powerW:25,     name:"3010S2D",            sub:"Sugden · 35W Class A · DAC",          vendor:"sugden",       price:2450, cat:"amplifier", note:"No built-in phono. Adds a DAC to the 2010S2."},
+        {id:"m_3050se", powerW:60,     name:"3050SE",             sub:"Exposure · 75W integrated",           vendor:"exposure",     price:2195, cat:"amplifier", note:"No built-in phono. Strong synergy with Rega sources and Spendor/ProAc speakers."},
+        {id:"m_m2si", powerW:60,       name:"M2si",               sub:"Musical Fidelity · 75W integrated",   vendor:"musical_fidelity",price:1499, cat:"amplifier", note:"No built-in phono. High power, clean sound. Excellent value."},
+        {id:"m_lyra", powerW:80,       name:"Lyra Integrated",    sub:"Leema · 100W integrated",             vendor:"leema",        price:2495, cat:"amplifier", note:"No built-in phono. Welsh-made. Excellent measured performance."},
+        {id:"m_8300mb", powerW:120,     name:"8300MB",             sub:"Audiolab · Monoblock pair",           vendor:"audiolab",     price:1998, cat:"amplifier", note:"No built-in phono. Exceptional power for the money. Each speaker gets its own amplifier."},
       ],
       speakers:[
         {id:"m_c30",        name:"C30.2 XD",           sub:"Harbeth · Compact standmount · RADIAL",   vendor:"harbeth",       price:2798, cat:"speakers"},
@@ -554,7 +585,7 @@ const CATALOG = {
         {id:"m_kef_r7",     name:"R7 Meta",            sub:"KEF · Floorstander · Metamaterial Uni-Q", vendor:"kef",           price:4499, cat:"speakers", note:"Wide, room-filling sound with a remarkably even off-axis response."},
         {id:"m_ma_gold200", name:"Gold 200",           sub:"Monitor Audio · Floorstander · RSDL",     vendor:"monitor_audio", price:2499, cat:"speakers", note:"Ribbon/dome hybrid tweeter plus ceramic cone drivers."},
         {id:"m_dali_rubicon6",name:"Rubicon 6",        sub:"Dali · Floorstander · ribbon hybrid",     vendor:"dali",          price:2999, cat:"speakers", note:"Natural, warm, and fatigue-free. Good match for Sugden Class A amplification."},
-        {id:"m_scm40",      name:"SCM40",              sub:"ATC · Floorstander passive",               vendor:"atc",           price:4498, cat:"speakers", note:"Requires 100W+ amplification. Extraordinary accuracy and dynamic range."},
+        {id:"m_scm40", minWatts:100,      name:"SCM40",              sub:"ATC · Floorstander passive",               vendor:"atc",           price:4498, cat:"speakers", note:"Requires 100W+ amplification. Extraordinary accuracy and dynamic range."},
         {id:"m_pmc_twenty5_23",name:"Twenty5 23i",     sub:"PMC · Floorstander · transmission line",  vendor:"pmc",           price:3999, cat:"speakers", note:"Unusually deep and well-controlled bass. Excellent for Rock and Electronic music."},
         {id:"m_focal_kanta1",name:"Kanta No.1",        sub:"Focal · Standmount · Beryllium",          vendor:"focal",         price:3999, cat:"speakers", note:"Flax cone, Beryllium tweeter. Natural partner for Naim amplification."},
         {id:"m_shl5",       name:"SHL5 Plus",          sub:"Harbeth · Floorstander · RADIAL",         vendor:"harbeth",       price:5498, cat:"speakers"},
@@ -616,13 +647,13 @@ const CATALOG = {
         {id:"h_kandid",     name:"Kandid",             sub:"Linn · MC · 0.35mV · reference",       vendor:"linn",         price:3495, cat:"cartridge"},
       ],
       amplifier:[
-        {id:"h_aethos_h",   name:"Aethos",             sub:"Rega · 125W flagship integrated",     vendor:"rega",         price:3498, cat:"amplifier"},
-        {id:"h_3050ref",    name:"3050S2 Reference",   sub:"Exposure · 110W reference integrated",vendor:"exposure",     price:3995, cat:"amplifier"},
-        {id:"h_ja5010",     name:"Masterclass IA-4",   sub:"Sugden · 35W Pure Class A",           vendor:"sugden",       price:5250, cat:"amplifier"},
+        {id:"h_aethos_h", powerW:90,   name:"Aethos",             sub:"Rega · 125W flagship integrated",     vendor:"rega",         price:3498, cat:"amplifier"},
+        {id:"h_3050ref", powerW:90,    name:"3050S2 Reference",   sub:"Exposure · 110W reference integrated",vendor:"exposure",     price:3995, cat:"amplifier"},
+        {id:"h_ja5010", powerW:20,     name:"Masterclass IA-4",   sub:"Sugden · 35W Pure Class A",           vendor:"sugden",       price:5250, cat:"amplifier"},
         {id:"h_m8xi",       name:"M8xi",               sub:"Musical Fidelity · 550W integrated",  vendor:"musical_fidelity",price:5999,cat:"amplifier"},
         {id:"h_qutest",     name:"Hugo TT2 + Etude",   sub:"Chord Electronics · DAC + power amp", vendor:"chord_elec",   price:8498, cat:"amplifier"},
         {id:"h_252_250",    name:"NAC 252 + NAP 250DR",sub:"Naim · Pre-power combination",        vendor:"naim",         price:11998,cat:"amplifier"},
-        {id:"h_552_500",    name:"NAC 552 + NAP 500DR",sub:"Naim · Reference pre-power",          vendor:"naim",         price:28995,cat:"amplifier"},
+        {id:"h_552_500",    name:"NAC 552 + NAP 500DR",sub:"Naim · Reference pre-power combination",vendor:"naim",       price:28995,cat:"amplifier", note:"Priced as a pair: NAC 552DR (approx £14,995) + NAP 500DR (approx £12,995). Both units benefit from Naim factory DR servicing — confirm DR status when purchasing. A Naim specialist dealer is essential at this level."},
         {id:"h_selekt_dsm", name:"Selekt DSM",          sub:"Linn · Streaming pre-amp · Katalyst DAC",vendor:"linn",     price:5995, cat:"amplifier"},
         {id:"h_akurate_dsm",name:"Akurate DSM",         sub:"Linn · Reference streaming pre-amp", vendor:"linn",         price:8995, cat:"amplifier"},
       ],
@@ -643,12 +674,12 @@ const CATALOG = {
         {id:"h_pmc_fact12",  name:"Fact.12",           sub:"PMC · Floorstander · transmission line",   vendor:"pmc",           price:12999,cat:"speakers"},
         {id:"h_kudos_titan505",name:"Titan 505",       sub:"Kudos · Floorstander · isobaric",          vendor:"kudos",         price:9500, cat:"speakers"},
         {id:"h_response5",  name:"Response D48R",      sub:"ProAc · Flagship ribbon floorstander",     vendor:"proac",         price:9995, cat:"speakers"},
-        {id:"h_scm50",      name:"SCM50",              sub:"ATC · Reference passive studio",           vendor:"atc",           price:9995, cat:"speakers"},
+        {id:"h_scm50", minWatts:100,      name:"SCM50",              sub:"ATC · Reference passive studio",           vendor:"atc",           price:9995, cat:"speakers"},
         {id:"h_scm50a",     name:"SCM50ASL",           sub:"ATC · Active reference studio",            vendor:"atc",           price:14995,cat:"speakers"},
       ],
       phono:[
-        {id:"h_aura_mc",    name:"Aura MC",            sub:"Rega · Reference MC phono stage",     vendor:"rega",         price:3998, cat:"phono"},
-        {id:"h_superline",  name:"Superline",          sub:"Naim · Reference MC phono",           vendor:"naim",         price:3799, cat:"phono"},
+        {id:"h_aura_mc",    name:"Aura MC",            sub:"Rega · Reference MC phono stage",     vendor:"rega",         price:4295, cat:"phono"},
+        {id:"h_superline",  name:"Superline",          sub:"Naim · Reference MC phono",           vendor:"naim",         price:3799, cat:"phono", note:"Requires an external power supply — Napsc (£295 minimum) or HiCap DR (£1,595) for full performance. Budget for this separately. Without it the Superline borrows power from the preamp."},
         {id:"h_trio",       name:"Trio",               sub:"Clearaudio · Balanced MC",            vendor:"clearaudio",   price:2395, cat:"phono"},
         {id:"h_mf_vinyl",   name:"Nu-Vista Vinyl",     sub:"Musical Fidelity · Valve/solid MC",   vendor:"musical_fidelity",price:2999,cat:"phono"},
         {id:"h_symphony",   name:"Symphony",           sub:"Leema · Fully balanced",              vendor:"leema",        price:2995, cat:"phono"},
@@ -1525,9 +1556,91 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
         <div>
           <StepHeading title="Your Room"/>
 
-          {/* ── Step 1: Room size ─────────────────────────────────────── */}
+          {/* ── Photo analysis — FIRST, most prominent ───────────────── */}
           <div style={{marginBottom:28}}>
-            <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".18em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:14}}>How big is your listening room?</div>
+            <div style={{marginBottom:14}}>
+              <div style={{fontFamily:"var(--serif)",fontSize:"clamp(16px,3vw,20px)",color:"var(--ink)",marginBottom:6,lineHeight:1.2}}>Let Claude read your room</div>
+              <p style={{fontSize:13,color:"var(--ink3)",fontFamily:"var(--serif)",lineHeight:1.65}}>
+                Take a photo of your listening space. Claude will identify the room size, floor, walls, and any acoustic issues — and fill everything in automatically.
+              </p>
+            </div>
+
+            {photoState === "idle" && (
+              <button onClick={()=>fileInputRef.current?.click()} style={{
+                width:"100%",padding:"28px 20px",
+                border:"2px solid var(--ink)",background:"var(--ink)",
+                cursor:"pointer",textAlign:"center",transition:"all .2s",
+                display:"flex",alignItems:"center",justifyContent:"center",gap:14,
+              }}>
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1" y="4" width="20" height="15" rx="2" stroke="var(--paper)" strokeWidth="1.5"/><circle cx="11" cy="11.5" r="4" stroke="var(--paper)" strokeWidth="1.5"/><path d="M7 4l1.5-3h5L15 4" stroke="var(--paper)" strokeWidth="1.5" strokeLinejoin="round"/></svg>
+                <div style={{textAlign:"left"}}>
+                  <div style={{fontSize:13,color:"var(--paper)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",marginBottom:2}}>Upload a photo</div>
+                  <div style={{fontSize:10,color:"rgba(245,242,232,.55)",fontFamily:"var(--mono)"}}>iPhone camera · JPG · takes 5 seconds</div>
+                </div>
+              </button>
+            )}
+
+            {photoState === "loading" && (
+              <div style={{padding:"32px",textAlign:"center",border:"2px solid var(--ink)",background:"var(--ink)"}}>
+                <div className="vinyl-turn" style={{width:40,height:40,margin:"0 auto 16px"}}>
+                  <svg width="40" height="40" viewBox="0 0 40 40">
+                    <circle cx="20" cy="20" r="18" fill="none" stroke="rgba(245,242,232,.2)" strokeWidth="2"/>
+                    <circle cx="20" cy="20" r="12" fill="none" stroke="rgba(245,242,232,.2)" strokeWidth="1"/>
+                    <circle cx="20" cy="20" r="4" fill="var(--paper)" opacity=".4"/>
+                    <circle cx="20" cy="20" r="2" fill="var(--paper)"/>
+                  </svg>
+                </div>
+                <div style={{fontSize:11,color:"var(--paper)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase"}}>Reading your room...</div>
+                <div style={{fontSize:9,color:"rgba(245,242,232,.5)",fontFamily:"var(--mono)",marginTop:6}}>Claude is analysing your photo</div>
+              </div>
+            )}
+
+            {photoState === "done" && photoResult && (
+              <div className="fu">
+                {photoPreview && (
+                  <div style={{marginBottom:12,position:"relative"}}>
+                    <img src={photoPreview} alt="Your room" style={{width:"100%",maxHeight:220,objectFit:"cover",display:"block"}}/>
+                    <div style={{position:"absolute",top:8,right:8,background:"var(--green)",color:"var(--paper)",fontSize:9,fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",padding:"4px 10px"}}>✓ Read</div>
+                  </div>
+                )}
+                <div style={{padding:"16px 18px",background:"var(--ink)",marginBottom:12}}>
+                  <div style={{fontSize:9,color:"rgba(245,242,232,.5)",letterSpacing:".14em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:8}}>
+                    Claude's assessment · {photoResult.confidence} confidence
+                  </div>
+                  <p style={{fontSize:13,color:"var(--paper)",fontFamily:"var(--serif)",lineHeight:1.65,marginBottom:photoResult.issues?.length>0?12:0}}>{photoResult.notes}</p>
+                  {photoResult.issues?.length > 0 && (
+                    <div style={{display:"grid",gap:6,paddingTop:10,borderTop:"1px solid rgba(245,242,232,.1)"}}>
+                      {photoResult.issues.map((issue,i)=>(
+                        <div key={i} style={{fontSize:12,color:"rgba(245,242,232,.7)",fontFamily:"var(--serif)",display:"flex",gap:8,alignItems:"flex-start"}}>
+                          <span style={{color:"var(--amber)",flexShrink:0}}>→</span>{issue}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <button onClick={()=>{setPhotoState("idle");setPhotoResult(null);setPhotoPreview(null);}} style={{fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"}}>Upload a different photo</button>
+              </div>
+            )}
+
+            {photoState === "error" && (
+              <div style={{padding:"16px 18px",border:"1px solid var(--rule)",background:"var(--paper2)"}}>
+                <div style={{fontSize:12,color:"var(--red)",fontFamily:"var(--serif)",marginBottom:6}}>Analysis failed — set the details manually below.</div>
+                <div style={{fontSize:10,color:"var(--ink4)",fontFamily:"var(--mono)",lineHeight:1.6,marginBottom:10}}>This can happen on corporate networks, VPNs, or connections with strict security filtering. Your home or phone connection will work fine.</div>
+                <button onClick={()=>{setPhotoState("idle");setPhotoPreview(null);}} style={{fontSize:9,color:"var(--ink3)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"}}>Try again</button>
+              </div>
+            )}
+
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{display:"none"}}/>
+          </div>
+
+          <div style={{height:1,background:"var(--rule)",marginBottom:28}}/>
+
+          {/* ── Room size — now secondary, pre-filled by photo if available ── */}
+          <div style={{marginBottom:28}}>
+            <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".18em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:6}}>
+              {photoState==="done"?"Room size — confirmed from photo, adjust if needed":"How big is your listening room?"}
+            </div>
+            {photoState!=="done"&&<p style={{fontSize:12,color:"var(--ink4)",fontFamily:"var(--mono)",lineHeight:1.5,marginBottom:14}}>Or skip the photo and select manually:</p>}
             <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8}}>
               {ROOM_SIZES.map(size => {
                 const active = activeSize.id === size.id;
@@ -1549,7 +1662,7 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
 
           {/* ── Real-time consequences ────────────────────────────────── */}
           {activeSize && (
-            <div className="fu" style={{marginBottom:28,padding:"16px 20px",background:"var(--paper2)",borderLeft:`3px solid var(--ink)`}}>
+            <div className="fu" style={{marginBottom:28,padding:"16px 20px",background:"var(--paper2)",borderLeft:"3px solid var(--ink)"}}>
               <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".16em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:10}}>What this means for your system</div>
               <p style={{fontFamily:"var(--serif)",fontSize:14,color:"var(--ink2)",lineHeight:1.65,marginBottom:consequences.length>1?10:0}}>{activeSize.speakerHint}</p>
               {consequences.length > 0 && (
@@ -1564,80 +1677,6 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
               )}
             </div>
           )}
-
-          {/* ── Step 2: Photo analysis ────────────────────────────────── */}
-          <div style={{marginBottom:28}}>
-            <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".18em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:6}}>
-              Optional — photo analysis
-            </div>
-            <p style={{fontSize:12,color:"var(--ink3)",fontFamily:"var(--serif)",fontStyle:"italic",lineHeight:1.6,marginBottom:14}}>
-              Upload a photo of your listening space and Claude will estimate the room size, identify floor and wall materials, and flag any acoustic issues — automatically filling in the details below.
-            </p>
-
-            {photoState === "idle" && (
-              <button onClick={()=>fileInputRef.current?.click()} style={{
-                width:"100%",padding:"24px",
-                border:"2px dashed var(--rule)",background:"transparent",
-                cursor:"pointer",textAlign:"center",transition:"all .2s",
-                display:"flex",flexDirection:"column",alignItems:"center",gap:10,
-              }}>
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="15" stroke="var(--rule)" strokeWidth="1.5"/><path d="M16 10v12M10 16h12" stroke="var(--ink4)" strokeWidth="1.5" strokeLinecap="round"/></svg>
-                <div style={{fontSize:11,color:"var(--ink3)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase"}}>Upload a photo</div>
-                <div style={{fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)"}}>JPG or PNG · your phone camera works perfectly</div>
-              </button>
-            )}
-
-            {photoState === "loading" && (
-              <div style={{padding:"32px",textAlign:"center",border:"1px solid var(--rule)",background:"var(--paper2)"}}>
-                <div className="vinyl-turn" style={{width:40,height:40,margin:"0 auto 16px"}}>
-                  <svg width="40" height="40" viewBox="0 0 40 40">
-                    <circle cx="20" cy="20" r="18" fill="none" stroke="var(--rule)" strokeWidth="2"/>
-                    <circle cx="20" cy="20" r="12" fill="none" stroke="var(--rule)" strokeWidth="1"/>
-                    <circle cx="20" cy="20" r="4" fill="var(--ink)" opacity=".4"/>
-                    <circle cx="20" cy="20" r="2" fill="var(--ink)"/>
-                  </svg>
-                </div>
-                <div style={{fontSize:11,color:"var(--ink3)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase"}}>Analysing your room...</div>
-                <div style={{fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)",marginTop:6}}>Claude is looking at your photo</div>
-              </div>
-            )}
-
-            {photoState === "done" && photoResult && (
-              <div className="fu">
-                {photoPreview && (
-                  <div style={{marginBottom:12,position:"relative"}}>
-                    <img src={photoPreview} alt="Your room" style={{width:"100%",maxHeight:200,objectFit:"cover",display:"block"}}/>
-                    <div style={{position:"absolute",top:8,right:8,background:"var(--green)",color:"var(--paper)",fontSize:9,fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",padding:"4px 10px"}}>Analysed</div>
-                  </div>
-                )}
-                <div style={{padding:"14px 16px",background:"rgba(42,80,64,.06)",borderLeft:"3px solid var(--green)",marginBottom:12}}>
-                  <div style={{fontSize:9,color:"var(--green)",letterSpacing:".14em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:6}}>
-                    Claude's assessment · {photoResult.confidence} confidence
-                  </div>
-                  <p style={{fontSize:12,color:"var(--ink2)",fontFamily:"var(--serif)",lineHeight:1.65,marginBottom:photoResult.issues?.length>0?10:0}}>{photoResult.notes}</p>
-                  {photoResult.issues?.length > 0 && (
-                    <div style={{display:"grid",gap:4,paddingTop:8,borderTop:"1px solid rgba(42,80,64,.15)"}}>
-                      {photoResult.issues.map((issue,i)=>(
-                        <div key={i} style={{fontSize:11,color:"var(--ink2)",fontFamily:"var(--serif)",display:"flex",gap:8,alignItems:"flex-start"}}>
-                          <span style={{color:"var(--amber)",flexShrink:0}}>→</span>{issue}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <button onClick={()=>{setPhotoState("idle");setPhotoResult(null);setPhotoPreview(null);}} style={{fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"}}>Upload a different photo</button>
-              </div>
-            )}
-
-            {photoState === "error" && (
-              <div style={{padding:"16px",border:"1px solid var(--rule)",background:"var(--paper2)"}}>
-                <div style={{fontSize:11,color:"var(--red)",fontFamily:"var(--mono)",marginBottom:6}}>Analysis failed — please try again or set the details manually below.</div>
-                <button onClick={()=>{setPhotoState("idle");setPhotoPreview(null);}} style={{fontSize:9,color:"var(--ink3)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"}}>Try again</button>
-              </div>
-            )}
-
-            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{display:"none"}}/>
-          </div>
 
           {/* ── Step 3: Floor + Wall ──────────────────────────────────── */}
           <div style={{marginBottom:24}}>
@@ -1823,6 +1862,17 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
 
         <SectionLabel>System Level</SectionLabel>
         {analysis.tierRec&&<InfoBanner msg={`Based on your room (${analysis.area} m²), the ${analysis.tierRec==="entry"?"Entry Level":analysis.tierRec==="mid"?"Mid-Range":"High-End"} system level is a strong match. (${loc.tierRanges[analysis.tierRec]})`}/>}
+        {/* Step-up prompt — when budget exceeds current tier ceiling */}
+        {budget>0&&tier==="entry"&&budget>5000&&(
+          <div style={{marginBottom:16,padding:"14px 16px",borderLeft:"3px solid var(--green)",background:"rgba(42,80,64,.06)"}}>
+            <p style={{fontSize:13,color:"var(--ink2)",fontFamily:"var(--serif)",lineHeight:1.65}}>Your budget of {formatPrice(budget,loc)} comfortably covers the <strong>Mid-Range</strong> tier — consider stepping up for significantly better components.</p>
+          </div>
+        )}
+        {budget>0&&tier==="mid"&&budget>15000&&(
+          <div style={{marginBottom:16,padding:"14px 16px",borderLeft:"3px solid var(--green)",background:"rgba(42,80,64,.06)"}}>
+            <p style={{fontSize:13,color:"var(--ink2)",fontFamily:"var(--serif)",lineHeight:1.65}}>Your budget of {formatPrice(budget,loc)} puts you into <strong>High-End</strong> territory — consider stepping up for reference-level components.</p>
+          </div>
+        )}
         <div style={{marginBottom:16,padding:"14px 16px",background:"var(--paper2)",border:"1px solid var(--rule)"}}>
           <div style={{fontSize:9,color:"var(--ink3)",letterSpacing:".18em",textTransform:"uppercase",marginBottom:8,fontFamily:"var(--mono)"}}>Your Budget (optional)</div>
           <div style={{display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
@@ -1836,7 +1886,11 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
         <div style={{display:"grid",gap:10,marginBottom:4}}>
           {Object.values(CATALOG).map(t=>{
             const active=tier===t.tier, rec=analysis.tierRec===t.tier;
-            const DESCS={entry:"Excellent entry into high-fidelity vinyl replay. All components are purpose-built for music.",mid:"The sweet spot for diminishing returns. Components at this level are sonically mature.",high:"Reference-level performance. At this level isolation, cabling, and room acoustics have as much impact as the components."};
+            const DESCS={
+              entry:"Excellent entry into high-fidelity vinyl replay. All components are purpose-built for music.",
+              mid:"The sweet spot for diminishing returns. Components at this level are sonically mature.",
+              high:"Reference-level performance. At this level the differences between components are real but increasingly subtle — and increasingly personal. A specialist dealer who knows your ears and your room becomes essential."
+            };
             return (
               <button key={t.tier} onClick={()=>setTier(t.tier)} style={{padding:"18px 20px",textAlign:"left",cursor:"pointer",border:`1px solid ${active?t.accent+"60":rec?t.accent+"30":"var(--rule)"}`,background:active?`${t.accent}0E`:"var(--paper2)",transition:"all .25s"}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
@@ -1848,6 +1902,19 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
             );
           })}
         </div>
+
+        {/* ── High tier dealer advisory ── */}
+        {tier==="high"&&(
+          <div className="fu" style={{marginTop:4,marginBottom:4,padding:"20px 22px",background:"var(--ink)"}}>
+            <div style={{fontSize:9,color:"rgba(245,242,232,.4)",letterSpacing:".2em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:10}}>A note on reference-level systems</div>
+            <p style={{fontFamily:"var(--serif)",fontSize:14,color:"var(--paper)",lineHeight:1.75,marginBottom:12}}>
+              This tool will give you an excellent starting point. But at the high-end, the right system is deeply personal — your room, your ears, your music, and the synergies between specific components at this level can only truly be assessed through extended listening.
+            </p>
+            <p style={{fontFamily:"var(--serif)",fontSize:13,color:"rgba(245,242,232,.65)",lineHeight:1.7,fontStyle:"italic"}}>
+              A specialist independent dealer — Signals, Cymbiosis, Loud & Clear, Moorgate Acoustics, KJ West One, or similar — will demo components in your price range, sometimes loan equipment home, and bring years of experience matching specific combinations. That relationship is irreplaceable at this level. Use this tool to arrive informed. Use a dealer to arrive at the right system.
+            </p>
+          </div>
+        )}
         <NavRow onBack={()=>goTo("genres")} onNext={()=>advance("tier","catalog")} nextLabel="See Component Recommendations →"/>
       </div>
     ),
@@ -1924,7 +1991,16 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
         };
         let scored = rawOpts
           .filter(budgetOk)
-          .map(item => ({ item, score: genreScore(item) + phonoScore(item) + biasScore(item) }))
+          .map(item => {
+            // Heavy penalty for items over the category budget slice
+            const sourcePct = bias < 50 ? 0.45 - (bias/50)*0.15 : 0.30 - ((bias-50)/50)*0.10;
+            const speakerPct = bias < 50 ? 0.25 + (bias/50)*0.05 : 0.30 + ((bias-50)/50)*0.15;
+            const slices = { turntable:sourcePct*0.6, cartridge:sourcePct*0.25, phono:sourcePct*0.15, amplifier:0.25, speakers:speakerPct, cables:0.05, isolation:0.05, power:0.03 };
+            const slice = slices[catKey] || 0.1;
+            const catBudget = budget > 0 ? budget * slice : 99999;
+            const overBudgetPenalty = (budget > 0 && item.price > catBudget) ? -20 : 0;
+            return { item, score: genreScore(item) + phonoScore(item) + biasScore(item) + overBudgetPenalty };
+          })
           .sort((a,b) => b.score - a.score);
         if (scored.length === 0) scored = rawOpts.map(item => ({ item, score: 0 }));
         return scored.map(s => s.item);
@@ -2017,19 +2093,68 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
                     Your <strong style={{color:"var(--ink2)",fontStyle:"normal"}}>{basket.find(b=>b.cat==="turntable").name}</strong> {REQUIRES_CARTRIDGE.has(basket.find(b=>b.cat==="turntable").id)?"needs a cartridge — choose one below.":"comes without a fitted cartridge — choose one below, or skip if you have one already."}
                   </p>
                 )}
-                {currentCatKey==="phono"&&basket.find(b=>b.cat==="cartridge")&&(()=>{
+
+                {/* ── FIX: Phono step — Linn Kandid/Krystal compatibility warning ── */}
+                {currentCatKey==="phono"&&(()=>{
                   const cart = basket.find(b=>b.cat==="cartridge");
-                  const isMC = (cart.sub||"").toLowerCase().includes("moving coil") || (cart.sub||"").toLowerCase().includes(" mc ");
-                  return <p style={{fontSize:12,color:"var(--ink3)",fontFamily:"var(--serif)",fontStyle:"italic",lineHeight:1.6}}>Your <strong style={{color:"var(--ink2)",fontStyle:"normal"}}>{cart.name}</strong> is a Moving {isMC?"Coil — you need a dedicated MC phono stage.":"Magnet — a built-in MM stage or a dedicated MM stage will work."}</p>;
+                  const tt = basket.find(b=>b.cat==="turntable");
+                  const bundled = tt ? BUNDLED_CARTRIDGES[tt.id] : null;
+                  const cartId = cart?.id || (bundled ? `${tt.id}_cart` : null);
+                  const isLinnCart = bundled && (tt?.id?.includes("lp12")) && (bundled.type==="MC");
+                  const isMC = cart ? ((cart.sub||"").toLowerCase().includes("moving coil")||(cart.sub||"").toLowerCase().includes(" mc ")) : (bundled?.type==="MC");
+                  return (
+                    <div style={{display:"grid",gap:8}}>
+                      {isLinnCart&&(
+                        <div style={{padding:"12px 14px",borderLeft:"3px solid var(--amber)",background:"rgba(196,98,26,.06)"}}>
+                          <p style={{fontSize:12,color:"var(--ink2)",fontFamily:"var(--serif)",lineHeight:1.65}}>
+                            <strong>Linn Kandid / Krystal note:</strong> These cartridges are designed for the Linn Urika II — a phono stage that mounts inside the LP12 itself. Choosing a non-Linn external phono stage is possible but sacrifices the internal mounting advantage and is not recommended by Linn.
+                          </p>
+                        </div>
+                      )}
+                      {cart&&<p style={{fontSize:12,color:"var(--ink3)",fontFamily:"var(--serif)",fontStyle:"italic",lineHeight:1.6}}>Your <strong style={{color:"var(--ink2)",fontStyle:"normal"}}>{cart.name}</strong> is a Moving {isMC?"Coil — you need a dedicated MC phono stage.":"Magnet — a built-in MM stage or a dedicated MM stage will work."}</p>}
+                      {!cart&&bundled&&<p style={{fontSize:12,color:"var(--ink3)",fontFamily:"var(--serif)",fontStyle:"italic",lineHeight:1.6}}>Your bundled <strong style={{color:"var(--ink2)",fontStyle:"normal"}}>{bundled.name}</strong> is a Moving {bundled.type==="MC"?"Coil — you need a dedicated MC phono stage.":"Magnet — a built-in MM stage will work."}</p>}
+                    </div>
+                  );
                 })()}
-                {currentCatKey==="amplifier"&&(
-                  <p style={{fontSize:12,color:"var(--ink3)",fontFamily:"var(--serif)",fontStyle:"italic",lineHeight:1.6}}>
-                    Room is {analysis.area} m² — {analysis.area>25?"80W+ recommended for adequate headroom.":analysis.area<12?"30–50W is sufficient for this space.":"50–80W will give comfortable headroom."}
-                  </p>
-                )}
-                {currentCatKey==="speakers"&&sideWallGap<30&&(
-                  <p style={{fontSize:12,color:"var(--red)",fontFamily:"var(--serif)",lineHeight:1.6}}>⚠ Only {sideWallGap}cm from side wall — rear-ported designs will cause bass boom. Front-ported or sealed only.</p>
-                )}
+
+                {/* ── FIX: Amplifier step — Naim DIN warning if non-DIN phono selected ── */}
+                {currentCatKey==="amplifier"&&(()=>{
+                  const selPhono = basket.find(b=>b.cat==="phono");
+                  const phonoIsRCA = selPhono && RCA_PHONO_STAGES.has(selPhono.id);
+                  return (
+                    <div style={{display:"grid",gap:8}}>
+                      <p style={{fontSize:12,color:"var(--ink3)",fontFamily:"var(--serif)",fontStyle:"italic",lineHeight:1.6}}>
+                        Room is {analysis.area} m² — {analysis.area>25?"80W+ recommended for adequate headroom.":analysis.area<12?"30–50W is sufficient for this space.":"50–80W will give comfortable headroom."}
+                      </p>
+                      {phonoIsRCA&&(
+                        <div style={{padding:"12px 14px",borderLeft:"3px solid var(--amber)",background:"rgba(196,98,26,.06)"}}>
+                          <p style={{fontSize:12,color:"var(--ink2)",fontFamily:"var(--serif)",lineHeight:1.65}}>
+                            <strong>Naim interconnect note:</strong> Your phono stage uses RCA connectors. Naim amplifiers use DIN sockets — if you choose a Naim amp you will need an RCA-to-DIN adaptor cable. This works but can introduce earth loop issues. A non-Naim amp avoids this.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                {/* ── FIX: Speakers step — amp power warning ── */}
+                {currentCatKey==="speakers"&&(()=>{
+                  const selAmp = basket.find(b=>b.cat==="amplifier");
+                  const ampW = selAmp ? (AMP_POWER_WATTS[selAmp.id] || 999) : 999;
+                  const isClassA = selAmp && (selAmp.sub||"").toLowerCase().includes("class a");
+                  return (
+                    <div style={{display:"grid",gap:8}}>
+                      {selAmp&&(
+                        <p style={{fontSize:12,color:"var(--ink3)",fontFamily:"var(--serif)",fontStyle:"italic",lineHeight:1.6}}>
+                          Your <strong style={{color:"var(--ink2)",fontStyle:"normal"}}>{selAmp.name}</strong> delivers {ampW}W{isClassA?" Class A — these are real watts, not derated. Sugden Class A amplifiers drive even demanding loads with authority.":""}. {ampW<50?"Best matched with efficient standmounts (88dB+).":ampW<100?"Works well with most standmounts and compact floorstanders.":"Sufficient power for most speakers including ATC passive monitors."}
+                        </p>
+                      )}
+                      {sideWallGap<30&&(
+                        <p style={{fontSize:12,color:"var(--red)",fontFamily:"var(--serif)",lineHeight:1.6}}>⚠ Only {sideWallGap}cm from side wall — rear-ported designs will cause bass boom. Front-ported or sealed only.</p>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* ── Options ────────────────────────────────────────────────── */}
@@ -2038,6 +2163,10 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
                   const on = isSelected(item);
                   const iv = VENDORS[item.vendor] || VENDORS.generic;
                   const matchedGenres = GENRES.filter(g=>selectedGenres.includes(g.id)&&((currentCatKey==="speakers"&&g.speakerWeights[item.vendor])||(currentCatKey==="amplifier"&&g.ampWeights[item.vendor])));
+                  const selAmp = basket.find(b=>b.cat==="amplifier");
+                  const ampW = selAmp ? (AMP_POWER_WATTS[selAmp.id]||999) : 999;
+                  const spkMinW = item.minWatts || 0;
+                  const powerMismatch = currentCatKey==="speakers" && spkMinW > 0 && ampW < spkMinW;
                   return (
                     <button key={item.id} onClick={()=>selectComp(currentCatKey,item)}
                       style={{textAlign:"left",cursor:"pointer",padding:0,border:`2px solid ${on?iv.col:"var(--rule)"}`,background:on?`${iv.col}08`:"var(--paper2)",transition:"all .2s",display:"block",width:"100%"}}>
@@ -2055,6 +2184,13 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
                             {iv.city&&iv.city!=="—"&&<span style={{fontSize:8,color:"var(--ink4)",fontFamily:"var(--mono)"}}>{iv.city}</span>}
                           </div>
                           {item.note&&<p style={{fontSize:10,color:"var(--ink3)",lineHeight:1.6,fontFamily:"var(--serif)",fontStyle:"italic",marginTop:10,paddingTop:10,borderTop:"1px solid var(--rule)"}}>{item.note}</p>}
+                          {powerMismatch&&(
+                            <div style={{marginTop:8,padding:"8px 10px",borderLeft:"3px solid var(--red)",background:"rgba(139,32,32,.05)"}}>
+                              <p style={{fontSize:11,color:"var(--red)",fontFamily:"var(--serif)",lineHeight:1.5}}>
+                                ⚠ Requires {spkMinW}W+ — your {selAmp.name} delivers {ampW}W. These speakers will be underpowered and may sound compressed at volume.
+                              </p>
+                            </div>
+                          )}
                         </div>
                         <div style={{padding:"16px 16px 16px 0",display:"flex",flexDirection:"column",alignItems:"flex-end",justifyContent:"space-between",flexShrink:0}}>
                           <div style={{fontFamily:"var(--serif)",fontSize:18,color:on?iv.col:"var(--ink2)",fontWeight:on?400:300}}>{formatPrice(item.price,loc)}</div>
@@ -2203,7 +2339,7 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
       const msrpComp=basket.filter(i=>i.price>0).reduce((s,i)=>s+i.price,0);
       const msrpAuto=analysis.autoItems.filter(i=>i.price>0).reduce((s,i)=>s+i.price,0);
       const msrpTotal=msrpComp+msrpAuto;
-      const discPct=tier==="high"?0.82:tier==="mid"?0.77:0.88;
+      const discPct=tier==="high"?0.92:tier==="mid"?0.84:0.88;
       const dealEst=Math.round(msrpTotal*discPct/50)*50;
       const saving=msrpTotal-dealEst;
       const overBy=budget>0?basketTotal-budget:0;
@@ -2285,6 +2421,31 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
             {id:"placement",label:"Placement Diagram",content:(<div><div style={{display:"flex",justifyContent:"center",background:"var(--paper)",border:"1px solid var(--rule)",padding:16,marginBottom:12}}><RoomDiagram length={room.length} width={room.width} separation={analysis.separation} backWall={analysis.backWall} listenPos={analysis.listenPos||3.2} sideWallGap={sideWallGap} accent={tierData.accent}/></div><div style={{display:"flex",justifyContent:"center",gap:24,flexWrap:"wrap"}}>{[{l:"Speaker separation",v:`${analysis.separation}m`},{l:"Back wall",v:`${analysis.backWall}m`},{l:"Listening position",v:`${analysis.listenPos||3.2}m`}].map(m=><div key={m.l} style={{textAlign:"center"}}><div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".1em",textTransform:"uppercase",marginBottom:3}}>{m.l}</div><div style={{fontFamily:"var(--serif)",fontSize:16,color:tierData.accent}}>{m.v}</div></div>)}</div></div>)},
             {id:"wiring",label:"Mains Conditioner — Power Bank Assignment",content:<WiringMap basket={basket}/>},
           ].map(section=>(<CollapsibleSection key={section.id} label={section.label}>{section.content}</CollapsibleSection>))}
+
+          {/* ── Specialist dealer statement — high tier only ── */}
+          {tier==="high"&&(
+            <div style={{marginBottom:24,padding:"24px 24px",background:"var(--ink)"}}>
+              <div style={{fontSize:9,color:"rgba(245,242,232,.4)",letterSpacing:".2em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:12}}>Before you buy</div>
+              <p style={{fontFamily:"var(--serif)",fontSize:15,color:"var(--paper)",lineHeight:1.75,marginBottom:14}}>
+                At this level, this tool is a starting point — not a finishing line.
+              </p>
+              <p style={{fontFamily:"var(--serif)",fontSize:13,color:"rgba(245,242,232,.7)",lineHeight:1.75,marginBottom:14}}>
+                The differences between reference-level components are real, but they are also subtle, system-dependent, and deeply personal. Room acoustics, listener preference, and the specific synergies between components at this price point cannot be determined from a configuration tool alone.
+              </p>
+              <p style={{fontFamily:"var(--serif)",fontSize:13,color:"rgba(245,242,232,.7)",lineHeight:1.75,marginBottom:20}}>
+                A good specialist independent dealer will demo your shortlist in your price range, discuss your room honestly, and in many cases loan equipment for home demonstration. That experience — and that relationship — is what you are really buying at this level.
+              </p>
+              <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
+                {["Signals (Ipswich)","Cymbiosis (Leicester)","Loud & Clear (Edinburgh)","Moorgate Acoustics (Sheffield)","KJ West One (London)","Audio T (nationwide)","Richer Sounds (nationwide)"].map(d=>(
+                  <span key={d} style={{fontSize:9,fontFamily:"var(--mono)",color:"rgba(245,242,232,.45)",padding:"4px 10px",border:"1px solid rgba(245,242,232,.12)",letterSpacing:".04em"}}>{d}</span>
+                ))}
+              </div>
+              <div style={{marginTop:14,fontSize:9,color:"rgba(245,242,232,.3)",fontFamily:"var(--mono)",letterSpacing:".06em"}}>
+                Arrive at your dealer with this system spec. Use it as a conversation starter, not a final order.
+              </div>
+            </div>
+          )}
+
           <div style={{marginTop:24,padding:"16px 20px",background:"rgba(42,143,197,.06)",border:"1px solid rgba(42,143,197,.18)",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
             <div>
               <div style={{fontSize:9,color:"var(--blue)",letterSpacing:".18em",textTransform:"uppercase",marginBottom:3}}>Help improve this tool</div>
