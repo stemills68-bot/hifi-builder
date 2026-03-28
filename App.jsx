@@ -495,11 +495,9 @@ const CATALOG = {
       ],
       isolation:[
         {id:"e_orea_b",     name:"Orea Bordeaux ×3",   sub:"IsoAcoustics · Component footers",   vendor:"isoacoustics", price:109,  cat:"isolation", note:"Three footers sit under your turntable or phono stage. The single most effective isolation upgrade for a first system."},
-        {id:"e_gaia3",      name:"GAIA III ×4",        sub:"IsoAcoustics · Speaker footers",      vendor:"isoacoustics", price:215,  cat:"isolation"},
+        {id:"e_gaia3",      name:"GAIA III ×8",        sub:"IsoAcoustics · Speaker footers (stereo pair)",      vendor:"isoacoustics", price:430,  cat:"isolation", note:"4 footers per speaker × 2 speakers. One set of 4 is not enough for a stereo system."},
       ],
-      power:[
-        {id:"e_protoplex",  name:"ProtoPlex 4",        sub:"Chord Co. · Mains block 4-way",       vendor:"chord_co",     price:85,   cat:"power", note:"A filtered 4-way mains block. Better than a generic power strip from a hardware store."},
-      ],
+      // Power conditioning removed from entry tier — not essential when starting out
     },
   },
 
@@ -584,14 +582,13 @@ const CATALOG = {
         {id:"m_fractal_s",  name:"Fractal Speaker",    sub:"Townshend · 3m pair",                 vendor:"townshend",    price:895,  cat:"cables"},
       ],
       isolation:[
-        {id:"m_gaia3",      name:"GAIA III ×4",        sub:"IsoAcoustics · Speaker footer",       vendor:"isoacoustics", price:215,  cat:"isolation"},
-        {id:"m_gaia2",      name:"GAIA II ×4",         sub:"IsoAcoustics · Speaker footer",       vendor:"isoacoustics", price:330,  cat:"isolation"},
+        {id:"m_gaia3",      name:"GAIA III ×8",        sub:"IsoAcoustics · Speaker footers (stereo pair)",       vendor:"isoacoustics", price:430,  cat:"isolation", note:"4 footers per speaker × 2 speakers. One set of 4 is not enough for a stereo system."},
+        {id:"m_gaia2",      name:"GAIA II ×8",         sub:"IsoAcoustics · Speaker footers (stereo pair)",       vendor:"isoacoustics", price:660,  cat:"isolation", note:"4 footers per speaker × 2 speakers. One set of 4 is not enough for a stereo system."},
         {id:"m_orea_g",     name:"Orea Graphite ×3",   sub:"IsoAcoustics · Component footers",    vendor:"isoacoustics", price:149,  cat:"isolation"},
         {id:"m_seismic",    name:"Seismic Platform",   sub:"Townshend · Component isolation",     vendor:"townshend",    price:645,  cat:"isolation"},
       ],
       power:[
-        {id:"m_powerhaus",  name:"PowerHAUS M6",       sub:"Chord Co. · Mains block 6-way",       vendor:"chord_co",     price:295,  cat:"power"},
-        {id:"m_groundarray",name:"GroundArray",        sub:"Chord Co. · System earth block",      vendor:"chord_co",     price:125,  cat:"power"},
+        {id:"m_powerhaus",  name:"PowerHAUS M6",       sub:"Chord Co. · Mains block 6-way",       vendor:"chord_co",     price:295,  cat:"power", note:"Relevant at upper mid-range and above. Skip if budget is tight — power conditioning is a refinement, not a requirement."},
       ],
     },
   },
@@ -664,7 +661,7 @@ const CATALOG = {
         {id:"h_music_s",    name:"ChordMusic Speaker", sub:"Chord Co. · Flagship 3m pair",        vendor:"chord_co",     price:5800, cat:"cables"},
       ],
       isolation:[
-        {id:"h_gaia1",      name:"GAIA I ×4",          sub:"IsoAcoustics · Reference footers",    vendor:"isoacoustics", price:580,  cat:"isolation"},
+        {id:"h_gaia1",      name:"GAIA I ×8",          sub:"IsoAcoustics · Reference footers (stereo pair)",    vendor:"isoacoustics", price:1160, cat:"isolation", note:"4 footers per speaker × 2 speakers. One set of 4 is not enough for a stereo system."},
         {id:"h_orea_bor",   name:"Orea Bordeaux ×4",   sub:"IsoAcoustics · Component footers",   vendor:"isoacoustics", price:436,  cat:"isolation"},
         {id:"h_seismic_ref",name:"Seismic Sink Ref",   sub:"Townshend · Reference component",    vendor:"townshend",    price:1495, cat:"isolation"},
         {id:"h_podium2",    name:"Podium Platforms",   sub:"Townshend · Speaker isolation pair",  vendor:"townshend",    price:2995, cat:"isolation"},
@@ -680,19 +677,19 @@ const CATALOG = {
 const BUILDING_TYPES = {
   apt_ground: { id:"apt_ground", label:"Apartment", sub:"Ground floor", isApartment:true, floorRisk:"low", ceilingRisk:"none", wallRisk:"high",
     description:"Ground floor flat. No downstairs transmission risk, but party walls are the primary concern. Structural bass travels laterally through masonry.",
-    isolation:{ speakerFooters:{required:false,recommended:true,item:"Speaker Isolation Footers",reason:"Party wall bass transmission via floor joists",price:280}, carpetDiscs:{required:false,recommended:true,item:"Anti-Slip Floor Discs",reason:"Decouples spike from floor into party-wall structure",price:45}, phonoPlatform:{required:false,recommended:true,item:"Component Isolation Platform",reason:"Reduces airborne vibration coupling to stylus",price:195}, powerCond:{required:true,recommended:true,item:"Mains Conditioner",reason:"Shared mains ring with other flats — dirty power likely",price:395}, wallTreatment:{required:false,recommended:true,item:"Acoustic Wall Panels",reason:"Reduces flutter echo and lateral reflection",price:0}, graniteBase:{required:false,recommended:false,item:"Granite slab",reason:"Not critical at ground level",price:0} },
+    isolation:{ speakerFooters:{required:false,recommended:true,item:"Speaker Isolation Footers (×8)",reason:"Party wall bass transmission via floor joists — 4 per speaker × 2 speakers",price:430}, carpetDiscs:{required:false,recommended:true,item:"Anti-Slip Floor Discs",reason:"Decouples spike from floor into party-wall structure",price:45}, phonoPlatform:{required:false,recommended:true,item:"Component Isolation Platform",reason:"Reduces airborne vibration coupling to stylus",price:195}, powerCond:{required:true,recommended:true,item:"Mains Conditioner",reason:"Shared mains ring with other flats — dirty power likely",price:395}, wallTreatment:{required:false,recommended:true,item:"Acoustic Wall Panels",reason:"Reduces flutter echo and lateral reflection",price:0}, graniteBase:{required:false,recommended:false,item:"Granite slab",reason:"Not critical at ground level",price:0} },
     warnings:[ {level:"warn",msg:"Shared party walls on both sides. Bass below 80Hz travels laterally through the masonry structure. Keep volume levels below 85dB after 10pm."}, {level:"info",msg:"Ground floor: no downstairs neighbour transmission risk. Speaker isolation footers are advisory rather than mandatory."} ], riskScore:55 },
   apt_upper: { id:"apt_upper", label:"Apartment", sub:"1st floor or above", isApartment:true, floorRisk:"critical", ceilingRisk:"medium", wallRisk:"high",
     description:"Upper-floor flat. Critical floor transmission risk — structural bass couples directly through the slab to the flat below. Speaker isolation footers are a safety item.",
-    isolation:{ speakerFooters:{required:true,recommended:true,item:"Speaker Isolation Footers",reason:"SAFETY: structural bass transmission to flat below confirmed",price:280}, carpetDiscs:{required:true,recommended:true,item:"Anti-Slip Floor Discs",reason:"Mandatory when using isolation footers on carpeted floors",price:45}, phonoPlatform:{required:true,recommended:true,item:"Component Isolation Platform",reason:"Airborne and structural feedback to stylus at upper floors",price:195}, powerCond:{required:true,recommended:true,item:"Mains Conditioner",reason:"Shared mains with building — dirty power confirmed",price:395}, wallTreatment:{required:false,recommended:true,item:"Acoustic Wall Panels",reason:"Reduces early reflections from parallel walls",price:0}, graniteBase:{required:false,recommended:true,item:"Granite Slab (PSU base)",reason:"Adds mass to decouple PSU transformer vibration from floor",price:25} },
+    isolation:{ speakerFooters:{required:true,recommended:true,item:"Speaker Isolation Footers (×8)",reason:"SAFETY: structural bass transmission to flat below confirmed — 4 per speaker × 2 speakers",price:430}, carpetDiscs:{required:true,recommended:true,item:"Anti-Slip Floor Discs",reason:"Mandatory when using isolation footers on carpeted floors",price:45}, phonoPlatform:{required:true,recommended:true,item:"Component Isolation Platform",reason:"Airborne and structural feedback to stylus at upper floors",price:195}, powerCond:{required:true,recommended:true,item:"Mains Conditioner",reason:"Shared mains with building — dirty power confirmed",price:395}, wallTreatment:{required:false,recommended:true,item:"Acoustic Wall Panels",reason:"Reduces early reflections from parallel walls",price:0}, graniteBase:{required:false,recommended:true,item:"Granite Slab (PSU base)",reason:"Adds mass to decouple PSU transformer vibration from floor",price:25} },
     warnings:[ {level:"critical",msg:"Upper-floor apartment: structural bass below 100Hz transmits directly to the flat below at up to +14dB. Speaker isolation footers are a mandatory safety item."}, {level:"critical",msg:"Mains conditioning is required. Shared building mains introduces high-frequency noise from lifts, LED drivers, and other flats' equipment."}, {level:"warn",msg:"Party walls on shared sides — consider speaker toe-in to direct sound away from the shared wall surface."} ], riskScore:95 },
   detached: { id:"detached", label:"Detached House", sub:"No shared walls or floors", isApartment:false, floorRisk:"none", ceilingRisk:"none", wallRisk:"none",
     description:"No shared structural elements with neighbours. Isolation is about sound quality improvement rather than neighbour compliance.",
-    isolation:{ speakerFooters:{required:false,recommended:true,item:"Speaker Isolation Footers",reason:"Performance: decouples speakers from floor resonance",price:280}, carpetDiscs:{required:false,recommended:false,item:"Anti-Slip Floor Discs",reason:"Optional — use floor spikes on hard floors instead",price:45}, phonoPlatform:{required:false,recommended:true,item:"Component Isolation Platform",reason:"Performance: isolates stylus from airborne feedback",price:195}, powerCond:{required:false,recommended:true,item:"Mains Conditioner",reason:"Mains quality varies — benefits all analogue systems",price:395}, wallTreatment:{required:false,recommended:false,item:"Room treatment",reason:"Based on room measurements",price:0}, graniteBase:{required:false,recommended:false,item:"Granite slab",reason:"Not required",price:0} },
+    isolation:{ speakerFooters:{required:false,recommended:true,item:"Speaker Isolation Footers (×8)",reason:"Performance: decouples speakers from floor resonance — 4 per speaker × 2 speakers",price:430}, carpetDiscs:{required:false,recommended:false,item:"Anti-Slip Floor Discs",reason:"Optional — use floor spikes on hard floors instead",price:45}, phonoPlatform:{required:false,recommended:true,item:"Component Isolation Platform",reason:"Performance: isolates stylus from airborne feedback",price:195}, powerCond:{required:false,recommended:true,item:"Mains Conditioner",reason:"Mains quality varies — benefits all analogue systems",price:395}, wallTreatment:{required:false,recommended:false,item:"Room treatment",reason:"Based on room measurements",price:0}, graniteBase:{required:false,recommended:false,item:"Granite slab",reason:"Not required",price:0} },
     warnings:[ {level:"info",msg:"Detached house: no neighbour isolation constraints. All isolation recommendations are purely for sonic performance."}, {level:"info",msg:"Focus on room acoustics — first reflection points, bass trapping, and diffusion at the rear wall."} ], riskScore:5 },
   semi_detached: { id:"semi_detached", label:"Semi-Detached", sub:"One shared party wall", isApartment:false, floorRisk:"none", ceilingRisk:"none", wallRisk:"medium",
     description:"One shared party wall with a neighbour. No floor/ceiling risk. Bass transmission is lateral through the party wall only.",
-    isolation:{ speakerFooters:{required:false,recommended:true,item:"Speaker Isolation Footers",reason:"Reduces floor-coupled bass reaching party wall",price:280}, carpetDiscs:{required:false,recommended:false,item:"Anti-Slip Floor Discs",reason:"Advisory only — floor risk is low",price:45}, phonoPlatform:{required:false,recommended:true,item:"Component Isolation Platform",reason:"Performance and low-level vibration control",price:195}, powerCond:{required:false,recommended:true,item:"Mains Conditioner",reason:"Shared mains spur with neighbour possible",price:395}, wallTreatment:{required:false,recommended:true,item:"Wall Absorption Treatment",reason:"Reduces direct bass radiation into the shared wall",price:0}, graniteBase:{required:false,recommended:false,item:"Granite slab",reason:"Not required",price:0} },
+    isolation:{ speakerFooters:{required:false,recommended:true,item:"Speaker Isolation Footers (×8)",reason:"Reduces floor-coupled bass reaching party wall — 4 per speaker × 2 speakers",price:430}, carpetDiscs:{required:false,recommended:false,item:"Anti-Slip Floor Discs",reason:"Advisory only — floor risk is low",price:45}, phonoPlatform:{required:false,recommended:true,item:"Component Isolation Platform",reason:"Performance and low-level vibration control",price:195}, powerCond:{required:false,recommended:true,item:"Mains Conditioner",reason:"Shared mains spur with neighbour possible",price:395}, wallTreatment:{required:false,recommended:true,item:"Wall Absorption Treatment",reason:"Reduces direct bass radiation into the shared wall",price:0}, graniteBase:{required:false,recommended:false,item:"Granite slab",reason:"Not required",price:0} },
     warnings:[ {level:"warn",msg:"One shared party wall. Position speakers to toe away from the shared wall side."}, {level:"info",msg:"No floor or ceiling transmission risk. Neighbour compliance is manageable with reasonable volume levels."} ], riskScore:35 },
 };
 
@@ -726,7 +723,8 @@ function analyseRoom({ length, width, height, floorTypes=["wood"], wallMaterials
   const hasPlaster = wallMaterials.includes("plasterboard");
   if (iso.carpetDiscs.required && !floorTypes.every(f=>f==="tile")) autoItems.push({ id:"carpet_discs", name:"Anti-Slip Floor Discs", reason:iso.carpetDiscs.reason, price:iso.carpetDiscs.price });
   if (iso.phonoPlatform.required) autoItems.push({ id:"lateral_auto", name:iso.phonoPlatform.item, reason:iso.phonoPlatform.reason, price:iso.phonoPlatform.price });
-  if (iso.powerCond.required) autoItems.push({ id:"pq_auto", name:iso.powerCond.item, reason:iso.powerCond.reason, price:iso.powerCond.price });
+  // Power conditioning only surfaces as a mandatory auto-item at mid/high tier
+  if (iso.powerCond.required && tier !== "entry") autoItems.push({ id:"pq_auto", name:iso.powerCond.item, reason:iso.powerCond.reason, price:iso.powerCond.price });
   if (hasWood && bld.floorRisk === "critical") warnings.push({ level:"critical", msg:"Hardwood floor amplifies structural transmission. Isolation footers with anti-slip discs are doubly important here." });
   if (hasCarpet && hasWood) warnings.push({ level:"info", msg:"Mixed floor surfaces (carpet + hardwood): use appropriate isolation footers for each surface." });
   if (sideboardWidth < 1.5 && !autoItems.find(i=>i.id==="lateral_auto")) { warnings.push({ level:"warn", msg:`Sideboard is ${sideboardWidth}m wide (< 1.5m). Stacking config required: component isolation platform under phono stage.` }); autoItems.push({ id:"lateral_auto", name:"Component Isolation Platform", reason:"Stacking — sideboard < 1.5m", price:195 }); }
@@ -1259,6 +1257,7 @@ export default function HiFiSystemBuilder() {
   const [sideWallGap, setSideWallGap] = useState(22);
   const [mounting, setMounting] = useState("sideboard");
   const [tier, setTier] = useState("mid");
+  const [bias, setBias] = useState(50); // 0 = Foundation (source-heavy), 100 = Expression (speaker-heavy)
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [openCat, setOpenCat] = useState(null);
   const [showAllCat, setShowAllCat] = useState({});
@@ -1750,8 +1749,8 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
 
     tier: (
       <div>
-        <StepHeading title="System Brief" sub="What your room and building profile actually requires — no brands yet"/>
-        <div style={{marginBottom:24,padding:"16px 18px",background:"var(--paper2)",border:"1px solid var(--rule)",borderRadius:4}}>
+        <StepHeading title="System Brief"/>
+        <div style={{marginBottom:24,padding:"16px 18px",background:"var(--paper2)",border:"1px solid var(--rule)"}}>
           <SectionLabel>Your Profile</SectionLabel>
           <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:10}}>
             {[{l:"Room",v:`${room.length}×${room.width}m`,sub:`${analysis.area} m²`},{l:"Building",v:analysis.bld?.label||"—",sub:analysis.bld?.sub||""},{l:"Floor",v:(floorTypes||["wood"]).map(f=>f==="wood"?"Hardwood":f==="carpet"?"Carpet":"Tile").join(" + "),sub:"floor type"}].map(m=>(
@@ -1763,6 +1762,65 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
             ))}
           </div>
         </div>
+
+        {/* ── Foundation vs Expression bias slider ── */}
+        <div style={{marginBottom:28,padding:"24px 20px",background:"var(--ink)",color:"var(--paper)"}}>
+          <div style={{fontSize:9,color:"rgba(245,242,232,.5)",letterSpacing:".2em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:16}}>
+            Where do you want to spend your money?
+          </div>
+
+          {/* The two poles */}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:20}}>
+            <div style={{opacity:bias<=50?1:0.4,transition:"opacity .3s"}}>
+              <div style={{fontFamily:"var(--serif)",fontSize:"clamp(18px,4vw,24px)",color:bias<50?"var(--amber)":"rgba(245,242,232,.6)",lineHeight:1,marginBottom:6,transition:"color .3s"}}>Foundation</div>
+              <p style={{fontSize:11,color:"rgba(245,242,232,.55)",fontFamily:"var(--serif)",lineHeight:1.6,fontStyle:"italic"}}>Invest in the source. The turntable and cartridge retrieve every detail from the groove. Speakers tell you what's there — honestly, accurately.</p>
+            </div>
+            <div style={{textAlign:"right",opacity:bias>=50?1:0.4,transition:"opacity .3s"}}>
+              <div style={{fontFamily:"var(--serif)",fontSize:"clamp(18px,4vw,24px)",color:bias>50?"var(--amber)":"rgba(245,242,232,.6)",lineHeight:1,marginBottom:6,transition:"color .3s"}}>Expression</div>
+              <p style={{fontSize:11,color:"rgba(245,242,232,.55)",fontFamily:"var(--serif)",lineHeight:1.6,fontStyle:"italic"}}>Invest in the speakers. Music fills the room with scale and presence. You feel the performance — the source is faithful enough to let it happen.</p>
+            </div>
+          </div>
+
+          {/* Slider */}
+          <div style={{position:"relative",marginBottom:16}}>
+            <input type="range" min={0} max={100} step={1} value={bias} onChange={e=>setBias(Number(e.target.value))}
+              style={{width:"100%",background:`linear-gradient(to right, rgba(196,98,26,.6) 0%, rgba(196,98,26,.6) ${bias}%, rgba(245,242,232,.15) ${bias}%, rgba(245,242,232,.15) 100%)`}}/>
+            {/* Centre marker */}
+            <div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",width:1,height:12,background:"rgba(245,242,232,.2)",pointerEvents:"none"}}/>
+          </div>
+
+          {/* Dynamic description */}
+          <div className="fi" style={{padding:"14px 16px",background:"rgba(245,242,232,.06)",borderLeft:`3px solid ${bias<35?"var(--amber)":bias>65?"var(--amber)":"rgba(245,242,232,.2)"}`}}>
+            <p style={{fontSize:13,color:"rgba(245,242,232,.8)",fontFamily:"var(--serif)",lineHeight:1.65,fontStyle:"italic"}}>
+              {bias < 15
+                ? "Strong Foundation bias. Most of your budget goes to the turntable and cartridge. You'll hear every micro-detail the record contains — instruments have texture, space, and body. Your speakers will be honest rather than spectacular."
+                : bias < 35
+                ? "Foundation lean. Your source will be a genuine step above your speakers — a deliberate choice that rewards careful listening. Upgrade the speakers first when budget allows."
+                : bias < 65
+                ? "Balanced. Budget splits roughly evenly between source and speakers. The most common approach — no obvious weak link, no obvious strength. A solid platform to build from."
+                : bias < 85
+                ? "Expression lean. Your speakers will be a step above your source — music has scale and presence in the room. Upgrade the turntable first when budget allows."
+                : "Strong Expression bias. Most of your budget goes to the speakers. Music fills your space — you feel the performance. The source is capable and honest, but the speakers are the statement."}
+            </p>
+            {budget > 0 && (()=>{
+              const sourcePct = bias < 50 ? 0.45 - (bias/50)*0.15 : 0.30 - ((bias-50)/50)*0.10;
+              const speakerPct = bias < 50 ? 0.25 + (bias/50)*0.05 : 0.30 + ((bias-50)/50)*0.15;
+              const sourceBudget = Math.round(budget * sourcePct / 50) * 50;
+              const speakerBudget = Math.round(budget * speakerPct / 50) * 50;
+              return (
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:12,paddingTop:12,borderTop:"1px solid rgba(245,242,232,.1)"}}>
+                  {[{l:"Source budget",v:formatPrice(sourceBudget,loc)},{l:"Speaker budget",v:formatPrice(speakerBudget,loc)}].map(m=>(
+                    <div key={m.l} style={{textAlign:"center"}}>
+                      <div style={{fontSize:8,color:"rgba(245,242,232,.4)",letterSpacing:".12em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:3}}>{m.l}</div>
+                      <div style={{fontFamily:"var(--serif)",fontSize:18,color:"var(--amber)"}}>{m.v}</div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+
         <SectionLabel>System Level</SectionLabel>
         {analysis.tierRec&&<InfoBanner msg={`Based on your room (${analysis.area} m²), the ${analysis.tierRec==="entry"?"Entry Level":analysis.tierRec==="mid"?"Mid-Range":"High-End"} system level is a strong match. (${loc.tierRanges[analysis.tierRec]})`}/>}
         <div style={{marginBottom:16,padding:"14px 16px",background:"var(--paper2)",border:"1px solid var(--rule)"}}>
@@ -1780,7 +1838,7 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
             const active=tier===t.tier, rec=analysis.tierRec===t.tier;
             const DESCS={entry:"Excellent entry into high-fidelity vinyl replay. All components are purpose-built for music.",mid:"The sweet spot for diminishing returns. Components at this level are sonically mature.",high:"Reference-level performance. At this level isolation, cabling, and room acoustics have as much impact as the components."};
             return (
-              <button key={t.tier} onClick={()=>setTier(t.tier)} style={{padding:"18px 20px",textAlign:"left",cursor:"pointer",borderRadius:3,border:`1px solid ${active?t.accent+"60":rec?t.accent+"30":"var(--rule)"}`,background:active?`${t.accent}0E`:"var(--paper2)",transition:"all .25s"}}>
+              <button key={t.tier} onClick={()=>setTier(t.tier)} style={{padding:"18px 20px",textAlign:"left",cursor:"pointer",border:`1px solid ${active?t.accent+"60":rec?t.accent+"30":"var(--rule)"}`,background:active?`${t.accent}0E`:"var(--paper2)",transition:"all .25s"}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
                   <div style={{display:"flex",alignItems:"center",gap:10}}><span style={{fontFamily:"var(--serif)",fontSize:20,color:active?t.accent:"var(--ink2)"}}>{t.label==="Entry"?"Entry Level":t.label==="Mid"?"Mid-Range":"High-End"}</span>{rec&&<Tag col="#2A5040">Room Match</Tag>}{active&&<Tag col={t.accent}>Selected</Tag>}</div>
                 </div>
@@ -1827,6 +1885,33 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
           if (catKey==="amplifier" && genreAdj.amps[item.vendor]) return genreAdj.amps[item.vendor];
           return 0;
         };
+
+        // ── Bias score — source components rank higher with Foundation bias, speakers with Expression ──
+        const biasScore = (item) => {
+          const foundationCats = ["turntable","cartridge","phono"];
+          const expressionCats = ["speakers"];
+          if (foundationCats.includes(catKey)) {
+            // Foundation bias (low bias value) boosts source components
+            return Math.round((50 - bias) / 5); // +10 at bias=0, 0 at bias=50, -10 at bias=100
+          }
+          if (expressionCats.includes(catKey)) {
+            // Expression bias (high bias value) boosts speakers
+            return Math.round((bias - 50) / 5); // -10 at bias=0, 0 at bias=50, +10 at bias=100
+          }
+          return 0;
+        };
+
+        // ── Budget slice per category based on bias ──
+        const budgetOk = (item) => {
+          if (!budget || budget === 0) return true;
+          // Calculate category budget slice based on bias
+          const sourcePct = bias < 50 ? 0.45 - (bias/50)*0.15 : 0.30 - ((bias-50)/50)*0.10;
+          const speakerPct = bias < 50 ? 0.25 + (bias/50)*0.05 : 0.30 + ((bias-50)/50)*0.15;
+          const slices = { turntable:sourcePct*0.6, cartridge:sourcePct*0.25, phono:sourcePct*0.15, amplifier:0.25, speakers:speakerPct, cables:0.05, isolation:0.05, power:0.03 };
+          const slice = slices[catKey] || 0.1;
+          const catBudget = budget * slice * 1.3; // 30% tolerance
+          return item.price <= catBudget || item.price === 0;
+        };
         const selCart = basket.find(b=>b.cat==="cartridge");
         const phonoScore = (item) => {
           if (catKey!=="phono" || !selCart) return 0;
@@ -1837,17 +1922,11 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
           if (!cartIsMC && stageMM) return 10;
           return 0;
         };
-        // Budget filter — only hide items that push total well over budget
-        const budgetOk = (item) => {
-          if (!budget || budget === 0) return true;
-          const projTotal = basketTotal - (basket.find(b=>b.cat===catKey)?.price||0) + item.price;
-          return projTotal <= budget * 1.15; // allow 15% over budget
-        };
         let scored = rawOpts
           .filter(budgetOk)
-          .map(item => ({ item, score: genreScore(item) + phonoScore(item) }))
+          .map(item => ({ item, score: genreScore(item) + phonoScore(item) + biasScore(item) }))
           .sort((a,b) => b.score - a.score);
-        if (scored.length === 0) scored = rawOpts.map(item => ({ item, score: 0 })); // fallback show all if budget filters everything
+        if (scored.length === 0) scored = rawOpts.map(item => ({ item, score: 0 }));
         return scored.map(s => s.item);
       }
 
@@ -1919,6 +1998,18 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
                   <CatIcon cat={currentCatKey} size={18} col={tierData.accent}/>
                   <h2 style={{fontFamily:"var(--serif)",fontSize:"clamp(22px,4vw,28px)",fontWeight:400,color:"var(--ink)",lineHeight:1,letterSpacing:"-.02em"}}>{CAT_LABELS[currentCatKey]}</h2>
                 </div>
+
+                {/* Bias context — turntable and speakers */}
+                {currentCatKey==="turntable"&&(
+                  <p style={{fontSize:12,color:"var(--ink3)",fontFamily:"var(--serif)",fontStyle:"italic",lineHeight:1.6,marginBottom:4}}>
+                    {bias<35?"Foundation bias — picks weighted toward source quality. A better turntable reveals more of what's in the groove.":bias>65?"Expression bias — calibrated to leave more budget for speakers. A capable, honest source.":"Balanced — source and speaker budget split evenly."}
+                  </p>
+                )}
+                {currentCatKey==="speakers"&&bias!==50&&(
+                  <p style={{fontSize:12,color:"var(--ink3)",fontFamily:"var(--serif)",fontStyle:"italic",lineHeight:1.6,marginBottom:4}}>
+                    {bias>65?"Expression bias — these are the statement piece of your system. Budget reflects that.":"Foundation bias — honest speakers that don't colour the music. The source does the talking."}
+                  </p>
+                )}
 
                 {/* Context sentence based on what's already selected */}
                 {currentCatKey==="cartridge"&&basket.find(b=>b.cat==="turntable")&&(
