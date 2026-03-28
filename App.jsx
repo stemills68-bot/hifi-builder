@@ -840,8 +840,7 @@ function SectionLabel({ children }) {
 
 const STEPS = [
   { id:"materials", label:"Building",   sub:"Type & Surfaces"},
-  { id:"room",      label:"Room",       sub:"Dimensions"   },
-  { id:"furniture", label:"Furniture",  sub:"Placement"    },
+  { id:"room",      label:"Room",       sub:"Dimensions & Furniture"},
   { id:"genres",    label:"Music",      sub:"Preferences"  },
   { id:"tier",      label:"Brief",      sub:"Requirements" },
   { id:"catalog",   label:"Components", sub:"Brand picks"  },
@@ -1017,11 +1016,22 @@ function WiringMap({ basket }) {
   );
 }
 
-function StepHeading({title,sub}) {
+function VinylAccent({size=18,col="var(--amber)",opacity=0.35}) {
   return (
-    <div style={{marginBottom:32,paddingBottom:20,borderBottom:"2px solid var(--ink)"}}>
-      <h2 style={{fontFamily:"var(--serif)",fontSize:"clamp(24px,4vw,34px)",fontWeight:400,color:"var(--ink)",lineHeight:1.1,margin:"0 0 6px",letterSpacing:"-.02em"}}>{title}</h2>
-      <p style={{fontSize:12,color:"var(--ink3)",lineHeight:1.6,fontFamily:"var(--mono)",letterSpacing:".02em"}}>{sub}</p>
+    <svg width={size} height={size} viewBox="0 0 18 18" fill="none" style={{flexShrink:0,opacity}}>
+      <circle cx="9" cy="9" r="8" stroke={col} strokeWidth="1"/>
+      <circle cx="9" cy="9" r="5" stroke={col} strokeWidth=".6" strokeDasharray="2 1.5"/>
+      <circle cx="9" cy="9" r="2" stroke={col} strokeWidth=".6"/>
+      <circle cx="9" cy="9" r=".8" fill={col}/>
+    </svg>
+  );
+}
+
+function StepHeading({title}) {
+  return (
+    <div style={{marginBottom:24,paddingBottom:16,borderBottom:"2px solid var(--ink)",display:"flex",alignItems:"center",gap:12}}>
+      <VinylAccent size={20} opacity={0.25}/>
+      <h2 style={{fontFamily:"var(--serif)",fontSize:"clamp(22px,4vw,30px)",fontWeight:400,color:"var(--ink)",lineHeight:1.1,letterSpacing:"-.02em"}}>{title}</h2>
     </div>
   );
 }
@@ -1212,8 +1222,10 @@ export default function HiFiSystemBuilder() {
   const [floorTypes, setFloorTypes] = useState(["wood"]);
   const [wallMaterials, setWallMaterials] = useState(["plasterboard"]);
 
-  function toggleFloor(v) { setFloorTypes(prev => prev.includes(v) ? prev.filter(x=>x!==v) : [...prev, v]); }
-  function toggleWall(v)  { setWallMaterials(prev => prev.includes(v) ? prev.filter(x=>x!==v) : [...prev, v]); }
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  function toggleFloor(v) { setHasInteracted(true); setFloorTypes(prev => prev.includes(v) ? prev.filter(x=>x!==v) : [...prev, v]); }
+  function toggleWall(v)  { setHasInteracted(true); setWallMaterials(prev => prev.includes(v) ? prev.filter(x=>x!==v) : [...prev, v]); }
 
   const [buildingType, setBuildingType] = useState("apt_upper");
   const [sideboardWidth, setSideboardWidth] = useState(1.2);
@@ -1223,6 +1235,7 @@ export default function HiFiSystemBuilder() {
   const [tier, setTier] = useState("mid");
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [openCat, setOpenCat] = useState(null);
+  const [showAllCat, setShowAllCat] = useState({});
   const [budget, setBudget] = useState(0);
   const [basket, setBasket] = useState(()=>getDefaultBasket("mid"));
   const prevTier = useRef("mid");
@@ -1281,135 +1294,110 @@ export default function HiFiSystemBuilder() {
 
     materials: (
       <div>
-        <StepHeading title="Building & Materials" sub="Your building type determines isolation requirements — select carefully"/>
-        <SectionLabel>Building Type</SectionLabel>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:10,marginBottom:24}}>
+        <StepHeading title="Your Building" sub="Select your building type and surface materials"/>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:16}}>
           {Object.values(BUILDING_TYPES).map(bt=>{
             const active=buildingType===bt.id;
             const riskCol=bt.riskScore>=80?"var(--red)":bt.riskScore>=50?"var(--amber)":bt.riskScore>=25?"var(--amber)":"var(--green)";
             const BIcon=BICONS[bt.id];
             return (
-              <button key={bt.id} onClick={()=>setBuildingType(bt.id)} style={{padding:"18px 16px",textAlign:"left",cursor:"pointer",borderRadius:4,border:`1px solid ${active?riskCol+"70":"var(--rule)"}`,background:active?`${riskCol}0C`:"var(--paper2)",transition:"all .22s"}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
-                  <BIcon col={active?riskCol:"var(--ink3)"} size={28}/>
-                  <div style={{fontSize:8,color:riskCol,background:`${riskCol}18`,border:`1px solid ${riskCol}30`,padding:"1px 6px",borderRadius:2,letterSpacing:".1em",textTransform:"uppercase"}}>Risk {bt.riskScore}</div>
+              <button key={bt.id} onClick={()=>setBuildingType(bt.id)} style={{padding:"14px 12px",textAlign:"left",cursor:"pointer",border:`1px solid ${active?riskCol+"70":"var(--rule)"}`,background:active?`${riskCol}0C`:"var(--paper2)",transition:"all .22s"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
+                  <BIcon col={active?riskCol:"var(--ink3)"} size={22}/>
+                  <div style={{fontSize:7,color:riskCol,background:`${riskCol}18`,border:`1px solid ${riskCol}30`,padding:"1px 5px",letterSpacing:".1em",textTransform:"uppercase"}}>Risk {bt.riskScore}</div>
                 </div>
-                <div style={{fontFamily:"var(--serif)",fontSize:15,color:active?riskCol:"var(--ink2)",marginBottom:2}}>{(loc.buildingTypes[bt.id]||{label:bt.label}).label}</div>
-                <div style={{fontSize:9,color:active?riskCol+"AA":"var(--ink4)",letterSpacing:".08em",marginBottom:8}}>{(loc.buildingTypes[bt.id]||{sub:bt.sub}).sub}</div>
-                <div style={{fontSize:10,color:"var(--ink4)",lineHeight:1.5}}>{bt.description}</div>
+                <div style={{fontFamily:"var(--serif)",fontSize:13,color:active?riskCol:"var(--ink2)",marginBottom:1}}>{(loc.buildingTypes[bt.id]||{label:bt.label}).label}</div>
+                <div style={{fontSize:8,color:active?riskCol+"AA":"var(--ink4)",letterSpacing:".06em"}}>{(loc.buildingTypes[bt.id]||{sub:bt.sub}).sub}</div>
               </button>
             );
           })}
         </div>
 
-        {analysis.bld&&(
-          <div style={{marginBottom:20}}>
-            <SectionLabel>Isolation Requirements — {analysis.bld.label} {analysis.bld.sub}</SectionLabel>
-            <div style={{display:"grid",gap:6}}>
-              {Object.entries(analysis.iso).map(([key,spec])=>{
-                if(spec.price===0&&!spec.required&&!spec.recommended) return null;
-                const statusCol=spec.required?"var(--red)":spec.recommended?"var(--amber)":"var(--ink4)";
-                const statusLabel=spec.required?"MANDATORY":spec.recommended?"RECOMMENDED":"OPTIONAL";
-                return (
-                  <div key={key} style={{display:"grid",gridTemplateColumns:"auto 1fr",alignItems:"center",gap:12,padding:"11px 14px",background:spec.required?"rgba(239,68,68,.05)":spec.recommended?"rgba(197,160,40,.04)":"transparent",border:`1px solid ${spec.required?"rgba(239,68,68,.2)":spec.recommended?"rgba(197,160,40,.15)":"var(--rule)"}`,borderRadius:3}}>
-                    <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:3}}><div style={{width:5,height:5,borderRadius:"50%",background:statusCol}}/><span style={{fontSize:7,color:statusCol,letterSpacing:".1em",writingMode:"vertical-rl",transform:"rotate(180deg)",textTransform:"uppercase"}}>{statusLabel}</span></div>
-                    <div><div style={{fontSize:12,color:"var(--ink)",fontFamily:"var(--serif)",marginBottom:2}}>{spec.item}</div><div style={{fontSize:10,color:"var(--ink4)",lineHeight:1.5}}>{spec.reason}</div></div>
-                  </div>
-                );
-              })}
+        {/* Isolation summary — compact, just mandatory items */}
+        {analysis.bld&&(()=>{
+          const mandatory = Object.values(analysis.iso).filter(s=>s.required&&s.price>0);
+          if(mandatory.length===0) return <div style={{padding:"10px 14px",borderLeft:"3px solid var(--green)",background:"rgba(42,80,64,.05)",marginBottom:16,fontSize:11,color:"var(--green)",fontFamily:"var(--mono)",letterSpacing:".08em"}}>✓ No mandatory isolation items for this building type</div>;
+          return (
+            <div style={{marginBottom:16,padding:"12px 14px",borderLeft:"3px solid var(--red)",background:"rgba(139,32,32,.04)"}}>
+              <div style={{fontSize:8,color:"var(--red)",letterSpacing:".16em",textTransform:"uppercase",marginBottom:6,fontFamily:"var(--mono)"}}>Mandatory isolation for this building</div>
+              {mandatory.map(s=><div key={s.item} style={{fontSize:11,color:"var(--ink2)",fontFamily:"var(--serif)",marginBottom:2}}>· {s.item} — {s.reason}</div>)}
             </div>
-          </div>
-        )}
+          );
+        })()}
 
-        <div style={{height:1,background:"var(--ink)",margin:"28px 0 24px"}}/>
-        <StepHeading title="Surface Materials" sub="Wall and floor materials affect acoustic reflections and bass character"/>
-        <div style={{display:"grid",gap:12,marginBottom:20}}>
-          <div style={{marginBottom:4}}>
-            <div style={{fontSize:9,letterSpacing:".18em",textTransform:"uppercase",color:"var(--ink3)",marginBottom:10,fontFamily:"var(--mono)"}}>Floor Type — select all that apply</div>
-            <div style={{display:"flex",gap:0,flexWrap:"wrap",border:"1px solid var(--rule)"}}>
-              {[{value:"carpet",label:"Carpet"},{value:"wood",label:"Hardwood / Engineered"},{value:"tile",label:"Tile / Stone"}].map((o,i)=>{
+        <div style={{height:1,background:"var(--rule)",margin:"16px 0"}}/>
+
+        {/* Floor + Wall in a compact 2-col grid */}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:16}}>
+          <div>
+            <div style={{fontSize:8,letterSpacing:".16em",textTransform:"uppercase",color:"var(--ink3)",marginBottom:8,fontFamily:"var(--mono)"}}>Floor</div>
+            <div style={{display:"flex",flexDirection:"column",gap:0,border:"1px solid var(--rule)"}}>
+              {[{value:"carpet",label:"Carpet"},{value:"wood",label:"Hardwood"},{value:"tile",label:"Tile / Stone"}].map((o,i)=>{
                 const sel=floorTypes.includes(o.value);
-                return (
-                  <button key={o.value} onClick={()=>toggleFloor(o.value)} style={{flex:"1 1 auto",padding:"10px 14px",fontSize:10,letterSpacing:".05em",cursor:"pointer",fontFamily:"var(--mono)",background:sel?"var(--amber)":"transparent",color:sel?"var(--paper)":"var(--ink3)",border:"none",borderLeft:i>0?"1px solid var(--rule)":"none",transition:"all .15s",whiteSpace:"nowrap",position:"relative"}}>
-                    {sel&&<span style={{position:"absolute",top:4,right:5,fontSize:8,opacity:.7}}>✓</span>}
-                    {o.label}
-                  </button>
-                );
+                return <button key={o.value} onClick={()=>toggleFloor(o.value)} style={{padding:"8px 12px",fontSize:10,cursor:"pointer",fontFamily:"var(--mono)",background:sel?"var(--amber)":"transparent",color:sel?"var(--paper)":"var(--ink3)",border:"none",borderTop:i>0?"1px solid var(--rule)":"none",textAlign:"left",transition:"all .15s",display:"flex",justifyContent:"space-between"}}>{o.label}{sel&&<span style={{opacity:.7}}>✓</span>}</button>;
               })}
             </div>
           </div>
-          <div style={{marginBottom:4}}>
-            <div style={{fontSize:9,letterSpacing:".18em",textTransform:"uppercase",color:"var(--ink3)",marginBottom:10,fontFamily:"var(--mono)"}}>Wall Materials — select all that apply</div>
-            <div style={{display:"flex",gap:0,flexWrap:"wrap",border:"1px solid var(--rule)"}}>
+          <div>
+            <div style={{fontSize:8,letterSpacing:".16em",textTransform:"uppercase",color:"var(--ink3)",marginBottom:8,fontFamily:"var(--mono)"}}>Walls</div>
+            <div style={{display:"flex",flexDirection:"column",gap:0,border:"1px solid var(--rule)"}}>
               {loc.wallMaterials.map((o,i)=>{
                 const sel=wallMaterials.includes(o.value);
-                return (
-                  <button key={o.value} onClick={()=>toggleWall(o.value)} style={{flex:"1 1 auto",padding:"10px 14px",fontSize:10,letterSpacing:".05em",cursor:"pointer",fontFamily:"var(--mono)",background:sel?"var(--amber)":"transparent",color:sel?"var(--paper)":"var(--ink3)",border:"none",borderLeft:i>0?"1px solid var(--rule)":"none",transition:"all .15s",whiteSpace:"nowrap",minWidth:0,position:"relative"}}>
-                    {sel&&<span style={{position:"absolute",top:4,right:5,fontSize:8,opacity:.7}}>✓</span>}
-                    {o.label}
-                  </button>
-                );
+                return <button key={o.value} onClick={()=>toggleWall(o.value)} style={{padding:"8px 12px",fontSize:10,cursor:"pointer",fontFamily:"var(--mono)",background:sel?"var(--amber)":"transparent",color:sel?"var(--paper)":"var(--ink3)",border:"none",borderTop:i>0?"1px solid var(--rule)":"none",textAlign:"left",transition:"all .15s",display:"flex",justifyContent:"space-between"}}>{o.label}{sel&&<span style={{opacity:.7}}>✓</span>}</button>;
               })}
             </div>
           </div>
         </div>
-        {analysis.warnings.filter(w=>w.level==="critical"||w.msg.toLowerCase().includes("plasterboard")||w.msg.toLowerCase().includes("glass")||w.msg.toLowerCase().includes("floor")).map((w,i)=><WarningBadge key={i} w={w} SEV={SEV}/>)}
+
+        {hasInteracted && analysis.warnings.filter(w=>w.level==="critical").map((w,i)=><WarningBadge key={i} w={w} SEV={SEV}/>)}
         <NavRow onNext={()=>advance("materials","room")}/>
       </div>
     ),
 
     room: (
       <div>
-        <StepHeading title="Room Dimensions" sub="Enter your listening room's physical dimensions"/>
-        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:isMobile?0:10,marginBottom:16}}>
+        <StepHeading title="Room & Placement" sub="Dimensions and furniture setup"/>
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:isMobile?0:10,marginBottom:12}}>
           {[{k:"length",label:"Length",max:12},{k:"width",label:"Width",max:10},{k:"height",label:"Height",max:4}].map(({k,label,max})=><DimSlider key={k} label={label} value={room[k]} unit="m" min={1.5} max={max} step={0.1} onChange={v=>setRoom(r=>({...r,[k]:v}))}/>)}
         </div>
-        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:8,marginBottom:24}}>
-          {[{label:"Floor Area",val:`${analysis.area} m²`},{label:"Volume",val:`${analysis.volume} m³`},{label:"Speaker Sep.",val:`${analysis.separation}m`}].map(m=>(
-            <div key={m.label} style={{padding:"12px 14px",background:"var(--paper2)",border:"1px solid var(--rule)",borderRadius:3,textAlign:"center"}}>
-              <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".12em",textTransform:"uppercase",marginBottom:4}}>{m.label}</div>
-              <div style={{fontFamily:"var(--serif)",fontSize:18,color:"var(--amber)"}}>{m.val}</div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:6,marginBottom:20}}>
+          {[{label:"Area",val:`${analysis.area} m²`},{label:"Volume",val:`${analysis.volume} m³`},{label:"Spkr Sep.",val:`${analysis.separation}m`}].map(m=>(
+            <div key={m.label} style={{padding:"8px 10px",background:"var(--paper2)",border:"1px solid var(--rule)",textAlign:"center"}}>
+              <div style={{fontSize:8,color:"var(--ink4)",letterSpacing:".1em",textTransform:"uppercase",marginBottom:3}}>{m.label}</div>
+              <div style={{fontFamily:"var(--serif)",fontSize:16,color:"var(--amber)"}}>{m.val}</div>
             </div>
           ))}
         </div>
-        <div style={{display:"flex",justifyContent:"center",marginBottom:24}}>
-          <RoomDiagram length={room.length} width={room.width} separation={analysis.separation} backWall={analysis.backWall} listenPos={analysis.listenPos||3.2} sideWallGap={sideWallGap} accent={tierData.accent}/>
-        </div>
-        {analysis.tierRec&&<InfoBanner msg={`Room size suggests a ${analysis.tierRec==="entry"?"compact, focused":analysis.tierRec==="mid"?"mid-range":"high-end reference"} system for this space.`}/>}
-        <NavRow onBack={()=>goTo("materials")} onNext={()=>{if(analysis.tierRec)setTier(analysis.tierRec);advance("room","furniture");}}/>
-      </div>
-    ),
 
-    furniture: (
-      <div>
-        <StepHeading title="Furniture & Placement" sub="How your equipment is mounted changes what we ask next"/>
-        <SectionLabel>Mounting Option</SectionLabel>
-        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:isMobile?6:10,marginBottom:20}}>
+        <div style={{height:1,background:"var(--rule)",margin:"16px 0"}}/>
+        <SectionLabel>Furniture & Placement</SectionLabel>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:6,marginBottom:14}}>
           {MOUNTING.map(m=>{
             const active=mounting===m.id, Icon=m.id==="sideboard"?IconSideboard:m.id==="rack"?IconRack:IconFloor;
             return (
-              <button key={m.id} onClick={()=>setMounting(m.id)} style={{padding:"22px 14px 16px",textAlign:"center",cursor:"pointer",borderRadius:3,border:`1px solid ${active?"rgba(197,160,40,.5)":"var(--rule)"}`,background:active?"rgba(197,160,40,.08)":"var(--paper2)",transition:"all .2s"}}>
-                <div style={{marginBottom:12,opacity:active?1:.35}}><Icon size={30} col={active?"var(--amber)":"var(--ink3)"}/></div>
-                <div style={{fontSize:12,fontFamily:"var(--serif)",color:active?"var(--amber)":"var(--ink2)",marginBottom:3}}>{m.label}</div>
-                <div style={{fontSize:8,color:"var(--ink4)",letterSpacing:".06em"}}>{m.sub}</div>
+              <button key={m.id} onClick={()=>setMounting(m.id)} style={{padding:"14px 10px",textAlign:"center",cursor:"pointer",border:`1px solid ${active?"rgba(197,160,40,.5)":"var(--rule)"}`,background:active?"rgba(197,160,40,.08)":"var(--paper2)",transition:"all .2s"}}>
+                <div style={{marginBottom:8,opacity:active?1:.35}}><Icon size={24} col={active?"var(--amber)":"var(--ink3)"}/></div>
+                <div style={{fontSize:11,fontFamily:"var(--serif)",color:active?"var(--amber)":"var(--ink2)",marginBottom:2}}>{m.label}</div>
+                <div style={{fontSize:7,color:"var(--ink4)",letterSpacing:".05em"}}>{m.sub}</div>
               </button>
             );
           })}
         </div>
-        {mountData&&<InfoBanner msg={mountData.note}/>}
-        <div style={{display:"grid",gap:12,marginBottom:16,marginTop:16}}>
+
+        <div style={{display:"grid",gap:8,marginBottom:14}}>
           {mounting!=="rack"&&(
-            <>
-              <DimSlider label="Sideboard Width" value={sideboardWidth} unit="m" min={0.6} max={3.0} step={0.05} onChange={setSideboardWidth} noteOn={sideboardWidth<1.5} noteMsg={sideboardWidth<1.5?"Below 1.5m — stacking config will apply":"Sufficient width for side-by-side components"} noteCol={sideboardWidth<1.5?"var(--amber)":"var(--green)"}/>
-              <SelectButtons label="Sideboard Material" value={sideboardMat} onChange={setSideboardMat} opts={[{value:"solid_oak",label:"Solid Oak"},{value:"lightweight_wood",label:"Lightweight / MDF"},{value:"glass_steel",label:"Glass & Steel"},{value:"slate_stone",label:"Slate / Stone"}]}/>
-            </>
+            <DimSlider label="Sideboard Width" value={sideboardWidth} unit="m" min={0.6} max={3.0} step={0.05} onChange={setSideboardWidth} noteOn={sideboardWidth<1.5} noteMsg={sideboardWidth<1.5?"Below 1.5m — stacking config applies":""} noteCol="var(--amber)"/>
           )}
-          <DimSlider label="Speaker to Side Wall" value={sideWallGap} unit="cm" min={5} max={100} step={1} onChange={setSideWallGap} noteOn={sideWallGap<30} noteMsg={sideWallGap<30?"< 30cm — Side-Wall Rule triggered":"Good side-wall clearance"} noteCol={sideWallGap<30?"var(--red)":"var(--green)"}/>
+          <DimSlider label="Speaker to Side Wall" value={sideWallGap} unit="cm" min={5} max={100} step={1} onChange={setSideWallGap} noteOn={sideWallGap<30} noteMsg={sideWallGap<30?"< 30cm — avoid rear-ported speakers":""} noteCol="var(--red)"/>
         </div>
-        {analysis.warnings.filter(w=>w.msg.toLowerCase().includes("sideboard")||w.msg.toLowerCase().includes("side wall")||w.msg.toLowerCase().includes("stacking")).map((w,i)=><WarningBadge key={i} w={w} SEV={SEV}/>)}
-        <NavRow onBack={()=>goTo("room")} onNext={()=>advance("furniture","genres")}/>
+
+        {analysis.tierRec&&<InfoBanner msg={`Room size (${analysis.area} m²) suggests a ${analysis.tierRec==="entry"?"compact, focused":analysis.tierRec==="mid"?"mid-range":"high-end reference"} system.`}/>}
+        {analysis.warnings.filter(w=>w.level==="critical"&&(w.msg.toLowerCase().includes("side wall")||w.msg.toLowerCase().includes("floor"))).map((w,i)=><WarningBadge key={i} w={w} SEV={SEV}/>)}
+        <NavRow onBack={()=>goTo("materials")} onNext={()=>{if(analysis.tierRec)setTier(analysis.tierRec);advance("room","genres");}}/>
       </div>
     ),
+
+    furniture: null,
 
     genres: (
       <div>
@@ -1436,7 +1424,7 @@ export default function HiFiSystemBuilder() {
           })}
         </div>
         <div style={{position:"sticky",bottom:0,background:"var(--paper)",borderTop:"2px solid var(--ink)",padding:"14px 0 4px",zIndex:10,marginTop:8}}>
-          <NavRow onBack={()=>goTo("furniture")} onNext={()=>advance("genres","tier")} nextLabel="Continue to System Brief →"/>
+          <NavRow onBack={()=>goTo("room")} onNext={()=>advance("genres","tier")} nextLabel="Continue to System Brief →"/>
         </div>
       </div>
     ),
@@ -1490,17 +1478,48 @@ export default function HiFiSystemBuilder() {
     catalog: (
       <div>
         <StepHeading title="Component Recommendations" sub={`${tier==="entry"?"Entry Level":tier==="mid"?"Mid-Range":"High-End"} · select one item per category`}/>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 16px",background:"var(--paper2)",border:"1px solid var(--rule)",marginBottom:20,flexWrap:"wrap",gap:12}}>
-          <SynergyRing score={synergy}/>
-          <div style={{textAlign:"right",display:"flex",gap:isMobile?12:20,alignItems:"flex-start"}}>
-            <div>
-              <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".14em",textTransform:"uppercase",marginBottom:4,fontFamily:"var(--mono)"}}>Current Build</div>
-              <div style={{fontFamily:"var(--serif)",fontSize:22,color:budget>0&&basketTotal>budget?"#8B2020":basketTotal>0?"var(--ink)":"var(--ink4)"}}>{basketTotal>0?formatPrice(basketTotal,loc):"—"}</div>
-              {budget>0&&basketTotal>0&&<div style={{fontSize:9,fontFamily:"var(--mono)",marginTop:2,color:basketTotal>budget?"#8B2020":"#2A5040"}}>{basketTotal>budget?`${formatPrice(basketTotal-budget,loc)} over`:`${formatPrice(budget-basketTotal,loc)} left`}</div>}
+
+        {/* ── STICKY SELECTION BAR — always visible, no scrolling needed ── */}
+        <div style={{position:"sticky",top:0,zIndex:20,background:"var(--paper)",borderBottom:"2px solid var(--ink)",marginBottom:16,padding:"10px 0"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+            <div style={{display:"flex",gap:6,flexWrap:"wrap",flex:1,minWidth:0}}>
+              {["turntable","amplifier","speakers"].map(cat=>{
+                const sel=basket.find(b=>b.cat===cat);
+                const v=sel?(VENDORS[sel.vendor]||VENDORS.generic):null;
+                return (
+                  <div key={cat} style={{display:"flex",alignItems:"center",gap:5,padding:"4px 8px",background:sel?`${v.col}12`:"transparent",border:`1px solid ${sel?v.col:"var(--rule)"}`,minWidth:0,transition:"all .2s"}}>
+                    <CatIcon cat={cat} size={10} col={sel?v.col:"var(--ink4)"}/>
+                    <span style={{fontSize:9,fontFamily:"var(--mono)",color:sel?v.col:"var(--ink4)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:90}}>{sel?sel.name:CAT_LABELS[cat]}</span>
+                  </div>
+                );
+              })}
             </div>
-            <div>
-              <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".14em",textTransform:"uppercase",marginBottom:4,fontFamily:"var(--mono)"}}>Selected</div>
-              <div style={{fontFamily:"var(--serif)",fontSize:22,color:tierData.accent}}>{basket.length}<span style={{fontSize:13,color:"var(--ink4)"}}> / {Object.keys(tierData.components).length}</span></div>
+            <div style={{display:"flex",gap:12,alignItems:"center",flexShrink:0}}>
+              {/* Synergy ring — only show once 3+ components selected */}
+              {basket.length>=3&&(
+                <div className="fi" style={{display:"flex",alignItems:"center",gap:8}}>
+                  <div style={{position:"relative",width:32,height:32,flexShrink:0}}>
+                    <svg width={32} height={32} style={{transform:"rotate(-90deg)"}}>
+                      <circle cx={16} cy={16} r={12} fill="none" stroke="#D4C9B4" strokeWidth={3}/>
+                      <circle cx={16} cy={16} r={12} fill="none" stroke={synergyMeta(synergy).col} strokeWidth={3}
+                        strokeDasharray={2*Math.PI*12} strokeDashoffset={2*Math.PI*12*(1-synergy/100)}
+                        style={{transition:"stroke-dashoffset .9s cubic-bezier(.4,0,.2,1)"}}/>
+                    </svg>
+                    <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                      <span style={{fontFamily:"var(--mono)",fontSize:8,color:"var(--ink)",lineHeight:1}}>{synergy}</span>
+                    </div>
+                  </div>
+                  <span style={{fontSize:8,color:synergyMeta(synergy).col,fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase"}}>{synergyMeta(synergy).label}</span>
+                </div>
+              )}
+              <div style={{textAlign:"right"}}>
+                <div style={{fontFamily:"var(--serif)",fontSize:18,color:budget>0&&basketTotal>budget?"#8B2020":basketTotal>0?"var(--ink)":"var(--ink4)",lineHeight:1}}>{basketTotal>0?formatPrice(basketTotal,loc):"—"}</div>
+                {budget>0&&basketTotal>0&&<div style={{fontSize:8,fontFamily:"var(--mono)",marginTop:1,color:basketTotal>budget?"#8B2020":"#2A5040"}}>{basketTotal>budget?`${formatPrice(basketTotal-budget,loc)} over`:`${formatPrice(budget-basketTotal,loc)} left`}</div>}
+              </div>
+              <div style={{textAlign:"center",borderLeft:"1px solid var(--rule)",paddingLeft:12}}>
+                <div style={{fontFamily:"var(--serif)",fontSize:18,color:tierData.accent,lineHeight:1}}>{basket.length}<span style={{fontSize:11,color:"var(--ink4)"}}> / {Object.keys(tierData.components).length}</span></div>
+                <div style={{fontSize:8,color:"var(--ink4)",fontFamily:"var(--mono)",marginTop:1}}>selected</div>
+              </div>
             </div>
           </div>
         </div>
@@ -1519,15 +1538,16 @@ export default function HiFiSystemBuilder() {
             const isOpen=openCat===catKey;
             return (
               <div key={catKey} style={{borderTop:catIdx>0?"1px solid var(--rule)":"none"}}>
-                <button onClick={()=>setOpenCat(isOpen?null:catKey)} style={{width:"100%",display:"grid",gridTemplateColumns:"auto auto 1fr auto",alignItems:"center",gap:12,padding:"14px 16px",background:isOpen?"var(--ink)":"transparent",border:"none",cursor:"pointer",textAlign:"left",transition:"background .15s"}}>
-                  <CatIcon cat={catKey} size={13} col={isOpen?"#F5F0E8":sel?"#B8732A":"#9A9088"}/>
-                  <span style={{fontSize:9,letterSpacing:".18em",textTransform:"uppercase",color:isOpen?"#F5F0E8":sel?"var(--amber)":"var(--ink4)",fontFamily:"var(--mono)",whiteSpace:"nowrap"}}>{CAT_LABELS[catKey]}</span>
+                {/* Category header — warmer when open, vinyl accent on selected */}
+                <button onClick={()=>setOpenCat(isOpen?null:catKey)} style={{width:"100%",display:"grid",gridTemplateColumns:"auto auto 1fr auto",alignItems:"center",gap:12,padding:"14px 16px",background:isOpen?`${tierData.accent}`:"transparent",border:"none",cursor:"pointer",textAlign:"left",transition:"background .2s"}}>
+                  <CatIcon cat={catKey} size={13} col={isOpen?"#F5F0E8":sel?v.col:"#9A9088"}/>
+                  <span style={{fontSize:9,letterSpacing:".18em",textTransform:"uppercase",color:isOpen?"#F5F0E8":sel?v.col:"var(--ink4)",fontFamily:"var(--mono)",whiteSpace:"nowrap"}}>{CAT_LABELS[catKey]}</span>
                   {sel?(
                     <div style={{display:"flex",alignItems:"center",gap:8,minWidth:0,paddingLeft:4}}>
-                      <div style={{width:3,height:20,background:isOpen?"rgba(245,240,232,.4)":v.col,borderRadius:1,flexShrink:0}}/>
+                      <div style={{width:3,height:20,background:isOpen?"rgba(245,240,232,.5)":v.col,borderRadius:1,flexShrink:0}}/>
                       <div style={{minWidth:0}}>
-                        <span style={{fontFamily:"var(--serif)",fontSize:12,color:isOpen?"#F5F0E8":"var(--ink)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",display:"block"}}>{sel.name}</span>
-                        <span style={{fontSize:9,color:isOpen?"rgba(245,240,232,.6)":"var(--ink4)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",display:"block"}}>{v.name} · {formatPrice(sel.price,loc)}</span>
+                        <span style={{fontFamily:"var(--serif)",fontSize:13,color:isOpen?"#F5F0E8":"var(--ink)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",display:"block",fontWeight:400}}>{sel.name}</span>
+                        <span style={{fontSize:9,color:isOpen?"rgba(245,240,232,.7)":v.col,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",display:"block",fontFamily:"var(--mono)"}}>{v.name} · {formatPrice(sel.price,loc)}</span>
                       </div>
                     </div>
                   ):(
@@ -1559,39 +1579,52 @@ export default function HiFiSystemBuilder() {
                         </div>
                       );
                     })()}
-                    <div style={{display:"grid",gap:0}}>
-                      {opts.map((item,optIdx)=>{
-                        const on=isSelected(item), iv=VENDORS[item.vendor]||VENDORS.generic;
-                        const score=genreScore(item);
-                        const matchedGenres=score>0?GENRES.filter(g=>selectedGenres.includes(g.id)&&((catKey==="speakers"&&g.speakerWeights[item.vendor])||(catKey==="amplifier"&&g.ampWeights[item.vendor]))):[];
-                        const allCatKeysList=Object.keys(tierData.components);
-                        const nextCat=allCatKeysList[allCatKeysList.indexOf(catKey)+1];
-                        return (
-                          <div key={item.id} style={{borderTop:optIdx>0?"1px solid var(--rule)":"none"}}>
-                            <button onClick={()=>{ selectComp(catKey,item); if(nextCat) setOpenCat(nextCat); else setOpenCat(null); }} style={{width:"100%",display:"grid",gridTemplateColumns:"4px 1fr auto",alignItems:"center",gap:0,background:on?"var(--paper2)":"transparent",border:"none",cursor:"pointer",textAlign:"left",padding:0,transition:"background .15s"}}>
-                              <div style={{width:4,alignSelf:"stretch",background:on?iv.col:"transparent",transition:"background .15s"}}/>
-                              <div style={{padding:"12px 14px"}}>
-                                <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8,marginBottom:3}}>
-                                  <span style={{fontFamily:"var(--serif)",fontSize:13,color:on?"var(--ink)":"var(--ink2)",fontWeight:on?400:300,lineHeight:1.3}}>{item.name}</span>
-                                  {matchedGenres.length>0&&<div style={{display:"flex",gap:2,flexShrink:0}}>{matchedGenres.slice(0,3).map(g=><span key={g.id} style={{fontSize:15,lineHeight:1}}>{g.emoji}</span>)}</div>}
+                    {(()=>{
+                      const showAll = !!showAllCat[catKey];
+                      const displayOpts = showAll ? opts : opts.slice(0,3);
+                      const hasMore = opts.length > 3;
+                      const allCatKeysList=Object.keys(tierData.components);
+                      const nextCat=allCatKeysList[allCatKeysList.indexOf(catKey)+1];
+                      return (
+                        <div>
+                          <div style={{display:"grid",gap:0}}>
+                            {displayOpts.map((item,optIdx)=>{
+                              const on=isSelected(item), iv=VENDORS[item.vendor]||VENDORS.generic;
+                              const score=genreScore(item);
+                              const matchedGenres=score>0?GENRES.filter(g=>selectedGenres.includes(g.id)&&((catKey==="speakers"&&g.speakerWeights[item.vendor])||(catKey==="amplifier"&&g.ampWeights[item.vendor]))):[];
+                              return (
+                                <div key={item.id} style={{borderTop:optIdx>0?"1px solid var(--rule)":"none"}}>
+                                  <button onClick={()=>{ selectComp(catKey,item); if(nextCat) setOpenCat(nextCat); else setOpenCat(null); }} style={{width:"100%",display:"grid",gridTemplateColumns:"4px 1fr auto",alignItems:"center",gap:0,background:on?`${iv.col}10`:"transparent",border:"none",cursor:"pointer",textAlign:"left",padding:0,transition:"background .2s"}}>
+                                    <div style={{width:4,alignSelf:"stretch",background:on?iv.col:"transparent",transition:"background .2s"}}/>
+                                    <div style={{padding:"12px 14px"}}>
+                                      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8,marginBottom:3}}>
+                                        <span style={{fontFamily:"var(--serif)",fontSize:14,color:on?"var(--ink)":"var(--ink2)",fontWeight:on?400:300,lineHeight:1.3}}>{item.name}</span>
+                                        {matchedGenres.length>0&&<div style={{display:"flex",gap:2,flexShrink:0}}>{matchedGenres.slice(0,3).map(g=><span key={g.id} style={{fontSize:14,lineHeight:1}}>{g.emoji}</span>)}</div>}
+                                      </div>
+                                      <div style={{fontSize:9,color:"var(--ink4)",marginBottom:4,fontFamily:"var(--mono)"}}>{item.sub}</div>
+                                      <div style={{display:"flex",alignItems:"center",gap:6}}>
+                                        <span style={{fontSize:8,letterSpacing:".06em",textTransform:"uppercase",padding:"2px 7px",background:on?`${iv.col}20`:`${iv.col}10`,border:`1px solid ${iv.col}40`,color:iv.col,fontFamily:"var(--mono)",fontWeight:on?400:300}}>{iv.name}</span>
+                                        {iv.city&&iv.city!=="—"&&<span style={{fontSize:8,color:"var(--ink4)",letterSpacing:".04em",fontFamily:"var(--mono)"}}>{iv.city}</span>}
+                                      </div>
+                                    </div>
+                                    <div style={{padding:"12px 16px 12px 0",textAlign:"right",flexShrink:0}}>
+                                      <div style={{fontFamily:"var(--serif)",fontSize:14,color:on?iv.col:"var(--ink3)",marginBottom:2,fontWeight:on?400:300}}>{formatPrice(item.price,loc)}</div>
+                                      {budget>0&&!on&&item.price>0&&(basketTotal+item.price)>budget&&<div style={{fontSize:7,color:"#8B2020",fontFamily:"var(--mono)",letterSpacing:".08em"}}>over budget</div>}
+                                      {on&&<div style={{width:16,height:16,background:iv.col,display:"flex",alignItems:"center",justifyContent:"center",marginLeft:"auto",marginTop:4}}><svg width="9" height="7" viewBox="0 0 10 8" fill="none"><polyline points="1,4 3.5,6.5 9,1" stroke="#F5F0E8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></div>}
+                                    </div>
+                                  </button>
                                 </div>
-                                <div style={{fontSize:9,color:"var(--ink4)",marginBottom:4}}>{item.sub}</div>
-                                <div style={{display:"flex",alignItems:"center",gap:6}}>
-                                  <span style={{fontSize:8,letterSpacing:".06em",textTransform:"uppercase",padding:"1px 6px",background:`${iv.col}15`,border:`1px solid ${iv.col}30`,color:iv.col,fontFamily:"var(--mono)"}}>{iv.name}</span>
-                                  {iv.city&&iv.city!=="—"&&<span style={{fontSize:8,color:"var(--ink4)",letterSpacing:".04em"}}>{iv.city}</span>}
-                                </div>
-                                {item.note&&<div style={{marginTop:6,fontSize:9,color:"var(--ink3)",lineHeight:1.55,borderTop:"1px solid var(--rule)",paddingTop:6}}>{item.note}</div>}
-                              </div>
-                              <div style={{padding:"12px 16px 12px 0",textAlign:"right",flexShrink:0}}>
-                                <div style={{fontFamily:"var(--serif)",fontSize:14,color:on?"var(--ink)":"var(--ink3)",marginBottom:2}}>{formatPrice(item.price,loc)}</div>
-                                {budget>0&&!on&&item.price>0&&(basketTotal+item.price)>budget&&<div style={{fontSize:7,color:"#8B2020",fontFamily:"var(--mono)",letterSpacing:".08em"}}>over budget</div>}
-                                {on&&<div style={{width:18,height:18,background:"var(--ink)",display:"flex",alignItems:"center",justifyContent:"center",marginLeft:"auto"}}><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><polyline points="1,4 3.5,6.5 9,1" stroke="#F5F0E8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></div>}
-                              </div>
-                            </button>
+                              );
+                            })}
                           </div>
-                        );
-                      })}
-                    </div>
+                          {hasMore&&(
+                            <button onClick={()=>setShowAllCat(s=>({...s,[catKey]:!s[catKey]}))} style={{width:"100%",padding:"9px 14px",background:"transparent",border:"none",borderTop:"1px solid var(--rule)",cursor:"pointer",fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)",letterSpacing:".12em",textTransform:"uppercase",textAlign:"center"}}>
+                              {showAll?`▲ Show fewer`:`▼ Show all ${opts.length} options`}
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
               </div>
@@ -1652,43 +1685,43 @@ export default function HiFiSystemBuilder() {
             <div style={{display:"grid",gap:0,border:"1px solid var(--rule)"}}>
               {allCats.map((catKey,ci)=>{
                 const sel=selectedByCat(catKey);
-                const effectiveSel=sel||(catKey==="cartridge"&&bundledCart?{name:bundledCart.name,sub:"Bundled · included in turntable price",cat:"cartridge",vendor:selectedTurntable?.vendor||"generic",price:0,_bundled:true}:null);
+                const effectiveSel=sel||(catKey==="cartridge"&&bundledCart?{name:bundledCart.name,sub:"Bundled · included",cat:"cartridge",vendor:selectedTurntable?.vendor||"generic",price:0,_bundled:true}:null);
                 const v=effectiveSel?(VENDORS[effectiveSel.vendor]||VENDORS.generic):null;
                 const isOpen=swapOpen===catKey;
                 const opts=tierData.components[catKey]||[];
                 return (
                   <div key={catKey} style={{borderTop:ci>0?"1px solid var(--rule)":"none"}}>
-                    <div style={{display:"grid",gridTemplateColumns:"auto 1fr auto",alignItems:"center",gap:isMobile?8:12,padding:isMobile?"10px 12px":"13px 16px",background:isOpen?"var(--paper2)":"transparent"}}>
-                      <div style={{display:"flex",alignItems:"center",gap:isMobile?6:8}}>
-                        <CatIcon cat={catKey} size={12} col={effectiveSel?(effectiveSel._bundled?"#2A5040":"var(--amber)"):"var(--ink4)"}/>
-                        <span style={{fontSize:8,color:"var(--ink4)",letterSpacing:".16em",textTransform:"uppercase",fontFamily:"var(--mono)",width:72,flexShrink:0}}>{CAT_LABELS[catKey]}</span>
+                    <div style={{display:"grid",gridTemplateColumns:"auto 1fr auto",alignItems:"center",gap:10,padding:"10px 14px",background:isOpen?"var(--paper2)":"transparent"}}>
+                      <div style={{display:"flex",alignItems:"center",gap:8}}>
+                        <CatIcon cat={catKey} size={11} col={effectiveSel?(effectiveSel._bundled?"#2A5040":"var(--amber)"):"var(--ink4)"}/>
+                        <span style={{fontSize:8,color:"var(--ink4)",letterSpacing:".14em",textTransform:"uppercase",fontFamily:"var(--mono)",width:64,flexShrink:0}}>{CAT_LABELS[catKey]}</span>
                       </div>
                       {effectiveSel?(
-                        <div style={{display:"flex",alignItems:"center",gap:10,minWidth:0}}>
-                          <div style={{width:3,height:28,background:effectiveSel._bundled?"#2A5040":v.col,flexShrink:0,borderRadius:1}}/>
+                        <div style={{display:"flex",alignItems:"center",gap:8,minWidth:0}}>
+                          <div style={{width:2,height:20,background:effectiveSel._bundled?"#2A5040":v.col,flexShrink:0}}/>
                           <div style={{minWidth:0}}>
-                            <div style={{fontFamily:"var(--serif)",fontSize:13,color:"var(--ink)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{effectiveSel.name}</div>
-                            <div style={{fontSize:9,color:effectiveSel._bundled?"#2A5040":"var(--ink4)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{effectiveSel._bundled?"Bundled with turntable · £0 extra":`${v.name} · ${formatPrice(effectiveSel.price,loc)}`}</div>
+                            <div style={{fontFamily:"var(--serif)",fontSize:12,color:"var(--ink)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{effectiveSel.name}</div>
+                            <div style={{fontSize:8,color:effectiveSel._bundled?"#2A5040":"var(--ink4)"}}>{effectiveSel._bundled?"Bundled · £0 extra":`${v.name} · ${formatPrice(effectiveSel.price,loc)}`}</div>
                           </div>
                         </div>
                       ):<div style={{fontSize:11,color:"var(--ink4)",fontStyle:"italic",fontFamily:"var(--serif)"}}>Not selected</div>}
-                      <button onClick={()=>setSwapOpen(isOpen?null:catKey)} style={{padding:"6px 12px",border:"1px solid var(--rule)",cursor:"pointer",fontSize:9,letterSpacing:".12em",textTransform:"uppercase",fontFamily:"var(--mono)",background:isOpen?"var(--ink)":"transparent",color:isOpen?"var(--paper)":"var(--ink3)",transition:"all .15s",whiteSpace:"nowrap"}}>{isOpen?"Close ✕":"Swap"}</button>
+                      <button onClick={()=>setSwapOpen(isOpen?null:catKey)} style={{padding:"5px 10px",border:"1px solid var(--rule)",cursor:"pointer",fontSize:8,letterSpacing:".1em",textTransform:"uppercase",fontFamily:"var(--mono)",background:isOpen?"var(--ink)":"transparent",color:isOpen?"var(--paper)":"var(--ink3)",transition:"all .15s",whiteSpace:"nowrap"}}>{isOpen?"✕":"Swap"}</button>
                     </div>
                     {isOpen&&(
-                      <div className="fu" style={{borderTop:"1px solid var(--rule)",background:"var(--paper2)",padding:"12px 16px",maxHeight:320,overflowY:"auto"}}>
-                        <div style={{display:"grid",gap:6}}>
+                      <div className="fu" style={{borderTop:"1px solid var(--rule)",background:"var(--paper2)",padding:"10px 14px",maxHeight:280,overflowY:"auto"}}>
+                        <div style={{display:"grid",gap:5}}>
                           {opts.map(item=>{
                             const iv=VENDORS[item.vendor]||VENDORS.generic, isSel=basket.some(b=>b.id===item.id);
                             return (
-                              <button key={item.id} onClick={()=>{selectComp(catKey,item);setSwapOpen(null);}} style={{display:"grid",gridTemplateColumns:"auto 1fr auto",alignItems:"center",gap:10,padding:"10px 12px",textAlign:"left",cursor:"pointer",background:isSel?"var(--ink)":"transparent",border:`1px solid ${isSel?"var(--ink)":"var(--rule)"}`,transition:"all .15s"}}>
-                                <div style={{width:3,height:32,background:iv.col,borderRadius:1,flexShrink:0}}/>
+                              <button key={item.id} onClick={()=>{selectComp(catKey,item);setSwapOpen(null);}} style={{display:"grid",gridTemplateColumns:"auto 1fr auto",alignItems:"center",gap:8,padding:"9px 10px",textAlign:"left",cursor:"pointer",background:isSel?"var(--ink)":"transparent",border:`1px solid ${isSel?"var(--ink)":"var(--rule)"}`,transition:"all .15s"}}>
+                                <div style={{width:3,height:28,background:iv.col,borderRadius:1,flexShrink:0}}/>
                                 <div>
                                   <div style={{fontFamily:"var(--serif)",fontSize:12,color:isSel?"var(--paper)":"var(--ink)",lineHeight:1.3}}>{item.name}</div>
-                                  <div style={{fontSize:9,color:isSel?"rgba(245,240,232,.6)":"var(--ink4)",marginTop:2}}>{item.sub}</div>
+                                  <div style={{fontSize:8,color:isSel?"rgba(245,240,232,.6)":"var(--ink4)",marginTop:1}}>{item.sub}</div>
                                 </div>
                                 <div style={{textAlign:"right",flexShrink:0}}>
-                                  <div style={{fontFamily:"var(--serif)",fontSize:13,color:isSel?"var(--paper)":"var(--ink2)"}}>{formatPrice(item.price,loc)}</div>
-                                  {isSel&&<div style={{fontSize:8,color:"rgba(245,240,232,.7)",letterSpacing:".08em",fontFamily:"var(--mono)"}}>SELECTED</div>}
+                                  <div style={{fontFamily:"var(--serif)",fontSize:12,color:isSel?"var(--paper)":"var(--ink2)"}}>{formatPrice(item.price,loc)}</div>
+                                  {isSel&&<div style={{fontSize:7,color:"rgba(245,240,232,.7)",letterSpacing:".08em",fontFamily:"var(--mono)"}}>SELECTED</div>}
                                 </div>
                               </button>
                             );
@@ -1792,7 +1825,10 @@ export default function HiFiSystemBuilder() {
           <div style={{display:"flex",flexDirection:isMobile?"column":"row",justifyContent:"space-between",alignItems:isMobile?"flex-start":"flex-start",flexWrap:"wrap",gap:isMobile?8:16}}>
             <div>
               <div style={{fontSize:9,letterSpacing:".28em",textTransform:"uppercase",color:"var(--ink3)",fontFamily:"var(--mono)",marginBottom:8}}>Hi-Fi System Builder &nbsp;·&nbsp; {loc.flag} {loc.label}</div>
-              <h1 style={{fontFamily:"var(--serif)",fontSize:"clamp(26px,4vw,38px)",fontWeight:400,color:"var(--ink)",lineHeight:1,letterSpacing:"-.03em"}}>Reference System<br/><em style={{fontWeight:300,fontStyle:"italic",color:"var(--amber)"}}>Configurator</em></h1>
+              <div style={{display:"flex",alignItems:"center",gap:12}}>
+                <VinylAccent size={32} opacity={0.18}/>
+                <h1 style={{fontFamily:"var(--serif)",fontSize:"clamp(26px,4vw,38px)",fontWeight:400,color:"var(--ink)",lineHeight:1,letterSpacing:"-.03em"}}>Reference System<br/><em style={{fontWeight:300,fontStyle:"italic",color:"var(--amber)"}}>Configurator</em></h1>
+              </div>
             </div>
             <div style={{display:"flex",gap:0,border:"1px solid var(--rule)",flexWrap:"wrap"}}>
               {Object.values(LOCALES).map((l,i)=>(
