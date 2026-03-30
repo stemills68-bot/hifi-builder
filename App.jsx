@@ -211,6 +211,192 @@ function fmt(n, loc) {
   return `${loc.symbol}${n.toLocaleString()}`;
 }
 
+
+// ── NL Room Sizes ─────────────────────────────────────────────────────────────
+const NL_ROOM_SIZES = {
+  small:    { dims:{length:3.5,width:3.2,height:2.4} },
+  medium:   { dims:{length:5.0,width:4.0,height:2.5} },
+  large:    { dims:{length:6.0,width:5.0,height:2.6} },
+  openplan: { dims:{length:7.5,width:5.5,height:2.8} },
+};
+
+// ── Natural Language Input ────────────────────────────────────────────────────
+function NLInput({ onResult, apiKey, localeId }) {
+  const [text, setText] = React.useState("");
+  const [state, setState] = React.useState("idle");
+  const [parsed, setParsed] = React.useState(null);
+  const loc = LOCALES[localeId] || LOCALES.gb;
+
+  async function handleSubmit() {
+    if (!text.trim() || state==="loading") return;
+    setState("loading");
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method:"POST",
+        headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+        body: JSON.stringify({
+          model:"claude-haiku-4-5-20251001",
+          max_tokens:600,
+          messages:[{role:"user",content:`Extract fields from this hi-fi room description. Respond ONLY with JSON, no markdown:
+{"roomSize":"small|medium|large|openplan","buildingType":"apt_ground|apt_upper|detached|semi_detached","floorType":"carpet|wood|tile","budget":number,"genres":["classical","jazz","rock","electronic","pop_soul","folk","world"],"bias":0-100,"confidence":"high|medium|low","summary":"one sentence"}
+Rules: budget as integer in ${loc.currency}, bias 0=warm/source, 100=expression/speakers, null for unknown fields.
+Description: "${text}"`}]
+        })
+      });
+      const data = await res.json();
+      const raw = data.content?.map(c=>c.text||"").join("") || "";
+      const result = JSON.parse(raw.replace(/```json|```/g,"").trim());
+      setParsed(result);
+      setState("done");
+    } catch(e) { setState("error"); }
+  }
+
+  if (state==="done" && parsed) return (
+    <div className="fu">
+      <div style={{padding:"20px",background:"var(--ink)",marginBottom:12}}>
+        <div style={{fontSize:9,color:"rgba(245,242,232,.4)",letterSpacing:".18em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:8}}>Understood · {parsed.confidence} confidence</div>
+        <p style={{fontFamily:"var(--serif)",fontSize:14,color:"var(--paper)",lineHeight:1.7,marginBottom:14}}>{parsed.summary}</p>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:14}}>
+          {[{l:"Room",v:parsed.roomSize||"—"},{l:"Building",v:(parsed.buildingType||"—").replace("apt_","Flat · ").replace("semi_detached","Semi").replace("detached","Detached")},{l:"Budget",v:parsed.budget>0?`${loc.symbol}${parsed.budget.toLocaleString()}`:"—"},{l:"Bias",v:parsed.bias!=null?(parsed.bias<35?"Foundation":parsed.bias>65?"Expression":"Balanced"):"—"}].map(m=>(
+            <div key={m.l} style={{padding:"8px 10px",background:"rgba(245,242,232,.07)"}}>
+              <div style={{fontSize:8,color:"rgba(245,242,232,.35)",letterSpacing:".12em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:2}}>{m.l}</div>
+              <div style={{fontFamily:"var(--serif)",fontSize:13,color:"rgba(245,242,232,.85)",textTransform:"capitalize"}}>{m.v}</div>
+            </div>
+          ))}
+        </div>
+        {parsed.genres?.length>0&&<div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:14}}>{parsed.genres.map(g=>{const genre=GENRES.find(x=>x.id===g);return genre?<span key={g} style={{fontSize:11,padding:"3px 10px",background:"rgba(245,242,232,.1)",color:"rgba(245,242,232,.8)",fontFamily:"var(--mono)"}}>{genre.emoji} {genre.label}</span>:null;})}</div>}
+        <div style={{display:"flex",gap:10}}>
+          <button onClick={()=>onResult(parsed)} style={{flex:1,padding:"13px",background:"var(--amber)",color:"var(--paper)",border:"none",cursor:"pointer",fontFamily:"var(--mono)",fontSize:11,letterSpacing:".14em",textTransform:"uppercase"}}>Find my sound →</button>
+          <button onClick={()=>{setState("idle");setParsed(null);setText("");}} style={{padding:"13px 14px",background:"transparent",color:"rgba(245,242,232,.5)",border:"1px solid rgba(245,242,232,.15)",cursor:"pointer",fontFamily:"var(--mono)",fontSize:10}}>Edit</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div>
+      <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".16em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:10}}>Describe your room and what you're looking for</div>
+      <textarea value={text} onChange={e=>setText(e.target.value)}
+        placeholder="e.g. I'm in a first floor flat in a Victorian semi, medium sized living room, hardwood floors. Budget around £3,500. Mainly listen to jazz and folk — want it to feel musical and warm."
+        rows={5} style={{width:"100%",padding:"14px 16px",fontFamily:"var(--serif)",fontSize:13,color:"var(--ink)",background:"var(--paper)",border:"2px solid var(--ink)",outline:"none",lineHeight:1.65,resize:"vertical",marginBottom:10}}/>
+      {!text.trim()&&(
+        <div style={{marginBottom:12}}>
+          <div style={{fontSize:8,color:"var(--ink4)",letterSpacing:".12em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:8}}>Not sure where to start?</div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+            {["I'm completely new to hi-fi, budget around £","I want to upgrade from my existing Rega turntable, budget is £","I have a large room in a detached house, serious budget around £"].map((p,i)=>(
+              <button key={i} onClick={()=>setText(p)} style={{padding:"7px 12px",background:"var(--paper2)",border:"1px solid var(--rule)",cursor:"pointer",fontFamily:"var(--serif)",fontSize:11,color:"var(--ink3)",textAlign:"left",lineHeight:1.4}}>
+                {p}<span style={{color:"var(--ink4)"}}>...</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      {!text.trim()&&(
+        <div style={{marginBottom:12,padding:"10px 14px",borderLeft:"2px solid var(--rule)",background:"var(--paper2)"}}>
+          <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".1em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:6}}>Helpful to mention</div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:"4px 14px"}}>
+            {["Room size","Flat or house","Budget","Music you love","New or upgrading"].map(h=><span key={h} style={{fontSize:10,color:"var(--ink3)",fontFamily:"var(--mono)"}}>· {h}</span>)}
+          </div>
+        </div>
+      )}
+      {state==="error"&&<p style={{fontSize:11,color:"var(--red)",fontFamily:"var(--mono)",marginBottom:8}}>Couldn't parse that — use the step-by-step guide below.</p>}
+      <button onClick={handleSubmit} disabled={!text.trim()||state==="loading"} style={{display:"flex",alignItems:"center",gap:14,padding:"16px 24px",width:"100%",maxWidth:340,justifyContent:"space-between",background:text.trim()?"var(--ink)":"var(--paper2)",color:text.trim()?"var(--paper)":"var(--ink4)",border:`1px solid ${text.trim()?"var(--ink)":"var(--rule)"}`,cursor:text.trim()?"pointer":"default",fontFamily:"var(--mono)",fontSize:11,letterSpacing:".14em",textTransform:"uppercase",transition:"all .2s"}}>
+        <span>{state==="loading"?"Reading your room...":"Find my sound"}</span>
+        {state==="loading"
+          ? <svg className="vinyl-turn" width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="9" r="8" fill="none" stroke="currentColor" strokeWidth="1.2"/><circle cx="9" cy="9" r="3" fill="none" stroke="currentColor" strokeWidth=".8"/><circle cx="9" cy="9" r="1.2" fill="currentColor"/></svg>
+          : <svg width="18" height="12" viewBox="0 0 20 12" fill="none"><path d="M13 1l6 5-6 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><line x1="19" y1="6" x2="1" y2="6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>}
+      </button>
+    </div>
+  );
+}
+
+// ── Room Photo Analysis Component ────────────────────────────────────────────
+function RoomPhotoAnalysis({ onResult }) {
+  const [state, setState] = React.useState("idle");
+  const [result, setResult] = React.useState(null);
+  const [preview, setPreview] = React.useState(null);
+  const fileRef = React.useRef(null);
+
+  async function analyse(file) {
+    setState("loading");
+    try {
+      const [base64, prev] = await Promise.all([
+        new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(",")[1]); r.onerror=rej; r.readAsDataURL(file); }),
+        new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(file); }),
+      ]);
+      setPreview(prev);
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method:"POST",
+        headers:{"Content-Type":"application/json","x-api-key":import.meta.env.VITE_ANTHROPIC_KEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+        body: JSON.stringify({
+          model:"claude-haiku-4-5-20251001",
+          max_tokens:600,
+          messages:[{role:"user",content:[
+            {type:"image",source:{type:"base64",media_type:file.type||"image/jpeg",data:base64}},
+            {type:"text",text:`Analyse this room photo for a hi-fi advisor. Respond ONLY with JSON:
+{"roomSize":"small|medium|large|openplan","floorType":"carpet|wood|tile","buildingType":"apt_ground|apt_upper|detached|semi_detached","issues":[],"confidence":"high|medium|low","notes":"one sentence"}
+Be honest. Low confidence if unclear.`}
+          ]}]
+        })
+      });
+      const data = await response.json();
+      const parsed = JSON.parse(data.content?.map(c=>c.text||"").join("").replace(/```json|```/g,"").trim());
+      setResult(parsed);
+      onResult(parsed);
+      setState("done");
+    } catch(e) { setState("error"); }
+  }
+
+  if (state==="idle") return (
+    <div style={{marginBottom:24}}>
+      <div style={{fontFamily:"var(--serif)",fontSize:18,color:"var(--ink)",marginBottom:6}}>Let Claude read your room</div>
+      <p style={{fontSize:13,color:"var(--ink3)",fontFamily:"var(--serif)",lineHeight:1.65,marginBottom:14}}>
+        Upload a photo and Claude will identify room size, floor type, and flag acoustic issues — filling everything in automatically.
+      </p>
+      <p style={{fontSize:10,color:"var(--ink4)",fontFamily:"var(--mono)",lineHeight:1.5,marginBottom:14}}>
+        Note — requires a direct internet connection. Won't work on corporate networks or VPNs.
+      </p>
+      <button onClick={()=>fileRef.current?.click()} style={{display:"flex",alignItems:"center",gap:14,padding:"18px 24px",width:"100%",background:"var(--ink)",color:"var(--paper)",border:"none",cursor:"pointer",fontFamily:"var(--mono)",fontSize:11,letterSpacing:".14em",textTransform:"uppercase",marginBottom:8}}>
+        <svg width="20" height="20" viewBox="0 0 22 22" fill="none"><rect x="1" y="4" width="20" height="15" rx="2" stroke="var(--paper)" strokeWidth="1.5"/><circle cx="11" cy="11.5" r="4" stroke="var(--paper)" strokeWidth="1.5"/><path d="M7 4l1.5-3h5L15 4" stroke="var(--paper)" strokeWidth="1.5" strokeLinejoin="round"/></svg>
+        <span>Upload a photo</span>
+      </button>
+      <div style={{height:1,background:"var(--rule)",margin:"20px 0"}}/>
+      <input ref={fileRef} type="file" accept="image/*" onChange={e=>{const f=e.target.files?.[0];if(f)analyse(f);}} style={{display:"none"}}/>
+    </div>
+  );
+
+  if (state==="loading") return (
+    <div style={{marginBottom:24,padding:"28px",textAlign:"center",background:"var(--ink)"}}>
+      <div className="vinyl-turn" style={{width:40,height:40,margin:"0 auto 14px"}}>
+        <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="none" stroke="rgba(245,242,232,.2)" strokeWidth="2"/><circle cx="20" cy="20" r="10" fill="none" stroke="rgba(245,242,232,.2)" strokeWidth="1"/><circle cx="20" cy="20" r="3" fill="rgba(245,242,232,.6)"/></svg>
+      </div>
+      <div style={{fontSize:11,color:"var(--paper)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase"}}>Reading your room...</div>
+    </div>
+  );
+
+  if (state==="done" && result) return (
+    <div style={{marginBottom:24}} className="fu">
+      {preview&&<div style={{position:"relative",marginBottom:10}}><img src={preview} alt="Room" style={{width:"100%",maxHeight:180,objectFit:"cover",display:"block"}}/><div style={{position:"absolute",top:8,right:8,background:"var(--green)",color:"var(--paper)",fontSize:9,fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",padding:"3px 8px"}}>✓ Read</div></div>}
+      <div style={{padding:"14px 16px",background:"var(--ink)",marginBottom:10}}>
+        <div style={{fontSize:9,color:"rgba(245,242,232,.4)",letterSpacing:".14em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:6}}>Claude's assessment · {result.confidence} confidence</div>
+        <p style={{fontSize:13,color:"var(--paper)",fontFamily:"var(--serif)",lineHeight:1.65,marginBottom:result.issues?.length>0?10:0}}>{result.notes}</p>
+        {result.issues?.length>0&&<div style={{paddingTop:8,borderTop:"1px solid rgba(245,242,232,.1)"}}>{result.issues.map((issue,i)=><div key={i} style={{fontSize:12,color:"rgba(245,242,232,.65)",fontFamily:"var(--serif)",display:"flex",gap:8,marginBottom:4}}><span style={{color:"var(--amber)",flexShrink:0}}>→</span>{issue}</div>)}</div>}
+      </div>
+      <button onClick={()=>{setState("idle");setResult(null);setPreview(null);}} style={{fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"}}>Upload a different photo</button>
+      <div style={{height:1,background:"var(--rule)",margin:"20px 0"}}/>
+    </div>
+  );
+
+  return (
+    <div style={{marginBottom:24,padding:"14px 16px",border:"1px solid var(--rule)",background:"var(--paper2)"}}>
+      <div style={{fontSize:12,color:"var(--red)",fontFamily:"var(--serif)",marginBottom:6}}>Analysis failed — set the details manually below.</div>
+      <div style={{fontSize:10,color:"var(--ink4)",fontFamily:"var(--mono)",lineHeight:1.5,marginBottom:8}}>This can happen on corporate networks or VPNs. Your home or phone connection will work fine.</div>
+      <button onClick={()=>{setState("idle");setPreview(null);}} style={{fontSize:9,color:"var(--ink3)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"}}>Try again</button>
+      <div style={{height:1,background:"var(--rule)",margin:"20px 0"}}/>
+    </div>
+  );
+}
+
 // ── UI Components ─────────────────────────────────────────────────────────────
 
 function VinylAccent({size=18,col="var(--ink)",opacity=0.12}) {
@@ -447,11 +633,28 @@ export default function RecordRoom() {
           </p>
         </div>
         <div className="sl sl3" style={{marginBottom:40}}>
-          <button onClick={()=>setShowLanding(false)} style={{display:"flex",alignItems:"center",gap:16,padding:"20px 36px",background:"var(--ink)",color:"var(--paper)",border:"none",cursor:"pointer",fontFamily:"var(--mono)",fontSize:12,letterSpacing:".18em",textTransform:"uppercase",width:"100%",maxWidth:340,justifyContent:"space-between"}}>
-            <span>Find my system</span>
-            <svg width="20" height="12" viewBox="0 0 20 12" fill="none"><path d="M13 1l6 5-6 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><line x1="19" y1="6" x2="1" y2="6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
+          <NLInput onResult={(parsed)=>{
+              if (parsed.roomSize) setRoomSize(parsed.roomSize);
+              if (parsed.buildingType) setBuildingType(parsed.buildingType);
+              if (parsed.floorType) setFloorType(parsed.floorType);
+              if (parsed.budget>0) setBudget(parsed.budget);
+              if (parsed.genres?.length>0) setSelectedGenres(parsed.genres.filter(g=>GENRES.find(x=>x.id===g)));
+              if (parsed.bias!=null) setBias(parsed.bias);
+              setShowLanding(false);
+              setStep("brief");
+            }} apiKey={import.meta.env.VITE_ANTHROPIC_KEY} localeId={localeId}/>
+
+          <div style={{display:"flex",alignItems:"center",gap:12,margin:"20px 0"}}>
+            <div style={{flex:1,height:1,background:"var(--rule)"}}/>
+            <span style={{fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)",letterSpacing:".14em",textTransform:"uppercase"}}>or</span>
+            <div style={{flex:1,height:1,background:"var(--rule)"}}/>
+          </div>
+
+          <button onClick={()=>setShowLanding(false)} style={{display:"flex",alignItems:"center",gap:16,padding:"16px 28px",background:"transparent",color:"var(--ink)",border:"1px solid var(--ink)",cursor:"pointer",fontFamily:"var(--mono)",fontSize:11,letterSpacing:".14em",textTransform:"uppercase",width:"100%",maxWidth:340,justifyContent:"space-between"}}>
+            <span>Step-by-step guide</span>
+            <svg width="18" height="12" viewBox="0 0 20 12" fill="none"><path d="M13 1l6 5-6 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><line x1="19" y1="6" x2="1" y2="6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
           </button>
-          <div style={{marginTop:10,fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)"}}>Free · 5 minutes · no account needed</div>
+          <div style={{marginTop:8,fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)"}}>New to hi-fi? <span style={{color:"var(--ink2)"}}>Start here.</span> We ask the right questions.</div>
         </div>
         <div className="sl sl4" style={{display:"flex",gap:6,flexWrap:"wrap",paddingTop:20,borderTop:"1px solid var(--rule)",marginBottom:24}}>
           {Object.values(LOCALES).map(l=>(
@@ -579,7 +782,11 @@ export default function RecordRoom() {
                     <p style={{fontSize:10,color:"rgba(245,242,232,.5)",fontFamily:"var(--mono)",lineHeight:1.6}}>Music fills the room. Scale and presence first.</p>
                   </div>
                 </div>
-                <input type="range" min={0} max={100} step={1} value={bias} onChange={e=>setBias(Number(e.target.value))} style={{width:"100%",background:`linear-gradient(to right, rgba(196,98,26,.6) 0%, rgba(196,98,26,.6) ${bias}%, rgba(245,242,232,.15) ${bias}%, rgba(245,242,232,.15) 100%)`}}/>
+                <div style={{position:"relative",marginBottom:4}}>
+                  <input type="range" min={0} max={100} step={1} value={bias} onChange={e=>setBias(Number(e.target.value))}
+                    style={{width:"100%",background:`linear-gradient(to right, rgba(196,98,26,.7) 0%, rgba(196,98,26,.7) ${bias}%, rgba(245,242,232,.18) ${bias}%, rgba(245,242,232,.18) 100%)`}}/>
+                  <div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",width:1,height:10,background:"rgba(245,242,232,.25)",pointerEvents:"none"}}/>
+                </div>
                 <div style={{marginTop:12,fontSize:12,color:"rgba(245,242,232,.7)",fontFamily:"var(--serif)",fontStyle:"italic",lineHeight:1.6}}>
                   {bias<35?"Strong Foundation bias — invest in the turntable and cartridge above all else.":bias>65?"Strong Expression bias — invest in the speakers and let them fill the space.":"Balanced — no strong preference between source and speakers."}
                 </div>
