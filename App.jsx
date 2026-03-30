@@ -254,7 +254,19 @@ Description: "${text}"`}]
       });
       const data = await res.json();
       const raw = data.content?.map(c=>c.text||"").join("") || "";
-      const result = JSON.parse(raw.replace(/```json|```/g,"").trim());
+      console.log("NL raw response:", raw);
+      let result;
+      try {
+        result = JSON.parse(raw.replace(/```json|```/g,"").trim());
+      } catch(parseErr) {
+        console.error("JSON parse failed:", parseErr, "Raw was:", raw);
+        // If Haiku returned an error object instead of our JSON
+        if (data.error) {
+          console.error("API error:", data.error);
+        }
+        setState("error");
+        return;
+      }
       setParsed(result);
       setState("done");
     } catch(e) { setState("error"); }
@@ -308,7 +320,7 @@ Description: "${text}"`}]
           </div>
         </div>
       )}
-      {state==="error"&&<p style={{fontSize:11,color:"var(--red)",fontFamily:"var(--mono)",marginBottom:8}}>Couldn't parse that — use the step-by-step guide below.</p>}
+      {state==="error"&&<p style={{fontSize:11,color:"var(--red)",fontFamily:"var(--mono)",marginBottom:8}}>Couldn't read that — try adding more detail, or use the step-by-step guide below.</p>}
       <button onClick={handleSubmit} disabled={!text.trim()||state==="loading"} style={{display:"flex",alignItems:"center",gap:14,padding:"16px 24px",width:"100%",maxWidth:340,justifyContent:"space-between",background:text.trim()?"var(--ink)":"var(--paper2)",color:text.trim()?"var(--paper)":"var(--ink4)",border:`1px solid ${text.trim()?"var(--ink)":"var(--rule)"}`,cursor:text.trim()?"pointer":"default",fontFamily:"var(--mono)",fontSize:11,letterSpacing:".14em",textTransform:"uppercase",transition:"all .2s"}}>
         <span>{state==="loading"?"Reading your room...":"Find my sound"}</span>
         {state==="loading"
