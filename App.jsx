@@ -237,9 +237,18 @@ function NLInput({ onResult, apiKey, localeId }) {
         body: JSON.stringify({
           model:"claude-haiku-4-5-20251001",
           max_tokens:600,
-          messages:[{role:"user",content:`Extract fields from this hi-fi room description. Respond ONLY with JSON, no markdown:
+          messages:[{role:"user",content:`Extract fields from this hi-fi listening room description. Respond ONLY with valid JSON, no markdown, no backticks:
 {"roomSize":"small|medium|large|openplan","buildingType":"apt_ground|apt_upper|detached|semi_detached","floorType":"carpet|wood|tile","budget":number,"genres":["classical","jazz","rock","electronic","pop_soul","folk","world"],"bias":0-100,"confidence":"high|medium|low","summary":"one sentence"}
-Rules: budget as integer in ${loc.currency}, bias 0=warm/source, 100=expression/speakers, null for unknown fields.
+
+Rules:
+- roomSize: small = up to 12m² or 16x13ft, medium = 12-20m² or up to 20x16ft, large = 20-30m², openplan = 30m²+
+- Dimensions may be in feet or metres — convert as needed
+- budget as integer in ${loc.currency}, 0 if not mentioned
+- bias: 0=Foundation/source-first/detail, 100=Expression/speakers/soundstage, 50=balanced. Infer from "warm","musical","fill the room" (high) or "detail","analytical","resolution" (low)
+- buildingType: flat/apartment=apt_ground or apt_upper (upper if mentions floor/upstairs), house with neighbours=semi_detached, standalone=detached
+- genres: only include if clearly mentioned
+- Use null for unknown fields, not empty string
+
 Description: "${text}"`}]
         })
       });
@@ -311,7 +320,7 @@ Description: "${text}"`}]
 }
 
 // ── Room Photo Analysis Component ────────────────────────────────────────────
-function RoomPhotoAnalysis({ onResult }) {
+function RoomPhotoAnalysis({ onResult, apiKey }) {
   const [state, setState] = React.useState("idle");
   const [result, setResult] = React.useState(null);
   const [preview, setPreview] = React.useState(null);
@@ -327,7 +336,7 @@ function RoomPhotoAnalysis({ onResult }) {
       setPreview(prev);
       const response = await fetch("https://api.anthropic.com/v1/messages", {
         method:"POST",
-        headers:{"Content-Type":"application/json","x-api-key":import.meta.env.VITE_ANTHROPIC_KEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+        headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
         body: JSON.stringify({
           model:"claude-haiku-4-5-20251001",
           max_tokens:600,
