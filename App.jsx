@@ -466,59 +466,59 @@ const CATALOG = {
     tier:"entry", label:"Entry", range:"£1.5k – £5k", accent:"#7CA87C",
     components: {
       turntable:[
-        {id:"e_planar1",    name:"Planar 1 Plus",      sub:"Rega · Carbon MM · RB110 · built-in phono",  vendor:"rega",  price:498,  cat:"turntable", note:"Rega's plug-and-play entry point. Includes a built-in MM phono stage. RB110 tonearm, Carbon cartridge fitted."},
-        {id:"e_planar2",    name:"Planar 2",            sub:"Rega · Carbon MM standard · RB220 arm",     vendor:"rega",  price:499,  cat:"turntable", note:"RB220 tonearm, 10mm glass platter. Carbon cartridge fitted as standard. A meaningful step up from the Planar 1."},
-        {id:"e_planar3",    name:"Planar 3",            sub:"Rega · no cartridge standard · RB330",      vendor:"rega",  price:695,  cat:"turntable", note:"Sold without a cartridge as standard. RB330 tonearm, 12mm glass platter. The most recommended starting point in the Rega range."},
-        {id:"e_planar3rs",  name:"Planar 3 RS",         sub:"Rega · Reference Spec · Neo MK2 PSU · RB330 · Nd5", vendor:"rega", price:998, cat:"turntable", note:"Reference Spec edition. What Hi-Fi? Product of the Year 2025. The recommended choice at this price point."},
-        {id:"e_radius5",    name:"Radius 5",            sub:"Roksan · Ortofon 2M Red",             vendor:"roksan",    price:649,  cat:"turntable", note:"Acrylic plinth, DC motor. Good starter from Roksan's respected lineage."},
-        {id:"e_tt3",        name:"TT-3",                sub:"Cambridge Audio · Ortofon 2M Red",    vendor:"cambridge", price:399,  cat:"turntable", note:"Plug-and-play simplicity. Built-in phono stage option available."},
+        {id:"e_planar1", character:"warm", brandStory:"Rega have made turntables in Southend-on-Sea since 1973. Everything in the Planar 1 — the tonearm, the motor, the platter — is made in-house.",    name:"Planar 1 Plus",      sub:"Rega · Carbon MM · RB110 · built-in phono",  vendor:"rega",  price:498,  cat:"turntable", note:"Rega's plug-and-play entry point. Includes a built-in MM phono stage. RB110 tonearm, Carbon cartridge fitted."},
+        {id:"e_planar2", character:"warm", brandStory:"A step up from the Planar 1. The RB220 tonearm is a meaningful improvement over the entry arm.",    name:"Planar 2",            sub:"Rega · Carbon MM standard · RB220 arm",     vendor:"rega",  price:499,  cat:"turntable", note:"RB220 tonearm, 10mm glass platter. Carbon cartridge fitted as standard. A meaningful step up from the Planar 1."},
+        {id:"e_planar3", character:"balanced", brandStory:"The Planar 3 is where Rega's engineering really starts to show. Sold without a cartridge so you choose your own character.",    name:"Planar 3",            sub:"Rega · no cartridge standard · RB330",      vendor:"rega",  price:695,  cat:"turntable", note:"Sold without a cartridge as standard. RB330 tonearm, 12mm glass platter. The most recommended starting point in the Rega range."},
+        {id:"e_planar3rs", character:"balanced", brandStory:"Reference Spec edition of the Planar 3. Neo PSU and Nd5 cartridge included. What Hi-Fi? Product of the Year 2025.",  name:"Planar 3 RS",         sub:"Rega · Reference Spec · Neo MK2 PSU · RB330 · Nd5", vendor:"rega", price:998, cat:"turntable", note:"Reference Spec edition. What Hi-Fi? Product of the Year 2025. The recommended choice at this price point."},
+        {id:"e_radius5", character:"balanced", brandStory:"Roksan's acrylic-plinther entry turntable. DC motor, Ortofon 2M Red fitted. A different sonic character to Rega — slightly more forward.",    name:"Radius 5",            sub:"Roksan · Ortofon 2M Red",             vendor:"roksan",    price:649,  cat:"turntable", note:"Acrylic plinth, DC motor. Good starter from Roksan's respected lineage."},
+        {id:"e_tt3", character:"balanced", brandStory:"Cambridge Audio's plug-and-play entry. Good value, unfussy setup. Less musical character than Rega but easier to live with.",        name:"TT-3",                sub:"Cambridge Audio · Ortofon 2M Red",    vendor:"cambridge", price:399,  cat:"turntable", note:"Plug-and-play simplicity. Built-in phono stage option available."},
       ],
       cartridge:[
-        {id:"e_carbon",     name:"Carbon",             sub:"Rega · Moving Magnet · 5.5mV",         vendor:"rega",          price:35,  cat:"cartridge", note:"Included with Planar 1 Plus. Upgrading to the Nd3 is the single highest-value upgrade on any entry Rega turntable."},
-        {id:"e_nd3",        name:"Nd3",                sub:"Rega · Moving Magnet · Neodymium · 5mV", vendor:"rega",         price:175, cat:"cartridge", note:"Replaces the Elys 2. World-first use of Neodymium magnets in a moving magnet design."},
-        {id:"e_vm95e",      name:"VM95E",              sub:"Audio-Technica · MM · Elliptical",     vendor:"audio_technica",price:75,  cat:"cartridge", note:"Elliptical stylus. Outstanding value. One of the best-measured cartridges at any price."},
-        {id:"e_vm95ml",     name:"VM95ML",             sub:"Audio-Technica · MM · MicroLinear",    vendor:"audio_technica",price:149, cat:"cartridge", note:"MicroLinear stylus — superior groove tracing. Noticeably better treble detail and sibilance control."},
-        {id:"e_2m_red",     name:"2M Red",             sub:"Ortofon · Moving Magnet · 5.5mV",      vendor:"ortofon",       price:99,  cat:"cartridge", note:"The world's best-selling cartridge. Nude elliptical stylus. Safe, musical, reliable."},
-        {id:"e_2m_blue",    name:"2M Blue",            sub:"Ortofon · Moving Magnet · 5.5mV",      vendor:"ortofon",       price:199, cat:"cartridge", note:"Nude elliptical, improved suspension over the Red. Stylus-upgradeable to 2M Bronze."},
-        {id:"e_1042",       name:"1042",               sub:"Goldring · Moving Magnet · 6.5mV",     vendor:"goldring",      price:299, cat:"cartridge", note:"Goldring's flagship MM. Exceptional value. Vivid, dynamic, and surprisingly extended at the top."},
-        {id:"e_mp110",      name:"MP-110",             sub:"Nagaoka · Moving Magnet · 3.5mV",      vendor:"nagaoka",       price:125, cat:"cartridge", note:"Boron cantilever. Warm, smooth, fatigue-free."},
+        {id:"e_carbon", character:"balanced", brandStory:"Rega's own entry cartridge. Included with the Planar 1 Plus. Upgrade to the Nd3 when budget allows — it's a noticeable step up.",     name:"Carbon",             sub:"Rega · Moving Magnet · 5.5mV",         vendor:"rega",          price:35,  cat:"cartridge", note:"Included with Planar 1 Plus. Upgrading to the Nd3 is the single highest-value upgrade on any entry Rega turntable."},
+        {id:"e_nd3", character:"warm", brandStory:"Rega's Neodymium MM cartridge. First use of Nd magnets in a moving magnet design. Warmer and more musical than most at the price.",        name:"Nd3",                sub:"Rega · Moving Magnet · Neodymium · 5mV", vendor:"rega",         price:175, cat:"cartridge", note:"Replaces the Elys 2. World-first use of Neodymium magnets in a moving magnet design."},
+        {id:"e_vm95e", character:"detailed", brandStory:"Audio-Technica have been making cartridges in Tokyo since 1962. The VM95 series are among the best-measured at any price.",      name:"VM95E",              sub:"Audio-Technica · MM · Elliptical",     vendor:"audio_technica",price:75,  cat:"cartridge", note:"Elliptical stylus. Outstanding value. One of the best-measured cartridges at any price."},
+        {id:"e_vm95ml", character:"detailed", brandStory:"MicroLinear stylus profile — superior groove tracing and sibilance control. Noticeably better treble detail than the VM95E.",     name:"VM95ML",             sub:"Audio-Technica · MM · MicroLinear",    vendor:"audio_technica",price:149, cat:"cartridge", note:"MicroLinear stylus — superior groove tracing. Noticeably better treble detail and sibilance control."},
+        {id:"e_2m_red", character:"balanced", brandStory:"Ortofon have made cartridges in Denmark since 1918. The 2M Red is the world's best-selling cartridge — safe, musical, reliable.",     name:"2M Red",             sub:"Ortofon · Moving Magnet · 5.5mV",      vendor:"ortofon",       price:99,  cat:"cartridge", note:"The world's best-selling cartridge. Nude elliptical stylus. Safe, musical, reliable."},
+        {id:"e_2m_blue", character:"balanced", brandStory:"Nude elliptical stylus, improved suspension over the Red. Stylus is upgradeable to 2M Bronze without changing the body.",    name:"2M Blue",            sub:"Ortofon · Moving Magnet · 5.5mV",      vendor:"ortofon",       price:199, cat:"cartridge", note:"Nude elliptical, improved suspension over the Red. Stylus-upgradeable to 2M Bronze."},
+        {id:"e_1042", character:"warm", brandStory:"Goldring's flagship moving magnet. Made in London. Vivid and dynamic with a warmth that flatters vinyl's natural character.",       name:"1042",               sub:"Goldring · Moving Magnet · 6.5mV",     vendor:"goldring",      price:299, cat:"cartridge", note:"Goldring's flagship MM. Exceptional value. Vivid, dynamic, and surprisingly extended at the top."},
+        {id:"e_mp110", character:"warm", brandStory:"Nagaoka have made cartridges in Tokyo since 1979. The MP-110's boron cantilever delivers a smooth, fatigue-free sound.",      name:"MP-110",             sub:"Nagaoka · Moving Magnet · 3.5mV",      vendor:"nagaoka",       price:125, cat:"cartridge", note:"Boron cantilever. Warm, smooth, fatigue-free."},
       ],
       amplifier:[
-        {id:"e_io", powerW:10,         name:"io",                 sub:"Rega · 30W · MM phono · compact",     vendor:"rega",         price:245,  cat:"amplifier", note:"Rega's compact entry integrated. Built-in MM phono stage. Designed to partner the Planar 1/2 and Kyte speakers."},
-        {id:"e_brio", powerW:30,       name:"Brio MK7",           sub:"Rega · 50W · MM phono · DAC",         vendor:"rega",         price:998,  cat:"amplifier", note:"Rega's most popular integrated. Built-in MM phono stage and DAC. The natural partner for the Planar 3."},
-        {id:"e_elex4", powerW:50,      name:"Elex MK4",           sub:"Rega · 72W · MM phono",               vendor:"rega",         price:1498, cat:"amplifier", note:"Includes MM phono stage. Significantly more power than the Brio."},
-        {id:"e_6000a", powerW:30,      name:"6000A",              sub:"Audiolab · 50W · MM phono",            vendor:"audiolab",     price:549,  cat:"amplifier", note:"Includes MM phono stage. Exceptional value. The benchmark entry-level integrated."},
-        {id:"e_8300a", powerW:50,      name:"8300A",              sub:"Audiolab · 75W · MM phono",            vendor:"audiolab",     price:799,  cat:"amplifier", note:"Includes MM phono stage. A step up from the 6000A with improved power supply."},
-        {id:"e_cxa81", powerW:50,      name:"CXA81 MK2",          sub:"Cambridge · 80W · MM phono · DAC",    vendor:"cambridge",    price:1099, cat:"amplifier", note:"Includes MM phono stage, DAC, and Bluetooth. One of the most complete entry integrateds available."},
-        {id:"e_xa8200r", powerW:50,    name:"XA-8200R",           sub:"Roksan · 75W integrated",             vendor:"roksan",       price:899,  cat:"amplifier", note:"No built-in phono stage. Pairs naturally with Roksan Radius turntable."},
+        {id:"e_io", character:"warm", brandStory:"Rega's smallest integrated. Built-in phono stage makes it genuinely plug-and-play with a Planar 1 or 2.", powerW:10,         name:"io",                 sub:"Rega · 30W · MM phono · compact",     vendor:"rega",         price:245,  cat:"amplifier", note:"Rega's compact entry integrated. Built-in MM phono stage. Designed to partner the Planar 1/2 and Kyte speakers."},
+        {id:"e_brio", character:"warm", brandStory:"Rega's most popular integrated amplifier. Class A/B output stage with a distinctly musical character. Natural partner for the Planar 3.", powerW:30,       name:"Brio MK7",           sub:"Rega · 50W · MM phono · DAC",         vendor:"rega",         price:998,  cat:"amplifier", note:"Rega's most popular integrated. Built-in MM phono stage and DAC. The natural partner for the Planar 3."},
+        {id:"e_elex4", character:"balanced", brandStory:"More power than the Brio with the same family sound. MM phono included. The step up if you want more dynamic headroom.", powerW:50,      name:"Elex MK4",           sub:"Rega · 72W · MM phono",               vendor:"rega",         price:1498, cat:"amplifier", note:"Includes MM phono stage. Significantly more power than the Brio."},
+        {id:"e_6000a", character:"balanced", brandStory:"Audiolab are based in Cambridge. The 6000A measures exceptionally well for the price — neutral and transparent.", powerW:30,      name:"6000A",              sub:"Audiolab · 50W · MM phono",            vendor:"audiolab",     price:549,  cat:"amplifier", note:"Includes MM phono stage. Exceptional value. The benchmark entry-level integrated."},
+        {id:"e_8300a", character:"balanced", brandStory:"Audiolab's step up. Improved power supply over the 6000A. Consistently strong reviews for its clean, uncoloured presentation.", powerW:50,      name:"8300A",              sub:"Audiolab · 75W · MM phono",            vendor:"audiolab",     price:799,  cat:"amplifier", note:"Includes MM phono stage. A step up from the 6000A with improved power supply."},
+        {id:"e_cxa81", character:"detailed", brandStory:"Cambridge Audio's most complete entry integrated — phono, DAC, and Bluetooth in one box. More analytical than Rega amplification.", powerW:50,      name:"CXA81 MK2",          sub:"Cambridge · 80W · MM phono · DAC",    vendor:"cambridge",    price:1099, cat:"amplifier", note:"Includes MM phono stage, DAC, and Bluetooth. One of the most complete entry integrateds available."},
+        {id:"e_xa8200r", character:"balanced", brandStory:"Roksan's entry integrated. No phono stage. More forward and dynamic than Audiolab — suits rock and electronic music well.", powerW:50,    name:"XA-8200R",           sub:"Roksan · 75W integrated",             vendor:"roksan",       price:899,  cat:"amplifier", note:"No built-in phono stage. Pairs naturally with Roksan Radius turntable."},
       ],
       speakers:[
-        {id:"e_kyte",       name:"Kyte",               sub:"Rega · Compact standmount · phenolic",    vendor:"rega",          price:295,  cat:"speakers", note:"Rega's own compact standmount. Works across the full Rega range."},
-        {id:"e_q_concept",  name:"Q Concept 20",       sub:"Q Acoustics · Standmount · 2-way",        vendor:"cambridge",     price:299,  cat:"speakers", note:"Neutral, balanced presentation. A sensible first speaker for a complete system under £800."},
-        {id:"e_ma_bronze2", name:"Bronze 100",         sub:"Monitor Audio · Standmount · RSDL",       vendor:"monitor_audio", price:449,  cat:"speakers", note:"Ribbon/soft-dome hybrid tweeter. Excellent detail for the price."},
-        {id:"e_dali_oberon1",name:"Oberon 1",          sub:"Dali · Compact standmount · wood fibre",  vendor:"dali",          price:399,  cat:"speakers", note:"Warm, musical, and fatigue-free. Good partner for Rega Brio."},
-        {id:"e_kef_q150",   name:"Q150",               sub:"KEF · Standmount · Uni-Q",                vendor:"kef",           price:499,  cat:"speakers", note:"KEF's entry Uni-Q standmount. One of the best-measured entry standmounts available."},
-        {id:"e_b1",         name:"B1",                 sub:"Spendor · Compact standmount",            vendor:"spendor",       price:849,  cat:"speakers", note:"A meaningful step up — more natural midrange and better imaging."},
-        {id:"e_a1",         name:"A1 MK2",             sub:"Spendor · Standmount 2-way",              vendor:"spendor",       price:895,  cat:"speakers"},
-        {id:"e_bw_607s2",   name:"607 S3",             sub:"B&W · Standmount · Continuum",            vendor:"bw",            price:699,  cat:"speakers", note:"Continuum cone mid/bass driver, decoupled tweeter. Natural partner for Cambridge CXA81."},
-        {id:"e_tablette",   name:"Tablette 10",        sub:"ProAc · Standmount · front-ported",       vendor:"proac",         price:1195, cat:"speakers", note:"Front-ported design — works well close to rear and side walls."},
-        {id:"e_gr_ls3",     name:"LS3/5A",             sub:"Graham Audio · BBC licensed standmount",  vendor:"graham_ls",     price:1995, cat:"speakers"},
-        {id:"e_p3esr",      name:"P3ESR XD",           sub:"Harbeth · BBC LS3/5A heritage",           vendor:"harbeth",       price:2798, cat:"speakers"},
-        {id:"e_dali_oberon5",name:"Oberon 5",          sub:"Dali · Compact floorstander · 2-way",     vendor:"dali",          price:699,  cat:"speakers", note:"Dali's entry floorstander. Warm and forgiving — good for smaller rooms."},
-        {id:"e_ma_bronze6",  name:"Bronze 500",        sub:"Monitor Audio · Floorstander · RSDL",     vendor:"monitor_audio", price:899,  cat:"speakers", note:"Ribbon tweeter, three-driver array. Genuinely capable bass extension."},
-        {id:"e_kef_q550",    name:"Q550",              sub:"KEF · Floorstander · Uni-Q",              vendor:"kef",           price:799,  cat:"speakers", note:"Wide sweet spot makes placement more forgiving than most floorstanders."},
-        {id:"e_bw_603s3",    name:"603 S3",            sub:"B&W · Floorstander · Continuum",          vendor:"bw",            price:1099, cat:"speakers", note:"Three-way with Continuum cone. Needs at least 60W to perform well."},
-        {id:"e_a2",          name:"A2",                sub:"Spendor · Compact floorstander",          vendor:"spendor",       price:1195, cat:"speakers"},
+        {id:"e_kyte", character:"warm", brandStory:"Rega's own standmount. Designed specifically to partner Rega electronics. A natural match for the io and Brio.",       name:"Kyte",               sub:"Rega · Compact standmount · phenolic",    vendor:"rega",          price:295,  cat:"speakers", note:"Rega's own compact standmount. Works across the full Rega range."},
+        {id:"e_q_concept", character:"balanced", brandStory:"Q Acoustics produce neutral, well-engineered speakers at accessible prices. A sensible first speaker for a complete budget system.",  name:"Q Concept 20",       sub:"Q Acoustics · Standmount · 2-way",        vendor:"cambridge",     price:299,  cat:"speakers", note:"Neutral, balanced presentation. A sensible first speaker for a complete system under £800."},
+        {id:"e_ma_bronze2", character:"detailed", brandStory:"Monitor Audio's ribbon/soft-dome hybrid tweeter gives exceptional high-frequency detail for the price. More revealing than average.", name:"Bronze 100",         sub:"Monitor Audio · Standmount · RSDL",       vendor:"monitor_audio", price:449,  cat:"speakers", note:"Ribbon/soft-dome hybrid tweeter. Excellent detail for the price."},
+        {id:"e_dali_oberon1", character:"warm", brandStory:"Dali are a Danish speaker manufacturer founded in 1983. The Oberon 1 is warm and forgiving — flatters imperfect recordings.",name:"Oberon 1",          sub:"Dali · Compact standmount · wood fibre",  vendor:"dali",          price:399,  cat:"speakers", note:"Warm, musical, and fatigue-free. Good partner for Rega Brio."},
+        {id:"e_kef_q150", character:"detailed", brandStory:"KEF's Uni-Q coincident driver gives an exceptionally wide, consistent sweet spot. One of the best-measured entry standmounts.",   name:"Q150",               sub:"KEF · Standmount · Uni-Q",                vendor:"kef",           price:499,  cat:"speakers", note:"KEF's entry Uni-Q standmount. One of the best-measured entry standmounts available."},
+        {id:"e_b1", character:"warm", brandStory:"Spendor's compact standmount. BBC monitoring heritage — natural, honest midrange. A meaningful step up from budget speakers.",         name:"B1",                 sub:"Spendor · Compact standmount",            vendor:"spendor",       price:849,  cat:"speakers", note:"A meaningful step up — more natural midrange and better imaging."},
+        {id:"e_a1", character:"warm", brandStory:"Spendor's A1 standmount. Linear-flow cabinet loading, natural midrange. Designed in the BBC tradition.",         name:"A1 MK2",             sub:"Spendor · Standmount 2-way",              vendor:"spendor",       price:895,  cat:"speakers"},
+        {id:"e_bw_607s2", character:"detailed", brandStory:"B&W's entry standmount. Continuum cone driver and decoupled tweeter. More analytical character than Spendor or Harbeth.",   name:"607 S3",             sub:"B&W · Standmount · Continuum",            vendor:"bw",            price:699,  cat:"speakers", note:"Continuum cone mid/bass driver, decoupled tweeter. Natural partner for Cambridge CXA81."},
+        {id:"e_tablette", character:"warm", brandStory:"ProAc's compact front-ported design. Works well close to walls. Warm and engaging — suits jazz and acoustic music particularly well.",   name:"Tablette 10",        sub:"ProAc · Standmount · front-ported",       vendor:"proac",         price:1195, cat:"speakers", note:"Front-ported design — works well close to rear and side walls."},
+        {id:"e_gr_ls3", character:"warm", brandStory:"Graham Audio hold the BBC licence for the LS3/5A design. Identical specification to the original BBC monitor. Extraordinary midrange.",     name:"LS3/5A",             sub:"Graham Audio · BBC licensed standmount",  vendor:"graham_ls",     price:1995, cat:"speakers"},
+        {id:"e_p3esr", character:"warm", brandStory:"Harbeth's most famous speaker. BBC monitoring heritage, RADIAL cone technology. World-renowned for natural, fatigue-free listening.",      name:"P3ESR XD",           sub:"Harbeth · BBC LS3/5A heritage",           vendor:"harbeth",       price:2798, cat:"speakers"},
+        {id:"e_dali_oberon5", character:"warm", brandStory:"Dali's entry floorstander. Wood fibre cone, warm and forgiving. Good for smaller rooms where a standmount feels limiting.",name:"Oberon 5",          sub:"Dali · Compact floorstander · 2-way",     vendor:"dali",          price:699,  cat:"speakers", note:"Dali's entry floorstander. Warm and forgiving — good for smaller rooms."},
+        {id:"e_ma_bronze6", character:"detailed", brandStory:"Monitor Audio's entry floorstander. Ribbon tweeter and three-driver array. Genuinely capable bass extension for the money.",  name:"Bronze 500",        sub:"Monitor Audio · Floorstander · RSDL",     vendor:"monitor_audio", price:899,  cat:"speakers", note:"Ribbon tweeter, three-driver array. Genuinely capable bass extension."},
+        {id:"e_kef_q550", character:"detailed", brandStory:"KEF's entry floorstander. Wide sweet spot makes placement forgiving. More neutral than Dali or Spendor.",    name:"Q550",              sub:"KEF · Floorstander · Uni-Q",              vendor:"kef",           price:799,  cat:"speakers", note:"Wide sweet spot makes placement more forgiving than most floorstanders."},
+        {id:"e_bw_603s3", character:"detailed", brandStory:"B&W's entry floorstander. Continuum cone, three-way design. Analytical character — rewards careful system matching.",    name:"603 S3",            sub:"B&W · Floorstander · Continuum",          vendor:"bw",            price:1099, cat:"speakers", note:"Three-way with Continuum cone. Needs at least 60W to perform well."},
+        {id:"e_a2", character:"warm", brandStory:"Spendor's compact floorstander. BBC heritage, natural character. Works well in smaller rooms.",          name:"A2",                sub:"Spendor · Compact floorstander",          vendor:"spendor",       price:1195, cat:"speakers"},
       ],
       phono:[
-        {id:"e_builtin",    name:"Use Amp's Built-in", sub:"MM only · no extra cost",             vendor:"generic",      price:0,    cat:"phono", note:"Many entry-level integrated amplifiers include a competent MM phono stage."},
-        {id:"e_rega_mm",    name:"Rega MM",             sub:"Rega · Moving Magnet · dedicated",    vendor:"rega",         price:275,  cat:"phono", note:"Rega's current dedicated MM phono stage. The natural first dedicated phono stage for any Rega-based MM system."},
-        {id:"e_fono_mini",  name:"Fono Mini A2D",      sub:"Rega · MM/MC · USB output",           vendor:"rega",         price:195,  cat:"phono", note:"MM and MC stages plus USB ripping output. Compact and excellent value."},
-        {id:"e_fono_mm",    name:"Fono MM MK3",        sub:"Rega · MM dedicated",                 vendor:"rega",         price:245,  cat:"phono", note:"Purpose-built Moving Magnet stage. Noticeably lower noise floor than a built-in amp stage."},
-        {id:"e_ph100",      name:"Solo MM",            sub:"Audiolab · Moving Magnet",            vendor:"audiolab",     price:149,  cat:"phono", note:"Dedicated MM stage. A meaningful step up from built-in."},
-        {id:"e_azur651p",   name:"Azur 651P",          sub:"Cambridge · MM/MC",                   vendor:"cambridge",    price:149,  cat:"phono", note:"MM and MC compatible. Good flexibility if you upgrade your cartridge."},
-        {id:"e_tcx2",       name:"TC-X2",              sub:"Roksan · MM/MC",                      vendor:"roksan",       price:199,  cat:"phono", note:"Good synergy with Roksan turntables."},
-        {id:"e_1042e",      name:"E3",                 sub:"Goldring · MM/MC phono",              vendor:"goldring",     price:249,  cat:"phono", note:"Good value MM/MC phono from Goldring."},
+        {id:"e_builtin", character:"balanced", brandStory:"Many entry integrated amplifiers include a competent MM phono stage — the Rega io, Brio, Audiolab 6000A and Cambridge CXA81 all do.",    name:"Use Amp's Built-in", sub:"MM only · no extra cost",             vendor:"generic",      price:0,    cat:"phono", note:"Many entry-level integrated amplifiers include a competent MM phono stage."},
+        {id:"e_rega_mm", character:"warm", brandStory:"Rega's dedicated MM phono stage. Lower noise floor than any built-in stage. The natural first step up for a Rega MM system.",    name:"Rega MM",             sub:"Rega · Moving Magnet · dedicated",    vendor:"rega",         price:275,  cat:"phono", note:"Rega's current dedicated MM phono stage. The natural first dedicated phono stage for any Rega-based MM system."},
+        {id:"e_fono_mini", character:"balanced", brandStory:"Rega's compact MM/MC stage with USB output for digitising records. Unusually flexible for the price.",  name:"Fono Mini A2D",      sub:"Rega · MM/MC · USB output",           vendor:"rega",         price:195,  cat:"phono", note:"MM and MC stages plus USB ripping output. Compact and excellent value."},
+        {id:"e_fono_mm", character:"warm", brandStory:"Rega's purpose-built MM stage. Noticeably lower noise floor than a built-in amp stage.",    name:"Fono MM MK3",        sub:"Rega · MM dedicated",                 vendor:"rega",         price:245,  cat:"phono", note:"Purpose-built Moving Magnet stage. Noticeably lower noise floor than a built-in amp stage."},
+        {id:"e_ph100", character:"balanced", brandStory:"Audiolab's dedicated MM stage. Clean and transparent — a good match for Audiolab amplification.",      name:"Solo MM",            sub:"Audiolab · Moving Magnet",            vendor:"audiolab",     price:149,  cat:"phono", note:"Dedicated MM stage. A meaningful step up from built-in."},
+        {id:"e_azur651p", character:"balanced", brandStory:"Cambridge Audio's MM/MC phono stage. Flexible loading options — useful if you later upgrade to an MC cartridge.",   name:"Azur 651P",          sub:"Cambridge · MM/MC",                   vendor:"cambridge",    price:149,  cat:"phono", note:"MM and MC compatible. Good flexibility if you upgrade your cartridge."},
+        {id:"e_tcx2", character:"balanced", brandStory:"Roksan's MM/MC phono stage. Good synergy with Roksan turntables.",       name:"TC-X2",              sub:"Roksan · MM/MC",                      vendor:"roksan",       price:199,  cat:"phono", note:"Good synergy with Roksan turntables."},
+        {id:"e_1042e", character:"balanced", brandStory:"Goldring's MM/MC phono stage. Good value and musically voiced.",      name:"E3",                 sub:"Goldring · MM/MC phono",              vendor:"goldring",     price:249,  cat:"phono", note:"Good value MM/MC phono from Goldring."},
       ],
       cables:[
         {id:"e_clearway_r", name:"Clearway RCA",       sub:"Chord Co. · Interconnect 1m",         vendor:"chord_co",     price:55,   cat:"cables", note:"Recommended starting point. Connects your turntable (or phono stage) to your amplifier."},
@@ -537,22 +537,22 @@ const CATALOG = {
     tier:"mid", label:"Mid", range:"£5k – £15k", accent:"#B8732A",
     components: {
       turntable:[
-        {id:"m_planar6",    name:"Planar 6",            sub:"Rega · no cartridge standard · RB330 · Neo PSU",  vendor:"rega",  price:1295, cat:"turntable", note:"Sold without a cartridge as standard. Tancast 8 foam core plinth, RB330 tonearm, Neo MK2 PSU. What Hi-Fi? Award winner."},
-        {id:"m_planar6rs",  name:"Planar 6 RS",         sub:"Rega · Reference Spec · HPL plinth · RB330",vendor:"rega",    price:1695, cat:"turntable", note:"Reference Spec Planar 6 — aluminium HPL laminate plinth. The recommended P6 to buy."},
-        {id:"m_planar8nd9", name:"Planar 8 + Nd9",    sub:"Rega · RB880 tonearm · Nd9 MM factory-fitted", vendor:"rega", price:2554, cat:"turntable", note:"Factory-fitted Nd9 package — saving £111 vs buying separately. The RB880 tonearm with Rega's finest MM cartridge. No separate cartridge purchase needed. The Nd9 does not require a dedicated MC phono stage."},
-        {id:"m_planar8",    name:"Planar 8",            sub:"Rega · no cartridge standard · RB880 · Neo PSU",  vendor:"rega",  price:2695, cat:"turntable", note:"RB880 tonearm, triple-layer glass platter. Performance approaches the P10 at a substantial saving."},
-        {id:"m_lp12_majik", name:"LP12 Majik",          sub:"Linn · Karousel bearing · Adikt MM",  vendor:"linn",         price:2895, cat:"turntable", note:"The iconic LP12 in its most accessible form. Karousel bearing is a major upgrade. Upgradeable indefinitely."},
-        {id:"m_lp12_akurate",name:"LP12 Akurate",      sub:"Linn · Karousel · Ekos SE · Krystal", vendor:"linn",         price:7995, cat:"turntable", note:"Mid-hierarchy LP12 with Ekos SE tonearm and Krystal MC cartridge."},
-        {id:"m_xerxes20",   name:"Xerxes 20+",          sub:"Roksan · Reference suspended",        vendor:"roksan",       price:3995, cat:"turntable", note:"Suspended subchassis design. Exceptional speed stability."},
-        {id:"m_concept",    name:"Concept",             sub:"Clearaudio · Satisfy tonearm · Concept MC", vendor:"clearaudio", price:1895, cat:"turntable"},
+        {id:"m_planar6", character:"balanced", brandStory:"Rega's Planar 6 is where the engineering steps up significantly — Tancast 8 foam plinth, RB330 tonearm, Neo PSU. A genuine step change.",    name:"Planar 6",            sub:"Rega · no cartridge standard · RB330 · Neo PSU",  vendor:"rega",  price:1295, cat:"turntable", note:"Sold without a cartridge as standard. Tancast 8 foam core plinth, RB330 tonearm, Neo MK2 PSU. What Hi-Fi? Award winner."},
+        {id:"m_planar6rs", character:"balanced", brandStory:"Reference Spec Planar 6. RB880 tonearm normally found on the Planar 8. One of the most recommended mid-range turntables in the UK.",  name:"Planar 6 RS",         sub:"Rega · Reference Spec · HPL plinth · RB330",vendor:"rega",    price:1695, cat:"turntable", note:"Reference Spec Planar 6 — aluminium HPL laminate plinth. The recommended P6 to buy."},
+        {id:"m_planar8nd9", character:"balanced", brandStory:"Planar 8 with Rega's flagship Nd9 MM cartridge factory-fitted. Saving of £111 vs buying separately. The complete reference MM package.", name:"Planar 8 + Nd9",    sub:"Rega · RB880 tonearm · Nd9 MM factory-fitted", vendor:"rega", price:2554, cat:"turntable", note:"Factory-fitted Nd9 package — saving £111 vs buying separately. The RB880 tonearm with Rega's finest MM cartridge. No separate cartridge purchase needed. The Nd9 does not require a dedicated MC phono stage."},
+        {id:"m_planar8", character:"detailed", brandStory:"Rega's Planar 8 — hand-selected motor, ceramic/aluminium hybrid platter, RB880 tonearm. Measurably quieter than the Planar 6.",    name:"Planar 8",            sub:"Rega · no cartridge standard · RB880 · Neo PSU",  vendor:"rega",  price:2695, cat:"turntable", note:"RB880 tonearm, triple-layer glass platter. Performance approaches the P10 at a substantial saving."},
+        {id:"m_lp12_majik", character:"warm", brandStory:"The Linn LP12 has been made in Glasgow since 1972. The Majik level is the entry to the LP12 world — suspended sub-chassis, Adikt MM cartridge.", name:"LP12 Majik",          sub:"Linn · Karousel bearing · Adikt MM",  vendor:"linn",         price:2895, cat:"turntable", note:"The iconic LP12 in its most accessible form. Karousel bearing is a major upgrade. Upgradeable indefinitely."},
+        {id:"m_lp12_akurate", character:"warm", brandStory:"Akurate-level LP12 with Krystal MC cartridge and Ekos SE tonearm. The LP12 at its most musical — decades of refinement.",name:"LP12 Akurate",      sub:"Linn · Karousel · Ekos SE · Krystal", vendor:"linn",         price:7995, cat:"turntable", note:"Mid-hierarchy LP12 with Ekos SE tonearm and Krystal MC cartridge."},
+        {id:"m_xerxes20", character:"balanced", brandStory:"Roksan's Xerxes 20+ is a rigid-chassis design. More forward and dynamic than the LP12 — suits rock and pop particularly well.",   name:"Xerxes 20+",          sub:"Roksan · Reference suspended",        vendor:"roksan",       price:3995, cat:"turntable", note:"Suspended subchassis design. Exceptional speed stability."},
+        {id:"m_concept", character:"detailed", brandStory:"Clearaudio's Concept is German precision engineering — magnetic bearing, exceptional speed stability, extremely low noise floor.",    name:"Concept",             sub:"Clearaudio · Satisfy tonearm · Concept MC", vendor:"clearaudio", price:1895, cat:"turntable"},
       ],
       cartridge:[
-        {id:"m_nd9", name:"Nd9", sub:"Rega · MM · Boron cantilever · Fine Line · reference", vendor:"rega", price:695, cat:"cartridge", note:"Rega's flagship moving magnet. Boron cantilever and Fine Line stylus from the Aphelion 2 MC — extraordinary detail retrieval for an MM. Does not require a dedicated MC phono stage. The natural upgrade path on any Rega turntable."},
+        {id:"m_nd9", character:"balanced", brandStory:"Rega's flagship MM cartridge. Boron cantilever and Fine Line stylus from the Aphelion 2 MC. Extraordinary detail for a moving magnet.", name:"Nd9", sub:"Rega · MM · Boron cantilever · Fine Line · reference", vendor:"rega", price:695, cat:"cartridge", note:"Rega's flagship moving magnet. Boron cantilever and Fine Line stylus from the Aphelion 2 MC — extraordinary detail retrieval for an MM. Does not require a dedicated MC phono stage. The natural upgrade path on any Rega turntable."},
 
-        {id:"m_nd5",        name:"Nd5",                sub:"Rega · Moving Magnet · Neodymium · nude elliptical", vendor:"rega", price:295, cat:"cartridge", note:"Replaces the Exact 2. Nude perfect elliptical diamond stylus. Hi-Fi Choice Recommended."},
+        {id:"m_nd5", character:"warm", brandStory:"Rega's Nd5 uses Neodymium magnet technology. Warm and musical — the natural upgrade path on any Rega MM system.",        name:"Nd5",                sub:"Rega · Moving Magnet · Neodymium · nude elliptical", vendor:"rega", price:295, cat:"cartridge", note:"Replaces the Exact 2. Nude perfect elliptical diamond stylus. Hi-Fi Choice Recommended."},
         {id:"m_nd7",        name:"Nd7",                sub:"Rega · Moving Magnet · Fine Line nude diamond", vendor:"rega",  price:450,  cat:"cartridge", note:"Top of the Nd range. Same Fine Line nude diamond stylus profile as the Apheta 3 MC. AVForums Editors Choice 2024/2025."},
-        {id:"m_2m_bronze",  name:"2M Bronze",          sub:"Ortofon · MM · Fine Line stylus",      vendor:"ortofon",      price:375,  cat:"cartridge", note:"Fine Line stylus, exceptional detail retrieval for an MM. The best mass-market MM currently available."},
-        {id:"m_2m_black",   name:"2M Black",           sub:"Ortofon · MM · Shibata stylus",        vendor:"ortofon",      price:649,  cat:"cartridge", note:"Shibata stylus — the most revealing stylus profile made. Requires excellent tonearm alignment."},
+        {id:"m_2m_bronze", character:"balanced", brandStory:"Ortofon's 2M Bronze with nude Fine Line stylus. A significant step up from the Blue — better resolution and tracking.",  name:"2M Bronze",          sub:"Ortofon · MM · Fine Line stylus",      vendor:"ortofon",      price:375,  cat:"cartridge", note:"Fine Line stylus, exceptional detail retrieval for an MM. The best mass-market MM currently available."},
+        {id:"m_2m_black", character:"detailed", brandStory:"Ortofon's 2M Black with nude Shibata stylus. One of the best-measuring MM cartridges available. Very revealing.",   name:"2M Black",           sub:"Ortofon · MM · Shibata stylus",        vendor:"ortofon",      price:649,  cat:"cartridge", note:"Shibata stylus — the most revealing stylus profile made. Requires excellent tonearm alignment."},
         {id:"m_1042_mm",    name:"1042",               sub:"Goldring · MM · Special Gyger II",     vendor:"goldring",     price:299,  cat:"cartridge", note:"Goldring's flagship MM. Exceptional tracking and channel separation."},
         {id:"m_mp200",      name:"MP-200",             sub:"Nagaoka · MM · Boron · Vital",         vendor:"nagaoka",      price:299,  cat:"cartridge", note:"Vital stylus profile on boron cantilever. Smooth, musical, low distortion."},
         {id:"m_ania",       name:"Ania",               sub:"Rega · Moving Coil · 350μV",           vendor:"rega",         price:399,  cat:"cartridge", note:"Rega's entry MC. Natural upgrade path from Exact 2. Significant jump in resolution."},
@@ -564,50 +564,50 @@ const CATALOG = {
         {id:"m_at_art9xi",  name:"AT-ART9Xi",          sub:"Audio-Technica · MC · 500μV",          vendor:"audio_technica",price:599, cat:"cartridge", note:"High-output version of the ART9. Exceptional channel separation and speed."},
       ],
       amplifier:[
-        {id:"m_elicit", powerW:75,     name:"Elicit MK5",         sub:"Rega · 105W integrated",              vendor:"rega",         price:2498, cat:"amplifier", note:"No built-in phono stage. Rega's most popular serious integrated."},
-        {id:"m_aethos", powerW:90,     name:"Aethos",             sub:"Rega · 125W integrated",              vendor:"rega",         price:3498, cat:"amplifier", note:"No built-in phono stage. Rega's flagship integrated. Class A/AB output stage."},
-        {id:"m_nait_xs3", powerW:50,   name:"Nait XS3",           sub:"Naim · 70W integrated",               vendor:"naim",         price:2449, cat:"amplifier", note:"No built-in phono stage. Naim's characteristic pace and timing."},
-        {id:"m_sn3", powerW:60,        name:"SuperNait 3",        sub:"Naim · 80W · MM phono",               vendor:"naim",         price:3999, cat:"amplifier", note:"Includes MM phono stage — the only mid-range Naim with built-in phono."},
-        {id:"m_2010s2", powerW:20,     name:"2010S2",             sub:"Sugden · 30W Pure Class A",           vendor:"sugden",       price:1895, cat:"amplifier", note:"No built-in phono. 30W pure Class A. Extraordinary midrange warmth for Classical, Jazz, and Folk."},
-        {id:"m_3010s2", powerW:25,     name:"3010S2D",            sub:"Sugden · 35W Class A · DAC",          vendor:"sugden",       price:2450, cat:"amplifier", note:"No built-in phono. Adds a DAC to the 2010S2."},
-        {id:"m_3050se", powerW:60,     name:"3050SE",             sub:"Exposure · 75W integrated",           vendor:"exposure",     price:2195, cat:"amplifier", note:"No built-in phono. Strong synergy with Rega sources and Spendor/ProAc speakers."},
-        {id:"m_m2si", powerW:60,       name:"M2si",               sub:"Musical Fidelity · 75W integrated",   vendor:"musical_fidelity",price:1499, cat:"amplifier", note:"No built-in phono. High power, clean sound. Excellent value."},
-        {id:"m_lyra", powerW:80,       name:"Lyra Integrated",    sub:"Leema · 100W integrated",             vendor:"leema",        price:2495, cat:"amplifier", note:"No built-in phono. Welsh-made. Excellent measured performance."},
-        {id:"m_8300mb", powerW:120,     name:"8300MB",             sub:"Audiolab · Monoblock pair",           vendor:"audiolab",     price:1998, cat:"amplifier", note:"No built-in phono. Exceptional power for the money. Each speaker gets its own amplifier."},
+        {id:"m_elicit", character:"balanced", brandStory:"Rega's Elicit MK5 — 105W, no phono stage. The natural partner for the Planar 6 and 8 when used with a separate phono stage.", powerW:75,     name:"Elicit MK5",         sub:"Rega · 105W integrated",              vendor:"rega",         price:2498, cat:"amplifier", note:"No built-in phono stage. Rega's most popular serious integrated."},
+        {id:"m_aethos", character:"balanced", brandStory:"Rega's flagship integrated. Class A/B output stage, 125W. Exceptionally musical for the power output.", powerW:90,     name:"Aethos",             sub:"Rega · 125W integrated",              vendor:"rega",         price:3498, cat:"amplifier", note:"No built-in phono stage. Rega's flagship integrated. Class A/AB output stage."},
+        {id:"m_nait_xs3", character:"warm", brandStory:"Naim have made amplifiers in Salisbury since 1973. The Nait XS3 has Naim's characteristic pace and rhythmic drive — music feels alive.", powerW:50,   name:"Nait XS3",           sub:"Naim · 70W integrated",               vendor:"naim",         price:2449, cat:"amplifier", note:"No built-in phono stage. Naim's characteristic pace and timing."},
+        {id:"m_sn3", character:"warm", brandStory:"Naim's SuperNait 3 — 80W with built-in MM phono stage. The only mid-range Naim with phono. Naim's most complete integrated.", powerW:60,        name:"SuperNait 3",        sub:"Naim · 80W · MM phono",               vendor:"naim",         price:3999, cat:"amplifier", note:"Includes MM phono stage — the only mid-range Naim with built-in phono."},
+        {id:"m_2010s2", character:"warm", brandStory:"Sugden have made Class A amplifiers in West Yorkshire since 1967. 30W of pure Class A — extraordinary midrange warmth and texture.", powerW:20,     name:"2010S2",             sub:"Sugden · 30W Pure Class A",           vendor:"sugden",       price:1895, cat:"amplifier", note:"No built-in phono. 30W pure Class A. Extraordinary midrange warmth for Classical, Jazz, and Folk."},
+        {id:"m_3010s2", character:"warm", brandStory:"Sugden's 3010S2D adds a DAC to the Class A formula. 35W of pure Class A with digital inputs.", powerW:25,     name:"3010S2D",            sub:"Sugden · 35W Class A · DAC",          vendor:"sugden",       price:2450, cat:"amplifier", note:"No built-in phono. Adds a DAC to the 2010S2."},
+        {id:"m_3050se", character:"balanced", brandStory:"Exposure are based in Brighton. 75W integrated with strong synergy with Rega sources and Spendor or ProAc speakers.", powerW:60,     name:"3050SE",             sub:"Exposure · 75W integrated",           vendor:"exposure",     price:2195, cat:"amplifier", note:"No built-in phono. Strong synergy with Rega sources and Spendor/ProAc speakers."},
+        {id:"m_m2si", character:"detailed", brandStory:"Musical Fidelity's M2si. 75W, clean and transparent. More neutral than Rega or Naim — good for analytical listeners.", powerW:60,       name:"M2si",               sub:"Musical Fidelity · 75W integrated",   vendor:"musical_fidelity",price:1499, cat:"amplifier", note:"No built-in phono. High power, clean sound. Excellent value."},
+        {id:"m_lyra", character:"balanced", brandStory:"Leema Acoustics are a Welsh manufacturer. 100W of precise, clean amplification with excellent measured performance.", powerW:80,       name:"Lyra Integrated",    sub:"Leema · 100W integrated",             vendor:"leema",        price:2495, cat:"amplifier", note:"No built-in phono. Welsh-made. Excellent measured performance."},
+        {id:"m_8300mb", character:"detailed", brandStory:"Audiolab's monoblock pair. Each speaker gets its own dedicated amplifier. Exceptional separation and control.", powerW:120,     name:"8300MB",             sub:"Audiolab · Monoblock pair",           vendor:"audiolab",     price:1998, cat:"amplifier", note:"No built-in phono. Exceptional power for the money. Each speaker gets its own amplifier."},
       ],
       speakers:[
-        {id:"m_c30",        name:"C30.2 XD",           sub:"Harbeth · Compact standmount · RADIAL",   vendor:"harbeth",       price:2798, cat:"speakers"},
-        {id:"m_kef_r3",     name:"R3 Meta",            sub:"KEF · Standmount · Metamaterial Uni-Q",   vendor:"kef",           price:2299, cat:"speakers", note:"Metamaterial Absorption Technology reduces rear tweeter distortion. Exceptionally wide sweet spot."},
+        {id:"m_c30", character:"warm", brandStory:"Harbeth's C30.2 compact standmount. RADIAL cone technology — natural, fatigue-free midrange. Exceptional for voice and acoustic instruments.",        name:"C30.2 XD",           sub:"Harbeth · Compact standmount · RADIAL",   vendor:"harbeth",       price:2798, cat:"speakers"},
+        {id:"m_kef_r3", character:"detailed", brandStory:"KEF's R3 Meta standmount. Metamaterial Absorption Technology, 12th generation Uni-Q. Exceptionally measured and detailed.",     name:"R3 Meta",            sub:"KEF · Standmount · Metamaterial Uni-Q",   vendor:"kef",           price:2299, cat:"speakers", note:"Metamaterial Absorption Technology reduces rear tweeter distortion. Exceptionally wide sweet spot."},
         {id:"m_response2",  name:"Response D2R",       sub:"ProAc · Standmount · ribbon tweeter",     vendor:"proac",         price:3695, cat:"speakers", note:"Ribbon tweeter. Front-ported — works against rear walls. Extremely versatile placement."},
         {id:"m_pmc_twenty5_21",name:"Twenty5 21i",     sub:"PMC · Standmount · transmission line",   vendor:"pmc",           price:2499, cat:"speakers", note:"Transmission line bass loading. Studio-grade accuracy. Excellent for Jazz and Classical."},
-        {id:"m_neat_sx3",   name:"Sx3i",               sub:"Neat · Standmount · isobaric",            vendor:"neat",          price:2495, cat:"speakers", note:"Remarkably full range for its size. Natural partner for Naim and Linn amplification."},
+        {id:"m_neat_sx3", character:"warm", brandStory:"Neat Acoustics from County Durham. Hand-built, unconventional isobaric bass loading. Musical and engaging.",   name:"Sx3i",               sub:"Neat · Standmount · isobaric",            vendor:"neat",          price:2495, cat:"speakers", note:"Remarkably full range for its size. Natural partner for Naim and Linn amplification."},
         {id:"m_gr_ls5_9",   name:"LS5/9",              sub:"Graham Audio · BBC licensed 2-way",       vendor:"graham_ls",     price:4995, cat:"speakers"},
         {id:"m_dali_rubicon2",name:"Rubicon 2",        sub:"Dali · Standmount · ribbon hybrid",       vendor:"dali",          price:1999, cat:"speakers", note:"Ribbon/soft dome hybrid tweeter. Natural, grain-free high frequencies."},
-        {id:"m_p3esr",      name:"P3ESR XD",           sub:"Harbeth · BBC LS3/5A heritage",           vendor:"harbeth",       price:2798, cat:"speakers"},
+        {id:"m_p3esr", character:"warm", brandStory:"Harbeth's most famous speaker — also available at mid-tier budget. BBC monitoring heritage. World-renowned for natural listening.",      name:"P3ESR XD",           sub:"Harbeth · BBC LS3/5A heritage",           vendor:"harbeth",       price:2798, cat:"speakers"},
         {id:"m_bw_705s3",   name:"705 S3",             sub:"B&W · Standmount · Carbon Dome",          vendor:"bw",            price:2299, cat:"speakers", note:"Carbon fibre dome tweeter, Continuum cone. Class-leading treble resolution."},
         {id:"m_classic7",   name:"Classic 7",          sub:"Spendor · Floorstander 3-way",            vendor:"spendor",       price:3495, cat:"speakers"},
         {id:"m_kef_r7",     name:"R7 Meta",            sub:"KEF · Floorstander · Metamaterial Uni-Q", vendor:"kef",           price:4499, cat:"speakers", note:"Wide, room-filling sound with a remarkably even off-axis response."},
         {id:"m_ma_gold200", name:"Gold 200",           sub:"Monitor Audio · Floorstander · RSDL",     vendor:"monitor_audio", price:2499, cat:"speakers", note:"Ribbon/dome hybrid tweeter plus ceramic cone drivers."},
         {id:"m_dali_rubicon6",name:"Rubicon 6",        sub:"Dali · Floorstander · ribbon hybrid",     vendor:"dali",          price:2999, cat:"speakers", note:"Natural, warm, and fatigue-free. Good match for Sugden Class A amplification."},
-        {id:"m_scm40", minWatts:100,      name:"SCM40",              sub:"ATC · Floorstander passive",               vendor:"atc",           price:4498, cat:"speakers", note:"Requires 100W+ amplification. Extraordinary accuracy and dynamic range."},
+        {id:"m_scm40", character:"detailed", brandStory:"ATC's SCM40 passive floorstander. Professional studio monitor technology in a domestic cabinet. Requires 100W+. Brutally honest.", minWatts:100,      name:"SCM40",              sub:"ATC · Floorstander passive",               vendor:"atc",           price:4498, cat:"speakers", note:"Requires 100W+ amplification. Extraordinary accuracy and dynamic range."},
         {id:"m_pmc_twenty5_23",name:"Twenty5 23i",     sub:"PMC · Floorstander · transmission line",  vendor:"pmc",           price:3999, cat:"speakers", note:"Unusually deep and well-controlled bass. Excellent for Rock and Electronic music."},
         {id:"m_focal_kanta1",name:"Kanta No.1",        sub:"Focal · Standmount · Beryllium",          vendor:"focal",         price:3999, cat:"speakers", note:"Flax cone, Beryllium tweeter. Natural partner for Naim amplification."},
-        {id:"m_shl5",       name:"SHL5 Plus",          sub:"Harbeth · Floorstander · RADIAL",         vendor:"harbeth",       price:5498, cat:"speakers"},
+        {id:"m_shl5", character:"warm", brandStory:"Harbeth's SHL5 Plus — the BBC's favourite monitor for music. Larger RADIAL driver, more bass extension than the C30.",       name:"SHL5 Plus",          sub:"Harbeth · Floorstander · RADIAL",         vendor:"harbeth",       price:5498, cat:"speakers"},
         {id:"m_d30rs",      name:"D30RS",              sub:"ProAc · Floorstander · ribbon",            vendor:"proac",         price:5995, cat:"speakers"},
-        {id:"m_d72",        name:"D7.2",               sub:"Spendor · Floorstander · linear flow",    vendor:"spendor",       price:5650, cat:"speakers"},
+        {id:"m_d72", character:"balanced", brandStory:"Spendor's D7.2 floorstander. Linear-flow bass loading — more extended and dynamic than Harbeth while keeping the natural midrange.",        name:"D7.2",               sub:"Spendor · Floorstander · linear flow",    vendor:"spendor",       price:5650, cat:"speakers"},
         {id:"m_kudos_x2",   name:"X2",                 sub:"Kudos · Standmount · isobaric",           vendor:"kudos",         price:3995, cat:"speakers", note:"Isobaric bass loading — exceptionally articulate and fast. Outstanding synergy with Naim."},
         {id:"m_bw_703s3",   name:"703 S3",             sub:"B&W · Floorstander · Carbon Dome",        vendor:"bw",            price:3499, cat:"speakers", note:"Three-way, Carbon dome tweeter. Strong partner for Naim or Musical Fidelity."},
       ],
       phono:[
         {id:"m_builtin",    name:"Use Amp's Built-in", sub:"MM only · SuperNait 3 / some integrateds", vendor:"generic", price:0, cat:"phono", note:"The Naim SuperNait 3 includes a capable MM stage."},
-        {id:"m_rega_mm2",   name:"Rega MM",             sub:"Rega · Moving Magnet · dedicated",    vendor:"rega",         price:275,  cat:"phono"},
-        {id:"m_fono_mm2",   name:"Fono MM MK3",        sub:"Rega · MM dedicated",                 vendor:"rega",         price:245,  cat:"phono"},
-        {id:"m_mm100",      name:"MM100",              sub:"Musical Fidelity · MM/MC",            vendor:"musical_fidelity",price:299, cat:"phono"},
-        {id:"m_fono_mc",    name:"Fono MC MK3",        sub:"Rega · Dedicated MC",                 vendor:"rega",         price:498,  cat:"phono", note:"Purpose-built MC stage. Required once you move to a Moving Coil cartridge."},
-        {id:"m_io_mk3",     name:"io MK3",             sub:"Rega · MM/MC · ultra-quiet",          vendor:"rega",         price:698,  cat:"phono"},
-        {id:"m_fono_super", name:"Fono Super MC",      sub:"Rega · Ultra-low noise MC",           vendor:"rega",         price:795,  cat:"phono"},
-        {id:"m_aios",       name:"Aios",               sub:"Rega · Reference MC phono stage",     vendor:"rega",         price:1500, cat:"phono"},
-        {id:"m_graham_ref", name:"Reflex M",           sub:"Graham Slee · MM/MC",                 vendor:"generic",      price:449,  cat:"phono"},
+        {id:"m_rega_mm2", character:"warm", brandStory:"Rega's dedicated MM stage for mid-range systems. The natural partner for any Rega MM cartridge.",   name:"Rega MM",             sub:"Rega · Moving Magnet · dedicated",    vendor:"rega",         price:275,  cat:"phono"},
+        {id:"m_fono_mm2", character:"warm", brandStory:"Rega's Fono MM MK3. Purpose-built Moving Magnet stage.",   name:"Fono MM MK3",        sub:"Rega · MM dedicated",                 vendor:"rega",         price:245,  cat:"phono"},
+        {id:"m_mm100", character:"balanced", brandStory:"Musical Fidelity's MM100. Clean and transparent MM stage.",      name:"MM100",              sub:"Musical Fidelity · MM/MC",            vendor:"musical_fidelity",price:299, cat:"phono"},
+        {id:"m_fono_mc", character:"warm", brandStory:"Rega's dedicated MC stage. Required once you move to a Moving Coil cartridge.",    name:"Fono MC MK3",        sub:"Rega · Dedicated MC",                 vendor:"rega",         price:498,  cat:"phono", note:"Purpose-built MC stage. Required once you move to a Moving Coil cartridge."},
+        {id:"m_io_mk3", character:"balanced", brandStory:"Rega's io MK3 — ultra-quiet MM/MC stage. Exceptional noise performance.",     name:"io MK3",             sub:"Rega · MM/MC · ultra-quiet",          vendor:"rega",         price:698,  cat:"phono"},
+        {id:"m_fono_super", character:"detailed", brandStory:"Rega's Fono Super MC — ultra-low noise for the most demanding MC cartridges.", name:"Fono Super MC",      sub:"Rega · Ultra-low noise MC",           vendor:"rega",         price:795,  cat:"phono"},
+        {id:"m_aios", character:"detailed", brandStory:"Rega's Aios — reference MC phono stage. The top of Rega's phono range below the Aura.",       name:"Aios",               sub:"Rega · Reference MC phono stage",     vendor:"rega",         price:1500, cat:"phono"},
+        {id:"m_graham_ref", character:"balanced", brandStory:"Graham Slee's Reflex M. British-made, well-regarded for musicality.", name:"Reflex M",           sub:"Graham Slee · MM/MC",                 vendor:"generic",      price:449,  cat:"phono"},
       ],
       cables:[
         {id:"m_shawline_r", name:"Shawline RCA",       sub:"Chord Co. · Interconnect 1m",         vendor:"chord_co",     price:108,  cat:"cables"},
@@ -632,61 +632,61 @@ const CATALOG = {
     tier:"high", label:"High", range:"£15k+", accent:"#C5782A",
     components: {
       turntable:[
-        {id:"h_planar10",   name:"Planar 10",          sub:"Rega · Apheta 3 MC · RB3000",         vendor:"rega",         price:5398, cat:"turntable"},
-        {id:"h_lp12_akurate",name:"LP12 Akurate",     sub:"Linn · Karousel · Ekos SE · Krystal", vendor:"linn",         price:7995, cat:"turntable"},
-        {id:"h_lp12_selekt",name:"LP12 Selekt",        sub:"Linn · Karousel · Ekos SE · Kandid",  vendor:"linn",         price:12995,cat:"turntable"},
-        {id:"h_lp12_klimax",name:"LP12 Klimax",        sub:"Linn · Radikal PSU · Ekos SE · Kandid",vendor:"linn",        price:22995,cat:"turntable"},
-        {id:"h_innovation", name:"Innovation Compact", sub:"Clearaudio · Universal · Charisma MC", vendor:"clearaudio",   price:8995, cat:"turntable"},
-        {id:"h_master",     name:"Master Innovation",  sub:"Clearaudio · Unify tonearm · Goldfinger",vendor:"clearaudio", price:18995,cat:"turntable"},
+        {id:"h_planar10", character:"detailed", brandStory:"Rega's Planar 10 — hand-selected motor, ceramic/aluminium platter, RB3000 tonearm. Apheta 3 MC included. Rega at its most resolving.",   name:"Planar 10",          sub:"Rega · Apheta 3 MC · RB3000",         vendor:"rega",         price:5398, cat:"turntable"},
+        {id:"h_lp12_akurate", character:"warm", brandStory:"Akurate-level LP12 with Krystal MC. The LP12 has been continuously refined since 1972 — at this level the improvements are profound.",name:"LP12 Akurate",     sub:"Linn · Karousel · Ekos SE · Krystal", vendor:"linn",         price:7995, cat:"turntable"},
+        {id:"h_lp12_selekt", character:"warm", brandStory:"Selekt-level LP12 with Kandid MC. The Kandid is Linn's reference cartridge — designed for the LP12's suspended sub-chassis.",name:"LP12 Selekt",        sub:"Linn · Karousel · Ekos SE · Kandid",  vendor:"linn",         price:12995,cat:"turntable"},
+        {id:"h_lp12_klimax", character:"warm", brandStory:"Klimax LP12 — the definitive LP12. Radikal PSU, Ekos SE tonearm, Kandid MC. Linn's reference statement.",name:"LP12 Klimax",        sub:"Linn · Radikal PSU · Ekos SE · Kandid",vendor:"linn",        price:22995,cat:"turntable"},
+        {id:"h_innovation", character:"detailed", brandStory:"Clearaudio's Innovation Compact. Magnetic bearing — no stylus contact, zero bearing noise. German precision engineering.", name:"Innovation Compact", sub:"Clearaudio · Universal · Charisma MC", vendor:"clearaudio",   price:8995, cat:"turntable"},
+        {id:"h_master", character:"detailed", brandStory:"Clearaudio's Master Innovation with Goldfinger Statement MC. Reference-level German engineering. The most analytically precise deck in the catalogue.",     name:"Master Innovation",  sub:"Clearaudio · Unify tonearm · Goldfinger",vendor:"clearaudio", price:18995,cat:"turntable"},
       ],
       cartridge:[
-        {id:"h_nd9",        name:"Nd9",                sub:"Rega · MM · Boron cantilever · Fine Line · reference", vendor:"rega", price:695, cat:"cartridge", note:"Rega's flagship MM — Boron cantilever and Fine Line stylus technology from the Aphelion 2 MC. Does not need a dedicated MC phono stage. At £695 it is extraordinary value against MCs costing three times the price. Factory-fitted option on Planar 8 and Planar 6 RS."},
-        {id:"h_apheta3",    name:"Apheta 3",           sub:"Rega · MC · 350μV · fine-line",        vendor:"rega",         price:799,  cat:"cartridge"},
-        {id:"h_aphelion2",  name:"Aphelion 2",         sub:"Rega · MC · 350μV · boron",            vendor:"rega",         price:2999, cat:"cartridge"},
-        {id:"h_cadenza_bk", name:"Cadenza Black",      sub:"Ortofon · MC · 0.33mV · Shibata",      vendor:"ortofon",      price:1299, cat:"cartridge"},
-        {id:"h_windfeld",   name:"A95",                sub:"Ortofon · MC · 0.2mV · Replicant",     vendor:"ortofon",      price:2699, cat:"cartridge"},
-        {id:"h_ethos_ref",  name:"Ethos",              sub:"Goldring · MC · 500μV",                vendor:"goldring",     price:549,  cat:"cartridge"},
-        {id:"h_art1000",    name:"AT-ART1000",         sub:"Audio-Technica · MC · 0.2mV · direct-coupled",vendor:"audio_technica",price:3499,cat:"cartridge"},
-        {id:"h_krystal",    name:"Krystal",            sub:"Linn · MC · 0.35mV",                   vendor:"linn",         price:1650, cat:"cartridge"},
-        {id:"h_kandid",     name:"Kandid",             sub:"Linn · MC · 0.35mV · reference",       vendor:"linn",         price:3495, cat:"cartridge"},
+        {id:"h_nd9", character:"balanced", brandStory:"Rega's flagship MM. Boron cantilever from the Aphelion 2 MC. Does not need a dedicated MC phono stage — exceptional value at this level.",        name:"Nd9",                sub:"Rega · MM · Boron cantilever · Fine Line · reference", vendor:"rega", price:695, cat:"cartridge", note:"Rega's flagship MM — Boron cantilever and Fine Line stylus technology from the Aphelion 2 MC. Does not need a dedicated MC phono stage. At £695 it is extraordinary value against MCs costing three times the price. Factory-fitted option on Planar 8 and Planar 6 RS."},
+        {id:"h_apheta3", character:"balanced", brandStory:"Rega's Apheta 3 MC. 350μV output, Fine Line stylus. Musical and detailed in equal measure — Rega's most popular MC.",    name:"Apheta 3",           sub:"Rega · MC · 350μV · fine-line",        vendor:"rega",         price:799,  cat:"cartridge"},
+        {id:"h_aphelion2", character:"detailed", brandStory:"Rega's reference MC. Boron cantilever, 350μV output. Co-developed with the Aura phono stage for optimal noise performance.",  name:"Aphelion 2",         sub:"Rega · MC · 350μV · boron",            vendor:"rega",         price:2999, cat:"cartridge"},
+        {id:"h_cadenza_bk", character:"balanced", brandStory:"Ortofon's Cadenza Black with Shibata stylus. One of Ortofon's finest cartridges — a balanced character with exceptional tracking.", name:"Cadenza Black",      sub:"Ortofon · MC · 0.33mV · Shibata",      vendor:"ortofon",      price:1299, cat:"cartridge"},
+        {id:"h_windfeld", character:"detailed", brandStory:"Ortofon's A95. Replicant 100 stylus, 0.2mV output. Among the most analytically accurate cartridges available.",   name:"A95",                sub:"Ortofon · MC · 0.2mV · Replicant",     vendor:"ortofon",      price:2699, cat:"cartridge"},
+        {id:"h_ethos_ref", character:"warm", brandStory:"Goldring's Ethos — high-output MC at 500μV. Warm and musical. Works with any MM phono stage.",  name:"Ethos",              sub:"Goldring · MC · 500μV",                vendor:"goldring",     price:549,  cat:"cartridge"},
+        {id:"h_art1000", character:"detailed", brandStory:"Audio-Technica's ART1000 — direct-coupled generator, 0.2mV. Exceptionally revealing. Requires careful tonearm matching (low compliance).",    name:"AT-ART1000",         sub:"Audio-Technica · MC · 0.2mV · direct-coupled",vendor:"audio_technica",price:3499,cat:"cartridge"},
+        {id:"h_krystal", character:"warm", brandStory:"Linn's Krystal MC — designed for the LP12 ecosystem. Urika II or Uphorik are the natural phono stage partners.",    name:"Krystal",            sub:"Linn · MC · 0.35mV",                   vendor:"linn",         price:1650, cat:"cartridge"},
+        {id:"h_kandid", character:"warm", brandStory:"Linn's reference Kandid MC. Designed specifically for the LP12 with Urika II internal phono stage. The definitive LP12 cartridge.",     name:"Kandid",             sub:"Linn · MC · 0.35mV · reference",       vendor:"linn",         price:3495, cat:"cartridge"},
       ],
       amplifier:[
-        {id:"h_aethos_h", powerW:90,   name:"Aethos",             sub:"Rega · 125W flagship integrated",     vendor:"rega",         price:3498, cat:"amplifier"},
-        {id:"h_3050ref", powerW:90,    name:"3050S2 Reference",   sub:"Exposure · 110W reference integrated",vendor:"exposure",     price:3995, cat:"amplifier"},
-        {id:"h_ja5010", powerW:20,     name:"Masterclass IA-4",   sub:"Sugden · 35W Pure Class A",           vendor:"sugden",       price:5250, cat:"amplifier"},
-        {id:"h_m8xi",       name:"M8xi",               sub:"Musical Fidelity · 550W integrated",  vendor:"musical_fidelity",price:5999,cat:"amplifier"},
-        {id:"h_qutest",     name:"Hugo TT2 + Etude",   sub:"Chord Electronics · DAC + power amp", vendor:"chord_elec",   price:8498, cat:"amplifier"},
-        {id:"h_252_250",    name:"NAC 252 + NAP 250DR",sub:"Naim · Pre-power combination",        vendor:"naim",         price:11998,cat:"amplifier"},
-        {id:"h_552_500",    name:"NAC 552 + NAP 500DR",sub:"Naim · Reference pre-power combination",vendor:"naim",       price:28995,cat:"amplifier", note:"Priced as a pair: NAC 552DR (approx £14,995) + NAP 500DR (approx £12,995). Both units benefit from Naim factory DR servicing — confirm DR status when purchasing. A Naim specialist dealer is essential at this level."},
-        {id:"h_selekt_dsm", name:"Selekt DSM",          sub:"Linn · Streaming pre-amp · Katalyst DAC",vendor:"linn",     price:5995, cat:"amplifier"},
-        {id:"h_akurate_dsm",name:"Akurate DSM",         sub:"Linn · Reference streaming pre-amp", vendor:"linn",         price:8995, cat:"amplifier"},
+        {id:"h_aethos_h", character:"balanced", brandStory:"Rega's flagship integrated. 125W, Class A/B. Musically balanced — neither warm nor cold.", powerW:90,   name:"Aethos",             sub:"Rega · 125W flagship integrated",     vendor:"rega",         price:3498, cat:"amplifier"},
+        {id:"h_3050ref", character:"balanced", brandStory:"Exposure's reference integrated. 110W, built in Brighton. Strong synergy with Rega sources and British speakers.", powerW:90,    name:"3050S2 Reference",   sub:"Exposure · 110W reference integrated",vendor:"exposure",     price:3995, cat:"amplifier"},
+        {id:"h_ja5010", character:"warm", brandStory:"Sugden's Masterclass IA-4. 35W pure Class A. Extraordinary midrange texture and warmth. Legendary with Harbeth and Spendor.", powerW:20,     name:"Masterclass IA-4",   sub:"Sugden · 35W Pure Class A",           vendor:"sugden",       price:5250, cat:"amplifier"},
+        {id:"h_m8xi", character:"detailed", brandStory:"Musical Fidelity's M8xi. 550W into 8 ohms. Enormous power reserves — drives any speaker effortlessly. Clinical and transparent.",       name:"M8xi",               sub:"Musical Fidelity · 550W integrated",  vendor:"musical_fidelity",price:5999,cat:"amplifier"},
+        {id:"h_qutest", character:"detailed", brandStory:"Chord's Hugo TT2 DAC with Etude power amplifier. FPGA-based digital processing. For those who want the most technically advanced replay.",     name:"Hugo TT2 + Etude",   sub:"Chord Electronics · DAC + power amp", vendor:"chord_elec",   price:8498, cat:"amplifier"},
+        {id:"h_252_250", character:"warm", brandStory:"Naim's NAC 252 + NAP 250DR pre-power combination. Naim's characteristic pace and rhythmic drive at reference level.",    name:"NAC 252 + NAP 250DR",sub:"Naim · Pre-power combination",        vendor:"naim",         price:11998,cat:"amplifier"},
+        {id:"h_552_500", character:"warm", brandStory:"Naim's reference pre-power. NAC 552DR + NAP 500DR. The definitive Naim system — 30 years of continuous refinement.",    name:"NAC 552 + NAP 500DR",sub:"Naim · Reference pre-power combination",vendor:"naim",       price:28995,cat:"amplifier", note:"Priced as a pair: NAC 552DR (approx £14,995) + NAP 500DR (approx £12,995). Both units benefit from Naim factory DR servicing — confirm DR status when purchasing. A Naim specialist dealer is essential at this level."},
+        {id:"h_selekt_dsm", character:"balanced", brandStory:"Linn's Selekt DSM streaming pre-amp. Katalyst DAC, network streaming, analogue inputs. The modern Linn system hub.", name:"Selekt DSM",          sub:"Linn · Streaming pre-amp · Katalyst DAC",vendor:"linn",     price:5995, cat:"amplifier"},
+        {id:"h_akurate_dsm", character:"balanced", brandStory:"Linn's Akurate DSM — reference streaming pre-amp. The complete source for a Linn-based system.",name:"Akurate DSM",         sub:"Linn · Reference streaming pre-amp", vendor:"linn",         price:8995, cat:"amplifier"},
       ],
       speakers:[
-        {id:"h_40_3",       name:"40.3 XD",            sub:"Harbeth · Flagship standmount · RADIAL",   vendor:"harbeth",       price:6998, cat:"speakers"},
-        {id:"h_kef_ref1",   name:"Reference 1 Meta",   sub:"KEF · Standmount · Metamaterial Uni-Q",    vendor:"kef",           price:7999, cat:"speakers"},
-        {id:"h_bw_805d4",   name:"805 D4",             sub:"B&W · Standmount · Diamond tweeter",       vendor:"bw",            price:5499, cat:"speakers"},
-        {id:"h_focal_sopra1",name:"Sopra No.1",        sub:"Focal · Standmount · Beryllium",           vendor:"focal",         price:8499, cat:"speakers"},
-        {id:"h_pmc_fact3",  name:"Fact.3",             sub:"PMC · Standmount · transmission line",     vendor:"pmc",           price:5999, cat:"speakers"},
-        {id:"h_neat_ekstra", name:"Ekstra",            sub:"Neat · Standmount · isobaric",             vendor:"neat",          price:5495, cat:"speakers"},
-        {id:"h_d72_h",      name:"D7.2",               sub:"Spendor · Floorstander · linear flow",     vendor:"spendor",       price:5650, cat:"speakers"},
-        {id:"h_kef_ref3",   name:"Reference 3 Meta",   sub:"KEF · Floorstander · Metamaterial Uni-Q",  vendor:"kef",           price:12999,cat:"speakers"},
-        {id:"h_bw_804d4",   name:"804 D4",             sub:"B&W · Floorstander · Diamond tweeter",     vendor:"bw",            price:6999, cat:"speakers"},
-        {id:"h_focal_kanta2",name:"Kanta No.2",        sub:"Focal · Floorstander · Beryllium",         vendor:"focal",         price:7999, cat:"speakers"},
-        {id:"h_shl5xd",     name:"SHL5 Plus XD",       sub:"Harbeth · Anniversary floorstander",       vendor:"harbeth",       price:8498, cat:"speakers"},
-        {id:"h_d92",        name:"D9.2",               sub:"Spendor · Reference floorstander",         vendor:"spendor",       price:9495, cat:"speakers"},
-        {id:"h_ls5_8",      name:"LS5/8",              sub:"Graham Audio · BBC reference",             vendor:"graham_ls",     price:8995, cat:"speakers"},
-        {id:"h_pmc_fact12",  name:"Fact.12",           sub:"PMC · Floorstander · transmission line",   vendor:"pmc",           price:12999,cat:"speakers"},
-        {id:"h_kudos_titan505",name:"Titan 505",       sub:"Kudos · Floorstander · isobaric",          vendor:"kudos",         price:9500, cat:"speakers"},
-        {id:"h_response5",  name:"Response D48R",      sub:"ProAc · Flagship ribbon floorstander",     vendor:"proac",         price:9995, cat:"speakers"},
-        {id:"h_scm50", minWatts:100,      name:"SCM50",              sub:"ATC · Reference passive studio",           vendor:"atc",           price:9995, cat:"speakers"},
-        {id:"h_scm50a",     name:"SCM50ASL",           sub:"ATC · Active reference studio",            vendor:"atc",           price:14995,cat:"speakers"},
+        {id:"h_40_3", character:"warm", brandStory:"Harbeth's 40.3 XD — their flagship standmount. RADIAL cone technology, 12-inch bass driver. The benchmark for natural midrange reproduction.",       name:"40.3 XD",            sub:"Harbeth · Flagship standmount · RADIAL",   vendor:"harbeth",       price:6998, cat:"speakers"},
+        {id:"h_kef_ref1", character:"detailed", brandStory:"KEF's Reference 1 Meta. Metamaterial Absorption Technology and 12th gen Uni-Q. Among the most accurately engineered standmounts available.",   name:"Reference 1 Meta",   sub:"KEF · Standmount · Metamaterial Uni-Q",    vendor:"kef",           price:7999, cat:"speakers"},
+        {id:"h_bw_805d4", character:"detailed", brandStory:"B&W's 805 D4. Diamond tweeter — lower distortion than any metal or fabric dome. More analytical than Harbeth or Spendor.",   name:"805 D4",             sub:"B&W · Standmount · Diamond tweeter",       vendor:"bw",            price:5499, cat:"speakers"},
+        {id:"h_focal_sopra1", character:"detailed", brandStory:"Focal's Sopra No.1. Beryllium tweeter and 'W' sandwich cone. French precision engineering — fast and revealing.",name:"Sopra No.1",        sub:"Focal · Standmount · Beryllium",           vendor:"focal",         price:8499, cat:"speakers"},
+        {id:"h_pmc_fact3", character:"detailed", brandStory:"PMC's Fact.3 standmount. Transmission line bass loading — deep, fast, controlled bass from a compact cabinet.",  name:"Fact.3",             sub:"PMC · Standmount · transmission line",     vendor:"pmc",           price:5999, cat:"speakers"},
+        {id:"h_neat_ekstra", character:"warm", brandStory:"Neat's Ekstra standmount. Hand-built in County Durham. Isobaric bass loading. Warm and engaging — particularly good with Naim electronics.", name:"Ekstra",            sub:"Neat · Standmount · isobaric",             vendor:"neat",          price:5495, cat:"speakers"},
+        {id:"h_d72_h", character:"balanced", brandStory:"Spendor's D7.2 floorstander. Linear-flow bass loading — extended and dynamic while keeping the natural BBC midrange character.",      name:"D7.2",               sub:"Spendor · Floorstander · linear flow",     vendor:"spendor",       price:5650, cat:"speakers"},
+        {id:"h_kef_ref3", character:"detailed", brandStory:"KEF's Reference 3 Meta floorstander. The full-scale version of the Reference 1. Exceptional imaging and neutrality.",   name:"Reference 3 Meta",   sub:"KEF · Floorstander · Metamaterial Uni-Q",  vendor:"kef",           price:12999,cat:"speakers"},
+        {id:"h_bw_804d4", character:"detailed", brandStory:"B&W's 804 D4 floorstander. Diamond tweeter, Continuum cone bass. Analytical character — rewards powerful amplification.",   name:"804 D4",             sub:"B&W · Floorstander · Diamond tweeter",     vendor:"bw",            price:6999, cat:"speakers"},
+        {id:"h_focal_kanta2", character:"detailed", brandStory:"Focal's Kanta No.2. Beryllium tweeter, Flax cone. French engineering — fast, dynamic, revealing.",name:"Kanta No.2",        sub:"Focal · Floorstander · Beryllium",         vendor:"focal",         price:7999, cat:"speakers"},
+        {id:"h_shl5xd", character:"warm", brandStory:"Harbeth's SHL5 Plus XD Anniversary. The SHL5 is the BBC's reference studio monitor — natural, fatigue-free, musical.",     name:"SHL5 Plus XD",       sub:"Harbeth · Anniversary floorstander",       vendor:"harbeth",       price:8498, cat:"speakers"},
+        {id:"h_d92", character:"balanced", brandStory:"Spendor's D9.2 reference floorstander. The most dynamic Spendor in the range — extended bass with natural midrange.",        name:"D9.2",               sub:"Spendor · Reference floorstander",         vendor:"spendor",       price:9495, cat:"speakers"},
+        {id:"h_ls5_8", character:"warm", brandStory:"Graham Audio's LS5/8 — BBC's reference studio monitor, licensed by Graham. The monitor the BBC used to master most of their archive.",      name:"LS5/8",              sub:"Graham Audio · BBC reference",             vendor:"graham_ls",     price:8995, cat:"speakers"},
+        {id:"h_pmc_fact12", character:"detailed", brandStory:"PMC's Fact.12 floorstander. Transmission line bass, AMT tweeter. Studio engineering in a domestic cabinet.",  name:"Fact.12",           sub:"PMC · Floorstander · transmission line",   vendor:"pmc",           price:12999,cat:"speakers"},
+        {id:"h_kudos_titan505", character:"balanced", brandStory:"Kudos's Titan 505 — made in County Durham with close ties to Naim. Legendary pairing with Naim electronics.",name:"Titan 505",       sub:"Kudos · Floorstander · isobaric",          vendor:"kudos",         price:9500, cat:"speakers"},
+        {id:"h_response5", character:"warm", brandStory:"ProAc's Response D48R — ribbon tweeter floorstander. ProAc's finest — warm and musical with exceptional scale.",  name:"Response D48R",      sub:"ProAc · Flagship ribbon floorstander",     vendor:"proac",         price:9995, cat:"speakers"},
+        {id:"h_scm50", character:"detailed", brandStory:"ATC's SCM50 passive. Professional studio monitor technology. Hand-wound soft-dome midrange. Brutally honest — requires 100W+.", minWatts:100,      name:"SCM50",              sub:"ATC · Reference passive studio",           vendor:"atc",           price:9995, cat:"speakers"},
+        {id:"h_scm50a", character:"detailed", brandStory:"ATC's SCM50ASL active. Built-in amplification — no external amp needed. The monitor that defines studio accuracy.",     name:"SCM50ASL",           sub:"ATC · Active reference studio",            vendor:"atc",           price:14995,cat:"speakers"},
       ],
       phono:[
-        {id:"h_aura_mc",    name:"Aura MC",            sub:"Rega · Reference MC phono stage",     vendor:"rega",         price:4295, cat:"phono"},
-        {id:"h_superline",  name:"Superline",          sub:"Naim · Reference MC phono",           vendor:"naim",         price:3799, cat:"phono", note:"Requires an external power supply — Napsc (£295 minimum) or HiCap DR (£1,595) for full performance. Budget for this separately. Without it the Superline borrows power from the preamp."},
-        {id:"h_trio",       name:"Trio",               sub:"Clearaudio · Balanced MC",            vendor:"clearaudio",   price:2395, cat:"phono"},
-        {id:"h_mf_vinyl",   name:"Nu-Vista Vinyl",     sub:"Musical Fidelity · Valve/solid MC",   vendor:"musical_fidelity",price:2999,cat:"phono"},
-        {id:"h_symphony",   name:"Symphony",           sub:"Leema · Fully balanced",              vendor:"leema",        price:2995, cat:"phono"},
+        {id:"h_aura_mc", character:"detailed", brandStory:"Rega's reference Aura MC phono stage. Co-developed with the Aphelion 2 cartridge for optimal noise performance.",    name:"Aura MC",            sub:"Rega · Reference MC phono stage",     vendor:"rega",         price:4295, cat:"phono"},
+        {id:"h_superline", character:"warm", brandStory:"Naim's Superline — reference MC phono stage. Requires external PSU (Napsc at minimum). The definitive Naim phono stage.",  name:"Superline",          sub:"Naim · Reference MC phono",           vendor:"naim",         price:3799, cat:"phono", note:"Requires an external power supply — Napsc (£295 minimum) or HiCap DR (£1,595) for full performance. Budget for this separately. Without it the Superline borrows power from the preamp."},
+        {id:"h_trio", character:"balanced", brandStory:"Clearaudio's Trio — balanced MC stage. Precise and transparent. The natural partner for Clearaudio cartridges.",       name:"Trio",               sub:"Clearaudio · Balanced MC",            vendor:"clearaudio",   price:2395, cat:"phono"},
+        {id:"h_mf_vinyl", character:"detailed", brandStory:"Musical Fidelity's Nu-Vista Vinyl — valve/solid-state hybrid MC stage. Detailed and revealing.",   name:"Nu-Vista Vinyl",     sub:"Musical Fidelity · Valve/solid MC",   vendor:"musical_fidelity",price:2999,cat:"phono"},
+        {id:"h_symphony", character:"balanced", brandStory:"Leema's Symphony — fully balanced MC phono stage. Excellent measured performance.",   name:"Symphony",           sub:"Leema · Fully balanced",              vendor:"leema",        price:2995, cat:"phono"},
       ],
       cables:[
         {id:"h_sarum_r",    name:"Sarum T RCA",        sub:"Chord Co. · Interconnect 1m",         vendor:"chord_co",     price:1250, cat:"cables"},
@@ -1496,9 +1496,10 @@ export default function HiFiSystemBuilder() {
   const [bias, setBias] = useState(50); // 0 = Foundation (source-heavy), 100 = Expression (speaker-heavy)
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [openCat, setOpenCat] = useState(null);
-  const [livePrices, setLivePrices] = useState({}); // {itemId: {price, source, loading, error}}
+  const [livePrices, setLivePrices] = useState({});
   const [showAllCat, setShowAllCat] = useState({});
-  const [chainStep, setChainStep] = useState(0); // which step in the signal chain we're on
+  const [chainStep, setChainStep] = useState(0);
+  const [charFilter, setCharFilter] = useState("all"); // "all" | "warm" | "balanced" | "detailed"
   const [budget, setBudget] = useState(0);
   const [basket, setBasket] = useState(()=>getDefaultBasket("mid"));
   const prevTier = useRef("mid");
@@ -2202,6 +2203,7 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
         };
         let scored = rawOpts
           .filter(budgetOk)
+          .filter(item => charFilter === "all" || !item.character || item.character === charFilter)
           .map(item => {
             // Heavy penalty for items over the category budget slice
             const sourcePct = bias < 50 ? 0.45 - (bias/50)*0.15 : 0.30 - ((bias-50)/50)*0.10;
@@ -2281,20 +2283,83 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
             <div className="fu">
               {/* ── Category heading ───────────────────────────────────────── */}
               <div style={{marginBottom:20,paddingBottom:16,borderBottom:"1px solid var(--rule)"}}>
-                <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:6}}>
+                <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:12}}>
                   <CatIcon cat={currentCatKey} size={18} col={tierData.accent}/>
                   <h2 style={{fontFamily:"var(--serif)",fontSize:"clamp(22px,4vw,28px)",fontWeight:400,color:"var(--ink)",lineHeight:1,letterSpacing:"-.02em"}}>{CAT_LABELS[currentCatKey]}</h2>
                 </div>
 
-                {/* Bias context — turntable and speakers */}
+                {/* ── Character filter tabs ── */}
+                <div style={{display:"flex",gap:0,marginBottom:14,border:"1px solid var(--rule)"}}>
+                  {[
+                    {id:"all",      label:"All"},
+                    {id:"warm",     label:"🎷 Warm & Musical"},
+                    {id:"balanced", label:"⚖ Balanced"},
+                    {id:"detailed", label:"🔬 Detailed"},
+                  ].map((c,i)=>{
+                    const active = charFilter===c.id;
+                    return (
+                      <button key={c.id} onClick={()=>setCharFilter(c.id)} style={{
+                        flex:1,padding:"8px 4px",fontSize:9,cursor:"pointer",
+                        fontFamily:"var(--mono)",letterSpacing:".06em",
+                        background:active?"var(--ink)":"transparent",
+                        color:active?"var(--paper)":"var(--ink4)",
+                        border:"none",borderLeft:i>0?"1px solid var(--rule)":"none",
+                        transition:"all .15s",whiteSpace:"nowrap",overflow:"hidden",
+                      }}>
+                        {c.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* ── Synergy line — what pairs well with what's already selected ── */}
+                {(()=>{
+                  const selTT  = basket.find(b=>b.cat==="turntable");
+                  const selAmp = basket.find(b=>b.cat==="amplifier");
+                  const selSpk = basket.find(b=>b.cat==="speakers");
+                  const ttV  = selTT  ? (VENDORS[selTT.vendor]||VENDORS.generic)  : null;
+                  const ampV = selAmp ? (VENDORS[selAmp.vendor]||VENDORS.generic) : null;
+
+                  // Synergy suggestions based on what's selected
+                  const SYNERGY_HINTS = {
+                    amplifier: {
+                      rega:     "Rega amplification — Elicit or Aethos — is the natural partner. Exposure and Sugden also work beautifully.",
+                      linn:     "Linn's own DSM streaming pre-amps are the natural partner. Naim amplification also has a strong history with Linn sources.",
+                      roksan:   "Roksan's own XA-8200R integrates well. Exposure and Audiolab also pair naturally with Roksan sources.",
+                      clearaudio:"Musical Fidelity and Chord Electronics pair naturally with Clearaudio's analytical character.",
+                    },
+                    speakers: {
+                      rega:     "Rega's own Kyte speakers are a natural match. Spendor, ProAc and Harbeth all work well with Rega amplification.",
+                      naim:     "Naim has a long history with Harbeth, ProAc, and Kudos speakers. Focal also has a close relationship with Naim.",
+                      sugden:   "Sugden Class A amplification is legendary with Harbeth — particularly the P3ESR, C30 and 40.3 XD.",
+                      exposure: "Exposure works particularly well with Spendor and ProAc speakers — a classic British combination.",
+                      linn:     "Linn's own Akubarik and Akudorik active speakers are the natural choice. Kudos Titan series also has a strong Linn connection.",
+                    },
+                  };
+
+                  let hint = null;
+                  if (currentCatKey==="amplifier" && selTT && ttV && SYNERGY_HINTS.amplifier[selTT.vendor]) {
+                    hint = `You chose the ${selTT.name}. ${SYNERGY_HINTS.amplifier[selTT.vendor]}`;
+                  } else if (currentCatKey==="speakers" && selAmp && ampV && SYNERGY_HINTS.speakers[selAmp.vendor]) {
+                    hint = `You chose the ${selAmp.name}. ${SYNERGY_HINTS.speakers[selAmp.vendor]}`;
+                  }
+
+                  return hint ? (
+                    <div style={{padding:"10px 14px",borderLeft:"3px solid var(--amber)",background:"rgba(196,98,26,.05)",marginBottom:8}}>
+                      <p style={{fontSize:12,color:"var(--ink2)",fontFamily:"var(--serif)",lineHeight:1.65,fontStyle:"italic"}}>{hint}</p>
+                    </div>
+                  ) : null;
+                })()}
+
+                {/* Bias context */}
                 {currentCatKey==="turntable"&&(
-                  <p style={{fontSize:12,color:"var(--ink3)",fontFamily:"var(--serif)",fontStyle:"italic",lineHeight:1.6,marginBottom:4}}>
-                    {bias<35?"Foundation bias — picks weighted toward source quality. A better turntable reveals more of what's in the groove.":bias>65?"Expression bias — calibrated to leave more budget for speakers. A capable, honest source.":"Balanced — source and speaker budget split evenly."}
+                  <p style={{fontSize:11,color:"var(--ink4)",fontFamily:"var(--mono)",lineHeight:1.6}}>
+                    {bias<35?"Foundation bias — picks weighted toward source quality.":bias>65?"Expression bias — calibrated to leave more budget for speakers.":"Balanced — source and speaker budget split evenly."}
                   </p>
                 )}
                 {currentCatKey==="speakers"&&bias!==50&&(
-                  <p style={{fontSize:12,color:"var(--ink3)",fontFamily:"var(--serif)",fontStyle:"italic",lineHeight:1.6,marginBottom:4}}>
-                    {bias>65?"Expression bias — these are the statement piece of your system. Budget reflects that.":"Foundation bias — honest speakers that don't colour the music. The source does the talking."}
+                  <p style={{fontSize:11,color:"var(--ink4)",fontFamily:"var(--mono)",lineHeight:1.6}}>
+                    {bias>65?"Expression bias — these are the statement piece of your system.":"Foundation bias — honest speakers that don't colour the music."}
                   </p>
                 )}
 
@@ -2419,8 +2484,12 @@ Be honest. If the image is too dark, blurry, or unclear, set confidence to "low"
                           <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
                             <span style={{fontSize:8,letterSpacing:".08em",textTransform:"uppercase",padding:"2px 8px",background:`${iv.col}15`,border:`1px solid ${iv.col}35`,color:iv.col,fontFamily:"var(--mono)"}}>{iv.name}</span>
                             {iv.city&&iv.city!=="—"&&<span style={{fontSize:8,color:"var(--ink4)",fontFamily:"var(--mono)"}}>{iv.city}</span>}
+                            {item.character&&<span style={{fontSize:8,color:"var(--ink4)",fontFamily:"var(--mono)",padding:"2px 7px",background:"var(--paper2)",border:"1px solid var(--rule)"}}>
+                              {item.character==="warm"?"🎷 Warm":item.character==="detailed"?"🔬 Detailed":"⚖ Balanced"}
+                            </span>}
                           </div>
-                          {item.note&&<p style={{fontSize:10,color:"var(--ink3)",lineHeight:1.6,fontFamily:"var(--serif)",fontStyle:"italic",marginTop:10,paddingTop:10,borderTop:"1px solid var(--rule)"}}>{item.note}</p>}
+                          {item.brandStory&&<p style={{fontSize:11,color:"var(--ink3)",lineHeight:1.6,fontFamily:"var(--serif)",fontStyle:"italic",marginTop:8,paddingTop:8,borderTop:"1px solid var(--rule)"}}>{item.brandStory}</p>}
+                          {item.note&&!item.brandStory&&<p style={{fontSize:10,color:"var(--ink3)",lineHeight:1.6,fontFamily:"var(--serif)",fontStyle:"italic",marginTop:8,paddingTop:8,borderTop:"1px solid var(--rule)"}}>{item.note}</p>}
                           {powerMismatch&&(
                             <div style={{marginTop:8,padding:"8px 10px",borderLeft:"3px solid var(--red)",background:"rgba(139,32,32,.05)"}}>
                               <p style={{fontSize:11,color:"var(--red)",fontFamily:"var(--serif)",lineHeight:1.5}}>
