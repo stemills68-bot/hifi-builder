@@ -111,25 +111,43 @@ const ROOM_SIZES = [
   { id:"medium",   label:"Medium",    sub:"Standard living room",  desc:"12–20 m²",     dims:{length:5.0,width:4.0,height:2.5}, tierHint:"mid"    },
   { id:"large",    label:"Large",     sub:"Generous living room",  desc:"20–30 m²",     dims:{length:6.0,width:5.0,height:2.6}, tierHint:"mid"    },
   { id:"openplan", label:"Open Plan", sub:"Kitchen-diner or loft", desc:"30 m²+",       dims:{length:7.5,width:5.5,height:2.8}, tierHint:"high"   },
+  { id:"library",  label:"Library / Study", sub:"Shelving, books, near-field", desc:"Any size · specialist setup", dims:{length:4.0,width:3.5,height:2.4}, tierHint:"mid", isLibrary:true },
 ];
 
 // ── UK Dealers ────────────────────────────────────────────────────────────────
 const DEALERS = [
-  { name:"Signals",           region:"East",      city:"Ipswich",         specialism:"Naim, Linn, Rega, Harbeth. One of the UK's most respected independent dealers.", url:"https://www.signals.co.uk" },
-  { name:"Cymbiosis",         region:"Midlands",  city:"Leicester",       specialism:"Linn, Naim, ATC, Kudos. Exceptional demo facilities and home trial service.", url:"https://www.cymbiosis.com" },
-  { name:"Loud & Clear",      region:"Scotland",  city:"Edinburgh",       specialism:"Naim, Linn, Rega, Chord. Scotland's leading hi-fi independent.", url:"https://www.loudandclear.co.uk" },
-  { name:"Moorgate Acoustics",region:"North",     city:"Sheffield",       specialism:"Naim, Harbeth, Rega, ProAc. Long-established northern specialist.", url:"https://www.moorgate-acoustics.com" },
-  { name:"KJ West One",       region:"London",    city:"London W1",       specialism:"Naim, Linn, Wilson, dCS. High-end London showroom.", url:"https://www.kjwestone.co.uk" },
-  { name:"Richer Sounds",     region:"Nationwide",city:"Multiple",        specialism:"Best-value mainstream hi-fi across all major brands. 50+ UK stores.", url:"https://www.richersounds.com" },
-  { name:"Audio T",           region:"Nationwide",city:"Multiple",        specialism:"Rega, Naim, Cambridge, Audiolab. Knowledgeable staff across 15 stores.", url:"https://audiot.co.uk" },
-  { name:"Hi-Fi Corner",      region:"Scotland",  city:"Edinburgh",       specialism:"Rega, Naim, Harbeth. Edinburgh's other specialist dealer.", url:"https://www.hificorner.co.uk" },
+  // ── London ────────────────────────────────────────────────────────────────
+  { name:"KJ West One",       region:"London",    city:"London W1",       specialism:"Naim, Linn, Wilson, dCS. High-end London showroom with exceptional demo facilities.", url:"https://www.kjwestone.co.uk" },
+  { name:"Grahams Hi-Fi",     region:"London",    city:"London N1",       specialism:"Naim, Linn, ATC, Roksan. Islington's long-established independent.", url:"https://www.grahams.co.uk" },
+  { name:"Tom Tom Audio",     region:"London",    city:"London N10",      specialism:"Linn LP12 specialist. Deep LP12 knowledge, home demos available.", url:"https://www.tomtomaudio.com" },
+  // ── South ─────────────────────────────────────────────────────────────────
   { name:"Basically Sound",   region:"South",     city:"Southampton",     specialism:"Rega, Naim, PMC, ATC. Respected southern independent.", url:"https://www.basicallysound.co.uk" },
-  { name:"Tom Tom Audio",     region:"London",    city:"London N10",      specialism:"Linn specialist. Deep LP12 knowledge. Home demos available.", url:"https://www.tomtomaudio.com" },
-  { name:"Fanthorpes",        region:"North",     city:"Hull",            specialism:"Long-established northern dealer. Broad range across all budgets.", url:"https://www.fanthorpes.co.uk" },
-  { name:"Pursuits",          region:"South West",city:"Bristol",         specialism:"Rega, Naim, Harbeth, Spendor. Convenient for Bristol Show attendees.", url:"https://www.hifi-pursuits.co.uk" },
-  { name:"Acoustica",         region:"North West",city:"Chester",         specialism:"Linn, Naim, Bowers & Wilkins. Northwest's leading specialist.", url:"https://www.acoustica.org.uk" },
-  { name:"Grahams Hi-Fi",     region:"London",    city:"London N1",       specialism:"Naim, Linn, ATC, Roksan. Islington's respected independent.", url:"https://www.grahams.co.uk" },
+  // ── South West ────────────────────────────────────────────────────────────
+  { name:"Pursuits",          region:"South West",city:"Bristol",         specialism:"Rega, Naim, Harbeth, Spendor. Home of the Bristol Hi-Fi Show.", url:"https://www.hifi-pursuits.co.uk" },
+  // ── Midlands ──────────────────────────────────────────────────────────────
+  { name:"Cymbiosis",         region:"Midlands",  city:"Leicester",       specialism:"Linn, Naim, ATC, Kudos. Exceptional demo facilities and home trial service.", url:"https://www.cymbiosis.com" },
   { name:"Hifi Lounge",       region:"Midlands",  city:"Beds/Bucks",      specialism:"Home demo specialists. Naim, Linn, Wilson Benesch.", url:"https://www.hifilounge.co.uk" },
+  { name:"Midland Audio X-Change", region:"Midlands", city:"Stourbridge", specialism:"Harbeth, Naim, Chord, dCS. High-end analogue and digital specialists.", url:"https://www.midlandaudiox-change.co.uk" },
+  // ── East ──────────────────────────────────────────────────────────────────
+  { name:"Signals",           region:"East",      city:"Ipswich",         specialism:"Naim, Linn, Rega, Harbeth. One of the UK's most respected independent dealers.", url:"https://www.signals.co.uk" },
+  // ── North West ────────────────────────────────────────────────────────────
+  { name:"The AudioWorks",    region:"North West",city:"Cheadle, Manchester", specialism:"Naim, Rega, Accuphase, Focal, ATC. The leading Accuphase outlet in the UK. Systems from £600.", url:"https://www.theaudioworks.co.uk" },
+  { name:"Doug Brady HiFi",   region:"North West",city:"N. Cheshire",     specialism:"Founded Liverpool 1960. One of the first Naim stockists. Naim, Rega, Chord. Vast showroom.", url:"https://dougbradyhifi.com" },
+  { name:"Strictly Stereo",   region:"North West",city:"High Lane, Stockport", specialism:"Independent dealer in a converted barn near the Peak District. Expert system matching, 30-day returns.", url:"https://strictlystereo.com" },
+  { name:"Hi-Fi Stereo",      region:"North West",city:"Sale, Manchester", specialism:"South Manchester's long-established independent. Rega, Arcam, broad range across all budgets.", url:"https://www.hifistereo.co.uk" },
+  { name:"Acoustica",         region:"North West",city:"Chester",         specialism:"Linn, Naim, Bowers & Wilkins. Northwest specialist with strong Linn presence.", url:"https://www.acoustica.org.uk" },
+  { name:"Wilkinson's Hi-Fi", region:"North West",city:"Nelson, Lancashire", specialism:"New and used hi-fi, repairs, part-exchange. Customers travel from across the UK. Valve amp specialists.", url:"https://www.wilkinsons.tv" },
+  // ── North ─────────────────────────────────────────────────────────────────
+  { name:"Moorgate Acoustics",region:"North",     city:"Sheffield",       specialism:"Naim, Harbeth, Rega, ProAc. Long-established northern specialist.", url:"https://www.moorgate-acoustics.com" },
+  { name:"Fanthorpes",        region:"North",     city:"Hull",            specialism:"Long-established northern dealer. Broad range across all budgets.", url:"https://www.fanthorpes.co.uk" },
+  { name:"Vickers Hi-Fi",     region:"North",     city:"York",            specialism:"Award-winning specialist established 1967. Expanded to purpose-built premises. Broad high-end range.", url:"https://www.vickershifi.com" },
+  { name:"HiFiSound",         region:"North",     city:"Stockton-on-Tees",specialism:"Family-run with two dedicated demo rooms. PMC, Rega, Pro-Ject, Hegel. Part-exchange welcome.", url:"https://www.hifisound.co.uk" },
+  // ── Scotland ──────────────────────────────────────────────────────────────
+  { name:"Loud & Clear",      region:"Scotland",  city:"Edinburgh",       specialism:"Naim, Linn, Rega, Chord. Scotland's leading hi-fi independent.", url:"https://www.loudandclear.co.uk" },
+  { name:"Hi-Fi Corner",      region:"Scotland",  city:"Edinburgh",       specialism:"Rega, Naim, Harbeth. Edinburgh's other specialist dealer.", url:"https://www.hificorner.co.uk" },
+  // ── Nationwide ────────────────────────────────────────────────────────────
+  { name:"Richer Sounds",     region:"Nationwide",city:"Multiple",        specialism:"Best-value mainstream hi-fi across all major brands. 50+ UK stores. Best first stop for starter budgets.", url:"https://www.richersounds.com" },
+  { name:"Audio T",           region:"Nationwide",city:"Multiple",        specialism:"Rega, Naim, Cambridge, Audiolab. Knowledgeable staff across 15 stores.", url:"https://audiot.co.uk" },
 ];
 
 const REGIONS = ["London","South","South West","Midlands","East","North West","North","Scotland","Nationwide"];
@@ -137,7 +155,7 @@ const REGIONS = ["London","South","South West","Midlands","East","North West","N
 // ── Brand character mapping ───────────────────────────────────────────────────
 const BRAND_PROFILES = {
   turntable: {
-    warm:     { brands:["Linn (LP12)","Rega (Planar series)"],           why:"Suspended-chassis or carefully tuned rigid designs. Musical, engaging, forgiving of imperfect recordings." },
+    warm:     { brands:["Linn (LP12)","Rega (Planar series)"],           why:"Two distinct ecosystems — Linn's suspended sub-chassis LP12 and Rega's rigid-chassis Planars. Both are warm and musical but the upgrade paths diverge completely. Ask your dealer which suits your long-term plans." },
     balanced: { brands:["Rega (Planar 3–8)","Roksan (Xerxes)"],         why:"Well-engineered, honest presentation. Neither analytical nor coloured. Strong across all genres." },
     detailed: { brands:["Clearaudio","Rega Planar 10","Pro-Ject (upper)"],why:"Rigid chassis, low noise floors, high resolution. Rewards well-recorded material." },
   },
@@ -159,13 +177,24 @@ const BRAND_PROFILES = {
   speakers: {
     warm:     { brands:["Harbeth (P3ESR, C30, 40 series)","Spendor (A/D series)","ProAc","Graham Audio (LS3/5A)"], why:"BBC monitoring heritage. Natural, fatigue-free midrange. Exceptional for voice and acoustic instruments." },
     balanced: { brands:["ProAc","PMC","Neat Acoustics","Kudos"],                                                   why:"Musical and detailed in equal measure. Strong performers across all genres." },
-    detailed: { brands:["ATC (passive/active)","KEF (Reference/R series)","B&W","Focal"],                         why:"Studio monitor accuracy. Brutally honest — reward powerful amplification and careful room setup." },
+    detailed: { brands:["ATC (passive/active)","KEF (Reference/R series)","B&W","Focal"],                         why:"Studio monitor accuracy. Brutally honest — reward powerful amplification and careful room setup. Note: ATC passive speakers require a minimum of 100W amplification." },
+  },
+  // Library/study specific — bookshelf and near-field focused
+  speakers_library: {
+    warm:     { brands:["Harbeth P3ESR","Graham Audio LS3/5A","Spendor SP3/1R2","ProAc Tablette"], why:"Compact BBC-heritage standmounts designed for near-field listening. The P3ESR and LS3/5A were literally made for shelves — they were designed as portable BBC monitoring speakers. Front-ported or sealed only if placing close to a rear wall." },
+    balanced: { brands:["KEF LS50 Meta","ProAc Tablette","Neat Iota","Spendor A1"],                why:"Compact standmounts with an even, room-friendly presentation. The KEF LS50 Meta is a near-field benchmark. All work well on a shelf or stand at close range." },
+    detailed: { brands:["KEF LS50 Meta","ATC SCM7/SCM11","Focal Aria 906"],                       why:"High-resolution compact monitors. The ATC SCM7 is a near-field studio monitor in domestic clothing — extremely honest at short distances. Front-ported designs preferred near walls." },
   },
 };
 
 // ── Budget allocation by tier and bias ───────────────────────────────────────
+const STARTER_THRESHOLD = 1000;
+
+function isStarterBudget(budget) { return budget > 0 && budget < STARTER_THRESHOLD; }
+
 function getBudgetSplit(budget, bias, roomSize) {
   if (!budget || budget === 0) return null;
+  if (isStarterBudget(budget)) return null; // handled separately
 
   // Source pct: 0=Foundation(45%), 50=Balanced(30%), 100=Expression(20%)
   const sourcePct  = bias < 50 ? 0.45 - (bias/50)*0.15 : 0.30 - ((bias-50)/50)*0.10;
@@ -177,14 +206,16 @@ function getBudgetSplit(budget, bias, roomSize) {
   const phonoPct   = sourcePct * 0.25;
   const ttPct      = sourcePct * 0.75;
 
+  const isoBudget = Math.round(budget * isoPct / 50) * 50;
   return {
     turntable: Math.round(budget * ttPct / 50) * 50,
     cartridge: Math.round(budget * ttPct * 0.25 / 50) * 50,
     phono:     Math.round(budget * phonoPct / 50) * 50,
     amplifier: Math.round(budget * ampPct / 50) * 50,
     speakers:  Math.round(budget * speakerPct / 50) * 50,
-    isolation: Math.round(budget * isoPct / 50) * 50,
+    isolation: Math.max(isoBudget, 430), // GAIA III ×8 minimum — £430 for a stereo pair
     cables:    Math.round(budget * cablePct / 50) * 50,
+    isolationDeferrable: true, // note to UI — can be added after core system
   };
 }
 
@@ -212,7 +243,221 @@ function fmt(n, loc) {
 }
 
 
-// ── NL Room Sizes ─────────────────────────────────────────────────────────────
+// ── Chat Bot Component ────────────────────────────────────────────────────────
+const CHAT_SYSTEM_PROMPT = `You are Steve, a friendly and knowledgeable hi-fi advisor for Record Room. Your job is to gather 6 pieces of information through natural conversation:
+1. buildingType: apt_ground, apt_upper, semi_detached, or detached
+2. roomSize: small, medium, large, openplan, OR "library" (for library/study/bookcase setups)
+3. floorType: carpet, wood, or tile
+4. budget: integer in GBP (0 if unknown)
+5. genres: array from [classical, jazz, rock, electronic, pop_soul, folk, world]
+6. bias: 0-100 (0=source/detail focused, 100=speakers/warmth/expression, 50=balanced)
+
+Rules:
+- Ask ONE short question at a time. Maximum 1-2 sentences.
+- Accept free-form answers and extract what you can. If they give multiple pieces of info in one message, acknowledge it and only ask for what's still missing.
+- Be warm but brief — this is a mobile chat interface.
+- When you have all 6 fields, respond with EXACTLY this format on the last line: BRIEF_READY:{"buildingType":"...","roomSize":"...","floorType":"...","budget":0,"genres":[],"bias":50}
+- Start by asking about their room situation — include library/study as an option.
+- IMPORTANT: If someone mentions a library, study, home office, bookcase, shelves, or says the system will be on a shelf or in a bookcase, set roomSize to "library".
+- Dimensions in feet: small=up to ~130sqft, medium=~130-215sqft, large=215-320sqft, openplan=320sqft+
+- Never mention the JSON or that you're extracting data. Keep it conversational.
+- Suggest quick options in brackets where helpful e.g. [Living room] [Bedroom] [Library / Study]
+- For library setups, note that bookshelf speakers are ideal and ask about near-field listening distance if relevant.`;
+
+function ChatBot({ onResult, apiKey, localeId, onSkip }) {
+  const loc = LOCALES[localeId] || LOCALES.gb;
+  const [messages, setMessages] = React.useState([]);
+  const [input, setInput] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [started, setStarted] = React.useState(false);
+  const bottomRef = React.useRef(null);
+  const inputRef  = React.useRef(null);
+
+  // Auto-scroll to bottom
+  React.useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior:"smooth" });
+  }, [messages, loading]);
+
+  async function sendMessage(userText) {
+    if (!userText.trim() || loading) return;
+    const newMessages = [...messages, { role:"user", content:userText }];
+    setMessages(newMessages);
+    setInput("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "x-api-key":apiKey,
+          "anthropic-version":"2023-06-01",
+          "anthropic-dangerous-direct-browser-access":"true",
+        },
+        body: JSON.stringify({
+          model:"claude-haiku-4-5-20251001",
+          max_tokens:400,
+          system: CHAT_SYSTEM_PROMPT + `\n\nUser currency: ${loc.currency}`,
+          messages: newMessages.map(m=>({role:m.role, content:m.content})),
+        })
+      });
+      const data = await res.json();
+      const reply = data.content?.map(c=>c.text||"").join("") || "";
+
+      // Check if ready to proceed
+      const briefMatch = reply.match(/BRIEF_READY:(\{.*\})/);
+      if (briefMatch) {
+        try {
+          const parsed = JSON.parse(briefMatch[1]);
+          // Show a completion message then proceed
+          const displayReply = reply.replace(/BRIEF_READY:\{.*\}/, "").trim() ||
+            "Perfect — I've got everything I need. Building your brief now...";
+          setMessages(prev => [...prev, { role:"assistant", content:displayReply, done:true }]);
+          setLoading(false);
+          setTimeout(() => onResult(parsed), 1200);
+          return;
+        } catch(e) { console.error("Brief parse failed:", e); }
+      }
+
+      setMessages(prev => [...prev, { role:"assistant", content:reply }]);
+    } catch(e) {
+      setMessages(prev => [...prev, { role:"assistant", content:"Sorry, I had a connection issue. Try again or use the step-by-step guide below." }]);
+    }
+    setLoading(false);
+    setTimeout(() => inputRef.current?.focus(), 100);
+  }
+
+  async function startChat() {
+    setStarted(true);
+    setLoading(true);
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "x-api-key":apiKey,
+          "anthropic-version":"2023-06-01",
+          "anthropic-dangerous-direct-browser-access":"true",
+        },
+        body: JSON.stringify({
+          model:"claude-haiku-4-5-20251001",
+          max_tokens:200,
+          system: CHAT_SYSTEM_PROMPT,
+          messages:[{ role:"user", content:"hi" }],
+        })
+      });
+      const data = await res.json();
+      const reply = data.content?.map(c=>c.text||"").join("") || "Hi! I'm Steve. Let's find your perfect hi-fi direction. Do you listen in a flat or a house?";
+      setMessages([{ role:"assistant", content:reply }]);
+    } catch(e) {
+      setMessages([{ role:"assistant", content:"Hi! I'm Steve. Let's find your perfect hi-fi direction. Do you listen in a flat or a house? [Flat] [House]" }]);
+    }
+    setLoading(false);
+    setTimeout(() => inputRef.current?.focus(), 100);
+  }
+
+  // Parse quick-reply chips from message text e.g. [Flat] [House]
+  function parseChips(text) {
+    const chips = [];
+    const regex = /\[([^\]]+)\]/g;
+    let m;
+    while ((m = regex.exec(text)) !== null) chips.push(m[1]);
+    return chips;
+  }
+
+  if (!started) return (
+    <div>
+      <div style={{marginBottom:20}}>
+        <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".18em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:10}}>Find your sound</div>
+        <p style={{fontFamily:"var(--serif)",fontSize:15,color:"var(--ink3)",lineHeight:1.7,marginBottom:20}}>
+          Answer a few quick questions and we'll build your system brief. Takes about a minute.
+        </p>
+        <button onClick={startChat} style={{display:"flex",alignItems:"center",gap:16,padding:"20px 28px",background:"var(--ink)",color:"var(--paper)",border:"none",cursor:"pointer",fontFamily:"var(--mono)",fontSize:12,letterSpacing:".18em",textTransform:"uppercase",width:"100%",justifyContent:"space-between",maxWidth:340}}>
+          <span>Start chatting</span>
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M2 10C2 5.6 5.6 2 10 2s8 3.6 8 8-3.6 8-8 8H2l3-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/><circle cx="7" cy="10" r="1" fill="currentColor"/><circle cx="10" cy="10" r="1" fill="currentColor"/><circle cx="13" cy="10" r="1" fill="currentColor"/></svg>
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{display:"flex",flexDirection:"column",height:"62vh",maxHeight:520,border:"2px solid var(--ink)",background:"var(--paper)"}}>
+      {/* Header */}
+      <div style={{padding:"12px 16px",background:"var(--ink)",display:"flex",alignItems:"center",gap:10,flexShrink:0}}>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M2 10C2 5.6 5.6 2 10 2s8 3.6 8 8-3.6 8-8 8H2l3-3" stroke="rgba(245,242,232,.7)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        <span style={{fontSize:10,color:"rgba(245,242,232,.7)",fontFamily:"var(--mono)",letterSpacing:".12em",textTransform:"uppercase"}}>Steve · Record Room</span>
+        <button onClick={onSkip} style={{marginLeft:"auto",fontSize:9,color:"rgba(245,242,232,.4)",fontFamily:"var(--mono)",background:"none",border:"none",cursor:"pointer",letterSpacing:".1em",textTransform:"uppercase"}}>Skip →</button>
+      </div>
+
+      {/* Messages */}
+      <div style={{flex:1,overflowY:"auto",padding:"16px 14px",display:"flex",flexDirection:"column",gap:12}}>
+        {messages.map((m,i) => {
+          const isUser = m.role==="user";
+          const chips  = !isUser ? parseChips(m.content) : [];
+          const displayText = m.content.replace(/\[[^\]]+\]/g,"").trim();
+          return (
+            <div key={i} className="fu" style={{display:"flex",flexDirection:"column",alignItems:isUser?"flex-end":"flex-start",gap:6}}>
+              <div style={{
+                maxWidth:"82%",padding:"11px 14px",
+                background:isUser?"var(--ink)":m.done?"var(--amber)":"var(--paper2)",
+                color:isUser?"var(--paper)":m.done?"var(--paper)":"var(--ink)",
+                borderRadius:0,
+                fontFamily:"var(--serif)",fontSize:14,lineHeight:1.65,
+              }}>
+                {displayText}
+              </div>
+              {chips.length>0&&(
+                <div style={{display:"flex",gap:6,flexWrap:"wrap",maxWidth:"90%"}}>
+                  {chips.map(chip=>(
+                    <button key={chip} onClick={()=>sendMessage(chip)} style={{
+                      padding:"6px 14px",fontSize:12,fontFamily:"var(--serif)",
+                      background:"var(--paper)",color:"var(--ink)",
+                      border:"1px solid var(--ink)",cursor:"pointer",
+                      transition:"all .15s",
+                    }}>
+                      {chip}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+        {loading&&(
+          <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 0"}}>
+            <div style={{display:"flex",gap:4}}>
+              {[0,1,2].map(i=>(
+                <div key={i} style={{width:7,height:7,borderRadius:"50%",background:"var(--ink4)",animation:`fadeIn .6s ${i*0.2}s ease infinite alternate`}}/>
+              ))}
+            </div>
+          </div>
+        )}
+        <div ref={bottomRef}/>
+      </div>
+
+      {/* Input */}
+      <div style={{padding:"10px 12px",borderTop:"1px solid var(--rule)",display:"flex",gap:8,flexShrink:0,background:"var(--paper)"}}>
+        <input
+          ref={inputRef}
+          value={input}
+          onChange={e=>setInput(e.target.value)}
+          onKeyDown={e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); sendMessage(input); } }}
+          placeholder="Type your answer..."
+          style={{flex:1,padding:"10px 12px",fontSize:14,fontFamily:"var(--serif)",color:"var(--ink)",background:"var(--paper2)",border:"1px solid var(--rule)",outline:"none",borderBottom:"1px solid var(--rule)"}}
+        />
+        <button
+          onClick={()=>sendMessage(input)}
+          disabled={!input.trim()||loading}
+          style={{padding:"10px 16px",background:input.trim()?"var(--ink)":"var(--rule)",color:input.trim()?"var(--paper)":"var(--ink4)",border:"none",cursor:input.trim()?"pointer":"default",transition:"all .2s",flexShrink:0}}
+        >
+          <svg width="16" height="14" viewBox="0 0 16 14" fill="none"><path d="M15 7L1 7M9 1l6 6-6 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
 const NL_ROOM_SIZES = {
   small:    { dims:{length:3.5,width:3.2,height:2.4} },
   medium:   { dims:{length:5.0,width:4.0,height:2.5} },
@@ -624,46 +869,73 @@ export default function RecordRoom() {
   }
 
   // ── Landing ────────────────────────────────────────────────────────────────
+  function applyParsed(parsed) {
+    if (parsed.roomSize)          setRoomSize(parsed.roomSize);
+    if (parsed.buildingType)      setBuildingType(parsed.buildingType);
+    if (parsed.floorType)         setFloorType(parsed.floorType);
+    if (parsed.budget>0)          setBudget(parsed.budget);
+    if (parsed.genres?.length>0)  setSelectedGenres(parsed.genres.filter(g=>GENRES.find(x=>x.id===g)));
+    if (parsed.bias!=null)        setBias(parsed.bias);
+    setShowLanding(false);
+    setStep("brief");
+  }
+
   if (showLanding) return (
     <div style={{fontFamily:"var(--serif)",background:"var(--paper)",minHeight:"100vh",color:"var(--ink)"}}>
       <div style={{height:4,background:"var(--ink)",width:"100%"}}/>
-      <div style={{maxWidth:580,margin:"0 auto",padding:"clamp(32px,6vw,64px) 24px 60px"}}>
-        <div className="sl sl1" style={{display:"flex",alignItems:"center",gap:14,marginBottom:32}}>
-          <svg width="44" height="44" viewBox="0 0 44 44" className="vinyl-turn" style={{flexShrink:0}}>
+      <div style={{maxWidth:580,margin:"0 auto",padding:"clamp(24px,5vw,56px) 20px 60px"}}>
+
+        {/* Header */}
+        <div className="sl sl1" style={{display:"flex",alignItems:"center",gap:14,marginBottom:28}}>
+          <svg width="40" height="40" viewBox="0 0 44 44" className="vinyl-turn" style={{flexShrink:0}}>
             <circle cx="22" cy="22" r="20" fill="#EEE8D8" stroke="#DDD5C0" strokeWidth="1.5"/>
             <circle cx="22" cy="22" r="13" fill="none" stroke="rgba(17,16,8,.06)" strokeWidth="1"/>
             <circle cx="22" cy="22" r="8"  fill="none" stroke="rgba(17,16,8,.06)" strokeWidth="1"/>
-            <circle cx="22" cy="22" r="3.5"fill="#111008" opacity=".7"/>
-            <circle cx="22" cy="22" r="1.8"fill="#111008"/>
+            <circle cx="22" cy="22" r="3.5" fill="#111008" opacity=".7"/>
+            <circle cx="22" cy="22" r="1.8" fill="#111008"/>
           </svg>
           <div>
             <div style={{fontSize:10,letterSpacing:".2em",textTransform:"uppercase",color:"var(--amber)",fontFamily:"var(--mono)",lineHeight:1}}>Record Room</div>
             <div style={{fontSize:9,letterSpacing:".1em",textTransform:"uppercase",color:"var(--ink4)",marginTop:4,fontFamily:"var(--mono)"}}>Find Your Sound · Beta</div>
           </div>
+          <div style={{marginLeft:"auto",display:"flex",gap:4}}>
+            {Object.values(LOCALES).map(l=>(
+              <button key={l.id} onClick={()=>setLocaleId(l.id)} title={l.label} style={{width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",background:localeId===l.id?"var(--ink)":"transparent",border:"none",cursor:"pointer",fontSize:13}}>
+                {l.flag}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="sl sl2" style={{marginBottom:40}}>
-          <h1 style={{fontFamily:"var(--serif)",fontSize:"clamp(40px,9vw,72px)",fontWeight:400,color:"var(--ink)",lineHeight:.95,letterSpacing:"-.04em",marginBottom:20}}>
+
+        {/* Title — compact on mobile */}
+        <div className="sl sl2" style={{marginBottom:28}}>
+          <h1 style={{fontFamily:"var(--serif)",fontSize:isMobile?"clamp(48px,14vw,64px)":"clamp(40px,9vw,72px)",fontWeight:400,color:"var(--ink)",lineHeight:.92,letterSpacing:"-.04em",marginBottom:14}}>
             Record<br/>
             <em style={{color:"var(--amber)",fontStyle:"italic"}}>Room.</em>
           </h1>
-          <p style={{fontSize:"clamp(14px,2vw,16px)",color:"var(--ink3)",lineHeight:1.7,maxWidth:420,fontFamily:"var(--serif)",fontWeight:300}}>
-            Tell us about your room, your music, and your budget. We'll tell you what kind of system suits you — and which dealers to visit.
-          </p>
-          <p style={{fontSize:12,color:"var(--ink4)",fontFamily:"var(--mono)",lineHeight:1.6,marginTop:10}}>
-            No specific models. No compatibility guesswork. Just honest direction.
+          <p style={{fontSize:isMobile?14:15,color:"var(--ink3)",lineHeight:1.65,fontFamily:"var(--serif)",fontWeight:300}}>
+            {isMobile
+              ? "A few quick questions. We'll point you in the right direction."
+              : "Tell us about your room, your music, and your budget. We'll tell you what kind of system suits you — and which dealers to visit."}
           </p>
         </div>
-        <div className="sl sl3" style={{marginBottom:40}}>
-          <NLInput onResult={(parsed)=>{
-              if (parsed.roomSize) setRoomSize(parsed.roomSize);
-              if (parsed.buildingType) setBuildingType(parsed.buildingType);
-              if (parsed.floorType) setFloorType(parsed.floorType);
-              if (parsed.budget>0) setBudget(parsed.budget);
-              if (parsed.genres?.length>0) setSelectedGenres(parsed.genres.filter(g=>GENRES.find(x=>x.id===g)));
-              if (parsed.bias!=null) setBias(parsed.bias);
-              setShowLanding(false);
-              setStep("brief");
-            }} apiKey={import.meta.env.VITE_ANTHROPIC_KEY} localeId={localeId}/>
+
+        {/* ── Mobile: Chat ── Desktop: NL textarea ── */}
+        <div className="sl sl3" style={{marginBottom:32}}>
+          {isMobile ? (
+            <ChatBot
+              apiKey={import.meta.env.VITE_ANTHROPIC_KEY}
+              localeId={localeId}
+              onResult={applyParsed}
+              onSkip={()=>setShowLanding(false)}
+            />
+          ) : (
+            <NLInput
+              onResult={applyParsed}
+              apiKey={import.meta.env.VITE_ANTHROPIC_KEY}
+              localeId={localeId}
+            />
+          )}
 
           <div style={{display:"flex",alignItems:"center",gap:12,margin:"20px 0"}}>
             <div style={{flex:1,height:1,background:"var(--rule)"}}/>
@@ -671,24 +943,18 @@ export default function RecordRoom() {
             <div style={{flex:1,height:1,background:"var(--rule)"}}/>
           </div>
 
-          <button onClick={()=>setShowLanding(false)} style={{display:"flex",alignItems:"center",gap:16,padding:"16px 28px",background:"transparent",color:"var(--ink)",border:"1px solid var(--ink)",cursor:"pointer",fontFamily:"var(--mono)",fontSize:11,letterSpacing:".14em",textTransform:"uppercase",width:"100%",maxWidth:340,justifyContent:"space-between"}}>
+          <button onClick={()=>setShowLanding(false)} style={{display:"flex",alignItems:"center",gap:16,padding:"16px 24px",background:"transparent",color:"var(--ink)",border:"1px solid var(--ink)",cursor:"pointer",fontFamily:"var(--mono)",fontSize:11,letterSpacing:".14em",textTransform:"uppercase",width:"100%",maxWidth:340,justifyContent:"space-between"}}>
             <span>Step-by-step guide</span>
-            <svg width="18" height="12" viewBox="0 0 20 12" fill="none"><path d="M13 1l6 5-6 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><line x1="19" y1="6" x2="1" y2="6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
+            <svg width="16" height="10" viewBox="0 0 20 12" fill="none"><path d="M13 1l6 5-6 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><line x1="19" y1="6" x2="1" y2="6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
           </button>
           <div style={{marginTop:8,fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)"}}>New to hi-fi? <span style={{color:"var(--ink2)"}}>Start here.</span> We ask the right questions.</div>
         </div>
-        <div className="sl sl4" style={{display:"flex",gap:6,flexWrap:"wrap",paddingTop:20,borderTop:"1px solid var(--rule)",marginBottom:24}}>
-          {Object.values(LOCALES).map(l=>(
-            <button key={l.id} onClick={()=>setLocaleId(l.id)} style={{display:"flex",alignItems:"center",gap:6,padding:"7px 12px",cursor:"pointer",background:localeId===l.id?"var(--ink)":"transparent",border:`1px solid ${localeId===l.id?"var(--ink)":"var(--rule)"}`,fontFamily:"var(--mono)",fontSize:10,color:localeId===l.id?"var(--paper)":"var(--ink3)",transition:"all .15s"}}>
-              <span style={{fontSize:14}}>{l.flag}</span><span>{l.label}</span>
-            </button>
-          ))}
-        </div>
-        <div className="sl sl5" style={{display:"flex",gap:16,alignItems:"center"}}>
+
+        <div className="sl sl4" style={{display:"flex",gap:16,alignItems:"center",paddingTop:20,borderTop:"1px solid var(--rule)"}}>
           <a href={TALLY_URL} target="_blank" rel="noopener noreferrer" style={{fontSize:10,color:"var(--ink3)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",textDecoration:"none",borderBottom:"1px solid var(--rule)"}}>Feedback</a>
           <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer" style={{fontSize:10,color:"var(--ink3)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",textDecoration:"none",borderBottom:"1px solid var(--rule)"}}>TikTok</a>
           <a href={SUBSTACK_URL} target="_blank" rel="noopener noreferrer" style={{fontSize:10,color:"var(--ink3)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",textDecoration:"none",borderBottom:"1px solid var(--rule)"}}>Substack</a>
-          <span style={{marginLeft:"auto",fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)"}}>v5 · Find Your Sound</span>
+          <span style={{marginLeft:"auto",fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)"}}>Record Room · v1</span>
         </div>
       </div>
     </div>
@@ -728,10 +994,11 @@ export default function RecordRoom() {
                   {ROOM_SIZES.map(size=>{
                     const active = roomSize===size.id;
                     return (
-                      <button key={size.id} onClick={()=>setRoomSize(size.id)} style={{padding:"18px 16px",textAlign:"left",cursor:"pointer",border:`2px solid ${active?"var(--ink)":"var(--rule)"}`,background:active?"var(--ink)":"var(--paper2)",transition:"all .2s"}}>
-                        <div style={{fontFamily:"var(--serif)",fontSize:20,color:active?"var(--paper)":"var(--ink)",lineHeight:1,marginBottom:4}}>{size.label}</div>
+                      <button key={size.id} onClick={()=>setRoomSize(size.id)} style={{padding:"18px 16px",textAlign:"left",cursor:"pointer",border:`2px solid ${active?(size.isLibrary?"var(--amber)":"var(--ink)"):"var(--rule)"}`,background:active?(size.isLibrary?"var(--ink)":"var(--ink)"):"var(--paper2)",transition:"all .2s"}}>
+                        <div style={{fontFamily:"var(--serif)",fontSize:size.isLibrary?16:20,color:active?"var(--paper)":"var(--ink)",lineHeight:1,marginBottom:4}}>{size.label}</div>
                         <div style={{fontSize:10,color:active?"rgba(245,242,232,.7)":"var(--ink4)",fontFamily:"var(--mono)",marginBottom:6}}>{size.sub}</div>
                         <div style={{fontSize:9,color:active?"rgba(245,242,232,.45)":"var(--ink4)",fontFamily:"var(--mono)"}}>{size.desc}</div>
+                        {size.isLibrary&&<div style={{marginTop:6,fontSize:8,color:active?"var(--amber)":"var(--amber)",fontFamily:"var(--mono)",letterSpacing:".08em"}}>BOOKSHELF SPEAKERS RECOMMENDED</div>}
                       </button>
                     );
                   })}
@@ -844,7 +1111,18 @@ export default function RecordRoom() {
                 </div>
               </div>
 
-              {budget>0&&budgetSplit&&(
+              {budget>0&&isStarterBudget(budget)&&(
+                <div className="fu" style={{padding:"18px 20px",background:"rgba(139,32,32,.04)",border:"1px solid rgba(139,32,32,.15)",marginBottom:8}}>
+                  <div style={{fontSize:9,color:"var(--red)",letterSpacing:".14em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:10}}>Starter budget</div>
+                  <p style={{fontFamily:"var(--serif)",fontSize:14,color:"var(--ink2)",lineHeight:1.7,marginBottom:12}}>
+                    At {fmt(budget,loc)}, the brands in this tool — Rega, Harbeth, Naim — are mostly out of reach. That's not a problem. Every audiophile starts somewhere.
+                  </p>
+                  <p style={{fontFamily:"var(--serif)",fontSize:13,color:"var(--ink3)",lineHeight:1.65,fontStyle:"italic"}}>
+                    <strong style={{fontStyle:"normal"}}>Richer Sounds</strong> is the right first stop — they stock starter systems from £300 and their staff genuinely know hi-fi. A Rega Planar 1 Plus, a small integrated, and a pair of bookshelf speakers will get you started properly. Upgrade piece by piece from there.
+                  </p>
+                </div>
+              )}
+              {budget>0&&budgetSplit&&!isStarterBudget(budget)&&(
                 <div className="fu" style={{padding:"18px 20px",background:"var(--paper2)",border:"1px solid var(--rule)",marginBottom:8}}>
                   <div style={{fontSize:9,color:"var(--ink4)",letterSpacing:".14em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:12}}>How it splits out</div>
                   {[
@@ -872,8 +1150,25 @@ export default function RecordRoom() {
             <div>
               <StepHeading title="Your System Brief"/>
 
+              {/* Starter budget override */}
+              {isStarterBudget(budget)&&(
+                <div className="fu" style={{marginBottom:24,padding:"20px 22px",background:"rgba(139,32,32,.04)",border:"1px solid rgba(139,32,32,.15)"}}>
+                  <div style={{fontSize:9,color:"var(--red)",letterSpacing:".2em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:10}}>Starter budget — honest advice</div>
+                  <p style={{fontFamily:"var(--serif)",fontSize:14,color:"var(--ink2)",lineHeight:1.75,marginBottom:12}}>
+                    At {fmt(budget,loc)}, the brands in this guide are mostly aspirational. That's fine — use this brief to understand the direction, then start with what you can afford.
+                  </p>
+                  <p style={{fontFamily:"var(--serif)",fontSize:13,color:"var(--ink3)",lineHeight:1.65,fontStyle:"italic",marginBottom:12}}>
+                    <strong style={{fontStyle:"normal"}}>The practical route:</strong> Visit Richer Sounds or Audio T first. A Rega Planar 1 Plus (~£500), a small integrated amplifier with built-in phono (~£250), and a pair of bookshelf speakers (~£200) will give you a proper hi-fi system. Upgrade one component at a time as budget allows — the signal chain in this guide tells you which direction to head.
+                  </p>
+                  <div style={{paddingTop:12,borderTop:"1px solid rgba(139,32,32,.12)"}}>
+                    <div style={{fontSize:9,color:"var(--red)",letterSpacing:".12em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:6}}>Where to start</div>
+                    <p style={{fontSize:13,color:"var(--ink2)",fontFamily:"var(--serif)",lineHeight:1.6}}>Richer Sounds (nationwide) · Audio T (nationwide) · Your nearest independent dealer below</p>
+                  </div>
+                </div>
+              )}
+
               {/* Character summary */}
-              <div style={{marginBottom:24,padding:"24px 22px",background:"var(--ink)"}}>
+              {!isStarterBudget(budget)&&<div style={{marginBottom:24,padding:"24px 22px",background:"var(--ink)"}}>
                 <div style={{fontSize:9,color:"rgba(245,242,232,.4)",letterSpacing:".2em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:10}}>Your system character</div>
                 <div style={{fontFamily:"var(--serif)",fontSize:"clamp(24px,5vw,36px)",color:"var(--amber)",lineHeight:1,marginBottom:12}}>
                   {character==="warm"?"Warm & Musical":character==="detailed"?"Detailed & Analytical":"Balanced & Honest"}
@@ -885,7 +1180,34 @@ export default function RecordRoom() {
                     ? "Your preferences point toward a detailed, analytical system. You want to hear everything in the recording. This rewards well-recorded music and careful system matching — and you'll need to spend more time on room acoustics than most."
                     : "Your preferences point toward a balanced system — neither warm and coloured nor cold and clinical. You want music to sound natural and engaging across all the genres you love. A wide range of well-made British and European equipment will suit you."}
                 </p>
-              </div>
+              {!isStarterBudget(budget)&&</div>}
+
+              {/* Library / study scenario guidance */}
+              {(()=>{
+                const room = ROOM_SIZES.find(r=>r.id===roomSize);
+                if (!room?.isLibrary) return null;
+                return (
+                  <div className="fu" style={{marginBottom:20,padding:"16px 18px",borderLeft:"3px solid var(--amber)",background:"rgba(196,98,26,.05)"}}>
+                    <div style={{fontSize:9,color:"var(--amber)",letterSpacing:".16em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:6}}>Library & Study Setup</div>
+                    <p style={{fontSize:13,color:"var(--ink2)",fontFamily:"var(--serif)",lineHeight:1.7,marginBottom:10}}>
+                      Books are one of the best natural acoustic treatments available — a room lined with shelves absorbs flutter echo and diffuses early reflections beautifully. This is an excellent listening environment.
+                    </p>
+                    <div style={{display:"grid",gap:6}}>
+                      {[
+                        "Bookshelf speakers only — compact standmounts or monitors. The Harbeth P3ESR and Graham Audio LS3/5A were literally designed for this kind of use.",
+                        "Front-ported or sealed enclosures if speakers will sit close to the rear wall of a shelving unit. Rear-ported designs need breathing room.",
+                        "A component isolation platform under the turntable is important — bookcase shelves transmit vibration from footfall and speaker output directly into the stylus.",
+                        "Compact integrated amplifiers with a built-in phono stage keep cable runs short and reduce clutter on the shelf.",
+                      ].map((tip,i)=>(
+                        <div key={i} style={{display:"flex",gap:10,fontSize:12,color:"var(--ink2)",fontFamily:"var(--serif)",lineHeight:1.6}}>
+                          <span style={{color:"var(--amber)",flexShrink:0}}>→</span>
+                          <span>{tip}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Building isolation warning */}
               {bld?.isoRequired&&(
@@ -904,7 +1226,9 @@ export default function RecordRoom() {
                   {cat:"amplifier", label:"Amplification"},
                   {cat:"speakers",  label:"Speakers"},
                 ].map(({cat,label})=>{
-                  const profile = BRAND_PROFILES[cat]?.[character];
+                  const isLib = ROOM_SIZES.find(r=>r.id===roomSize)?.isLibrary;
+                  const profileKey = (cat==="speakers" && isLib) ? "speakers_library" : cat;
+                  const profile = BRAND_PROFILES[profileKey]?.[character] || BRAND_PROFILES[cat]?.[character];
                   if (!profile) return null;
                   return (
                     <div key={cat} className="fu" style={{marginBottom:12,padding:"16px 18px",borderLeft:"3px solid var(--amber)",background:"var(--paper2)"}}>
@@ -933,6 +1257,19 @@ export default function RecordRoom() {
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* High budget dealer advisory */}
+              {budget>=15000&&(
+                <div className="fu" style={{marginBottom:16,padding:"22px 22px",background:"var(--ink)"}}>
+                  <div style={{fontSize:9,color:"rgba(245,242,232,.4)",letterSpacing:".2em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:10}}>A note on reference-level systems</div>
+                  <p style={{fontFamily:"var(--serif)",fontSize:14,color:"var(--paper)",lineHeight:1.75,marginBottom:10}}>
+                    At this budget, this tool is a starting point — not a finishing line.
+                  </p>
+                  <p style={{fontFamily:"var(--serif)",fontSize:13,color:"rgba(245,242,232,.65)",lineHeight:1.7,fontStyle:"italic"}}>
+                    The differences between reference components are real but personal — your room, your ears, and the specific synergies between components at this level can only be confirmed through extended listening. A specialist dealer will demo your shortlist and in many cases loan equipment for a home trial. That relationship is what you are really buying at this level.
+                  </p>
                 </div>
               )}
 
