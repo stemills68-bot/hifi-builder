@@ -1,5 +1,5 @@
 // ╔══════════════════════════════════════════════════════════════════╗
-// ║  Record Room — VERSION 5                                ║
+// ║  Record Room — VERSION 5.1                                ║
 // ║  Date: 29 March 2026                                            ║
 // ║                                                                  ║
 // ║  Concept: Brand advisor without catalogue                       ║
@@ -954,7 +954,7 @@ export default function RecordRoom() {
           <a href={TALLY_URL} target="_blank" rel="noopener noreferrer" style={{fontSize:10,color:"var(--ink3)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",textDecoration:"none",borderBottom:"1px solid var(--rule)"}}>Feedback</a>
           <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer" style={{fontSize:10,color:"var(--ink3)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",textDecoration:"none",borderBottom:"1px solid var(--rule)"}}>TikTok</a>
           <a href={SUBSTACK_URL} target="_blank" rel="noopener noreferrer" style={{fontSize:10,color:"var(--ink3)",fontFamily:"var(--mono)",letterSpacing:".1em",textTransform:"uppercase",textDecoration:"none",borderBottom:"1px solid var(--rule)"}}>Substack</a>
-          <span style={{marginLeft:"auto",fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)"}}>Record Room · v1</span>
+          <span style={{marginLeft:"auto",fontSize:9,color:"var(--ink4)",fontFamily:"var(--mono)"}}>Record Room · v5.1</span>
         </div>
       </div>
     </div>
@@ -1168,19 +1168,21 @@ export default function RecordRoom() {
               )}
 
               {/* Character summary */}
-              {!isStarterBudget(budget)&&<div style={{marginBottom:24,padding:"24px 22px",background:"var(--ink)"}}>
-                <div style={{fontSize:9,color:"rgba(245,242,232,.4)",letterSpacing:".2em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:10}}>Your system character</div>
-                <div style={{fontFamily:"var(--serif)",fontSize:"clamp(24px,5vw,36px)",color:"var(--amber)",lineHeight:1,marginBottom:12}}>
-                  {character==="warm"?"Warm & Musical":character==="detailed"?"Detailed & Analytical":"Balanced & Honest"}
+              {!isStarterBudget(budget)&&(
+                <div style={{marginBottom:24,padding:"24px 22px",background:"var(--ink)"}}>
+                  <div style={{fontSize:9,color:"rgba(245,242,232,.4)",letterSpacing:".2em",textTransform:"uppercase",fontFamily:"var(--mono)",marginBottom:10}}>Your system character</div>
+                  <div style={{fontFamily:"var(--serif)",fontSize:"clamp(24px,5vw,36px)",color:"var(--amber)",lineHeight:1,marginBottom:12}}>
+                    {character==="warm"?"Warm & Musical":character==="detailed"?"Detailed & Analytical":"Balanced & Honest"}
+                  </div>
+                  <p style={{fontFamily:"var(--serif)",fontSize:14,color:"rgba(245,242,232,.75)",lineHeight:1.75}}>
+                    {character==="warm"
+                      ? "Your room, your music, and your listening preference all point toward a warm, musical system. British brands with a history of natural, fatigue-free presentation will suit you best. The goal is a system you can listen to for hours."
+                      : character==="detailed"
+                      ? "Your preferences point toward a detailed, analytical system. You want to hear everything in the recording. This rewards well-recorded music and careful system matching — and you'll need to spend more time on room acoustics than most."
+                      : "Your preferences point toward a balanced system — neither warm and coloured nor cold and clinical. You want music to sound natural and engaging across all the genres you love. A wide range of well-made British and European equipment will suit you."}
+                  </p>
                 </div>
-                <p style={{fontFamily:"var(--serif)",fontSize:14,color:"rgba(245,242,232,.75)",lineHeight:1.75}}>
-                  {character==="warm"
-                    ? "Your room, your music, and your listening preference all point toward a warm, musical system. British brands with a history of natural, fatigue-free presentation will suit you best. The goal is a system you can listen to for hours."
-                    : character==="detailed"
-                    ? "Your preferences point toward a detailed, analytical system. You want to hear everything in the recording. This rewards well-recorded music and careful system matching — and you'll need to spend more time on room acoustics than most."
-                    : "Your preferences point toward a balanced system — neither warm and coloured nor cold and clinical. You want music to sound natural and engaging across all the genres you love. A wide range of well-made British and European equipment will suit you."}
-                </p>
-              {!isStarterBudget(budget)&&</div>}
+              )}
 
               {/* Library / study scenario guidance */}
               {(()=>{
